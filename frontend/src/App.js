@@ -14,6 +14,10 @@ import MembershipTerms from "./pages/policies/MembershipTerms";
 import ContactPage from "./pages/policies/ContactPage";
 import DeliveryWorks from "./pages/policies/DeliveryWorks";
 import MembershipDetail from "./pages/membership/MembershipDetail";
+import ShopBoxes from "./pages/ShopBoxes";
+import BuildYourBox from "./pages/BuildYourBox";
+import About from "./pages/About";
+import FAQ from "./pages/FAQ";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { CartProvider } from "./contexts/CartContext";
 import { Toaster } from "./components/ui/sonner";
@@ -40,6 +44,10 @@ function App() {
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<LandingPage />} />
+              <Route path="/shop-boxes" element={<ShopBoxes />} />
+              <Route path="/build-your-box" element={<BuildYourBox />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/faq" element={<FAQ />} />
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/checkout/success" element={<Success />} />
               <Route path="/checkout/cancel" element={<Cancel />} />
@@ -50,6 +58,7 @@ function App() {
               <Route path="/membership-terms" element={<MembershipTerms />} />
               <Route path="/contact" element={<ContactPage />} />
               <Route path="/delivery" element={<DeliveryWorks />} />
+              <Route path="/membership/:plan" element={<MembershipDetail />} />
               <Route path="/admin/login" element={<Login />} />
               <Route
                 path="/admin"
@@ -69,4 +78,3 @@ function App() {
 }
 
 export default App;
-

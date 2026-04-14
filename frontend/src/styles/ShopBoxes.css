@@ -1,0 +1,165 @@
+/* Shop Boxes Page */
+.shop-boxes-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8f8f8 0%, #ffffff 100%);
+  padding: 2rem 1rem;
+}
+
+.shop-boxes-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.shop-hero {
+  text-align: center;
+  padding: 3rem 0;
+  margin-bottom: 3rem;
+}
+
+.shop-hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: #2b2b2b;
+  margin-bottom: 1rem;
+}
+
+.shop-hero p {
+  font-size: 1.25rem;
+  color: #666;
+}
+
+.boxes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.box-card {
+  padding: 2.5rem;
+  border: 2px solid #e5e7eb;
+  position: relative;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.box-card:hover {
+  border-color: #8B0000;
+  box-shadow: 0 12px 32px rgba(139, 0, 0, 0.15);
+  transform: translateY(-5px);
+}
+
+.box-card.highlight {
+  border-color: #8B0000;
+  border-width: 3px;
+  background: linear-gradient(135deg, #fff 0%, #fff5f5 100%);
+}
+
+.best-choice-badge {
+  position: absolute;
+  top: -12px;
+  right: 20px;
+  background: #8B0000;
+  color: white;
+  padding: 0.5rem 1.5rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.box-icon {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.box-card h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2b2b2b;
+  margin-bottom: 0.75rem;
+}
+
+.box-tagline {
+  font-size: 1.125rem;
+  color: #8B0000;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.box-description {
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.box-features {
+  flex: 1;
+  margin-bottom: 2rem;
+}
+
+.box-feature-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  color: #2b2b2b;
+}
+
+.box-feature-item svg {
+  color: #8B0000;
+  flex-shrink: 0;
+}
+
+.box-footer {
+  margin-top: auto;
+}
+
+.box-price {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2b2b2b;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.shop-btn {
+  width: 100%;
+  padding: 1rem 2rem;
+  background: #2b2b2b;
+  color: white;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.shop-btn:hover {
+  background: #3b3b3b;
+}
+
+.shop-btn.highlight {
+  background: #8B0000;
+}
+
+.shop-btn.highlight:hover {
+  background: #a00000;
+}
+
+@media (max-width: 768px) {
+  .shop-hero h1 {
+    font-size: 2.5rem;
+  }
+  
+  .boxes-grid {
+    grid-template-columns: 1fr;
+  }
+}

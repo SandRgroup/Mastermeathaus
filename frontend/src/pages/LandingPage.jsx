@@ -218,6 +218,29 @@ const LandingPage = () => {
 
   return (
     <div className="butcher-page">
+      {/* HEADER NAV */}
+      <header className="main-header">
+        <div className="container">
+          <div className="header-wrapper">
+            <img 
+              src="https://customer-assets.emergentagent.com/job_wagyu-vault/artifacts/ebh2rfed_IMG_2421.PNG" 
+              alt="Mastermeatbox Logo"
+              className="header-logo"
+              onClick={() => navigate('/')}
+              style={{ cursor: 'pointer', height: '50px' }}
+            />
+            
+            <nav className="main-nav">
+              <a href="/shop-boxes">Shop Boxes</a>
+              <a href="/build-your-box">Build Your Box</a>
+              <a href="/membership/premium">Subscriptions</a>
+              <a href="/about">About</a>
+              <a href="/faq">FAQ</a>
+            </nav>
+          </div>
+        </div>
+      </header>
+
       {/* Cart Icon */}
       <button className="cart-icon-btn" onClick={() => setIsOpen(true)}>
         <ShoppingCart size={24} />
