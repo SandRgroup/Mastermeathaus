@@ -150,6 +150,7 @@ class CartItem(BaseModel):
 class CheckoutRequest(BaseModel):
     cart_items: List[CartItem]
     origin_url: str
+    discount_code: Optional[str] = None
 
 class PaymentTransaction(BaseModel):
     id: str = Field(default_factory=lambda: str(ObjectId()), alias="_id")
@@ -161,6 +162,33 @@ class PaymentTransaction(BaseModel):
     metadata: dict
     user_email: Optional[str] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class DiscountCode(BaseModel):
+    id: str = Field(default_factory=lambda: str(ObjectId()), alias="_id")
+    code: str
+    description: str
+    type: str  # "percentage" or "fixed"
+    value: float  # percentage (0-100) or fixed amount
+    min_purchase: float = 0.0
+    max_uses: Optional[int] = None
+    used_count: int = 0
+    expires_at: Optional[datetime] = None
+    active: bool = True
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class DiscountCodeCreate(BaseModel):
+    code: str
+    description: str
+    type: str
+    value: float
+    min_purchase: float = 0.0
+    max_uses: Optional[int] = None
+    expires_at: Optional[datetime] = None
+    active: bool = True
+
+class ValidateDiscountRequest(BaseModel):
+    code: str
+    cart_total: float
 
 # Initialize Stripe
 stripe_checkout = None
@@ -278,6 +306,86 @@ async def delete_membership(membership_id: str, user: dict = Depends(get_current
     await db.memberships.delete_one({"_id": ObjectId(membership_id)})
     return {"message": "Membership deleted"}
 
+# Discount Code Routes
+@api_router.get("/discount-codes", response_model=List[DiscountCode])
+async def get_discount_codes(user: dict = Depends(get_current_user)):
+    codes = await db.discount_codes.find().to_list(1000)
+    return [DiscountCode(**{**c, "_id": str(c["_id"])}) for c in codes]
+
+@api_router.post("/discount-codes", response_model=DiscountCode)
+async def create_discount_code(code: DiscountCodeCreate, user: dict = Depends(get_current_user)):
+    # Check if code already exists
+    existing = await db.discount_codes.find_one({"code": code.code.upper()})
+    if existing:
+        raise HTTPException(status_code=400, detail="Discount code already exists")
+    
+    code_dict = code.dict()
+    code_dict["code"] = code_dict["code"].upper()
+    code_dict["used_count"] = 0
+    code_dict["created_at"] = datetime.now(timezone.utc)
+    
+    result = await db.discount_codes.insert_one(code_dict)
+    code_dict["_id"] = str(result.inserted_id)
+    return DiscountCode(**code_dict)
+
+@api_router.put("/discount-codes/{code_id}", response_model=DiscountCode)
+async def update_discount_code(code_id: str, code: DiscountCodeCreate, user: dict = Depends(get_current_user)):
+    code_dict = code.dict()
+    code_dict["code"] = code_dict["code"].upper()
+    
+    await db.discount_codes.update_one(
+        {"_id": ObjectId(code_id)},
+        {"$set": code_dict}
+    )
+    updated = await db.discount_codes.find_one({"_id": ObjectId(code_id)})
+    return DiscountCode(**{**updated, "_id": str(updated["_id"])})
+
+@api_router.delete("/discount-codes/{code_id}")
+async def delete_discount_code(code_id: str, user: dict = Depends(get_current_user)):
+    await db.discount_codes.delete_one({"_id": ObjectId(code_id)})
+    return {"message": "Discount code deleted"}
+
+@api_router.post("/validate-discount")
+async def validate_discount(request: ValidateDiscountRequest):
+    code = await db.discount_codes.find_one({"code": request.code.upper()})
+    
+    if not code:
+        raise HTTPException(status_code=404, detail="Invalid discount code")
+    
+    if not code.get("active", True):
+        raise HTTPException(status_code=400, detail="This discount code is no longer active")
+    
+    # Check expiry
+    if code.get("expires_at") and datetime.now(timezone.utc) > code["expires_at"]:
+        raise HTTPException(status_code=400, detail="This discount code has expired")
+    
+    # Check max uses
+    if code.get("max_uses") and code.get("used_count", 0) >= code["max_uses"]:
+        raise HTTPException(status_code=400, detail="This discount code has reached its usage limit")
+    
+    # Check minimum purchase
+    if request.cart_total < code.get("min_purchase", 0):
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Minimum purchase of ${code.get('min_purchase', 0):.2f} required"
+        )
+    
+    # Calculate discount
+    discount_amount = 0.0
+    if code["type"] == "percentage":
+        discount_amount = request.cart_total * (code["value"] / 100)
+    else:  # fixed
+        discount_amount = min(code["value"], request.cart_total)
+    
+    return {
+        "valid": True,
+        "code": code["code"],
+        "type": code["type"],
+        "value": code["value"],
+        "discount_amount": round(discount_amount, 2),
+        "description": code.get("description", "")
+    }
+
 # Image Upload Route
 @api_router.post("/upload/image")
 async def upload_image(file: UploadFile = File(...), user: dict = Depends(get_current_user)):
@@ -322,13 +430,50 @@ async def create_checkout_session(checkout_req: CheckoutRequest, request: Reques
                 "subscribe": item.subscribe
             })
         
+        # Apply discount code if provided
+        discount_amount = 0.0
+        discount_info = None
+        
+        if checkout_req.discount_code:
+            code = await db.discount_codes.find_one({"code": checkout_req.discount_code.upper()})
+            
+            if code and code.get("active", True):
+                # Validate code
+                if not code.get("expires_at") or datetime.now(timezone.utc) <= code["expires_at"]:
+                    if not code.get("max_uses") or code.get("used_count", 0) < code["max_uses"]:
+                        if total_amount >= code.get("min_purchase", 0):
+                            # Calculate discount
+                            if code["type"] == "percentage":
+                                discount_amount = total_amount * (code["value"] / 100)
+                            else:  # fixed
+                                discount_amount = min(code["value"], total_amount)
+                            
+                            discount_info = {
+                                "code": code["code"],
+                                "type": code["type"],
+                                "value": code["value"],
+                                "amount": discount_amount
+                            }
+                            
+                            # Increment usage count
+                            await db.discount_codes.update_one(
+                                {"_id": code["_id"]},
+                                {"$inc": {"used_count": 1}}
+                            )
+        
+        # Apply discount to total
+        final_amount = max(0, total_amount - discount_amount)
+        
+        if discount_info:
+            metadata["discount"] = discount_info
+        
         # Create success/cancel URLs
         success_url = f"{checkout_req.origin_url}/checkout/success?session_id={{CHECKOUT_SESSION_ID}}"
         cancel_url = f"{checkout_req.origin_url}/checkout/cancel"
         
         # Create Stripe checkout session
         checkout_request = CheckoutSessionRequest(
-            amount=round(total_amount, 2),
+            amount=round(final_amount, 2),
             currency="usd",
             success_url=success_url,
             cancel_url=cancel_url,
@@ -340,7 +485,10 @@ async def create_checkout_session(checkout_req: CheckoutRequest, request: Reques
         # Create payment transaction record
         transaction = {
             "session_id": session.session_id,
-            "amount": total_amount,
+            "amount": final_amount,
+            "original_amount": total_amount,
+            "discount_amount": discount_amount,
+            "discount_code": checkout_req.discount_code.upper() if checkout_req.discount_code else None,
             "currency": "usd",
             "status": "pending",
             "payment_status": "initiated",
@@ -349,7 +497,12 @@ async def create_checkout_session(checkout_req: CheckoutRequest, request: Reques
         }
         await db.payment_transactions.insert_one(transaction)
         
-        return {"url": session.url, "session_id": session.session_id}
+        return {
+            "url": session.url, 
+            "session_id": session.session_id,
+            "discount_applied": discount_amount > 0,
+            "discount_amount": round(discount_amount, 2) if discount_amount > 0 else None
+        }
     
     except Exception as e:
         logger.error(f"Checkout error: {str(e)}")
