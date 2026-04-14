@@ -234,7 +234,8 @@ const LandingPage = () => {
             <nav className="main-nav">
               <a href="/shop-boxes">Shop Boxes</a>
               <a href="/build-your-box">Build Your Box</a>
-              <a href="/membership/premium">Subscriptions</a>
+              <a href="/">Shop Cuts</a>
+              <a href="/membership/premium">Membership</a>
               <a href="/about">About</a>
               <a href="/faq">FAQ</a>
             </nav>

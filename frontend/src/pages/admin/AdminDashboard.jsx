@@ -6,7 +6,8 @@ import ProductsManager from '../../components/admin/ProductsManager';
 import MembershipsManager from '../../components/admin/MembershipsManager';
 import DiscountsManager from '../../components/admin/DiscountsManager';
 import BoxesManager from '../../components/admin/BoxesManager';
-import { LogOut, Package, CreditCard, Tag, Box } from 'lucide-react';
+import MenuManager from '../../components/admin/MenuManager';
+import { LogOut, Package, CreditCard, Tag, Box, Menu } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import '../../styles/Admin.css';
 
@@ -46,7 +47,11 @@ const AdminDashboard = () => {
             </TabsTrigger>
             <TabsTrigger value="discounts" className="tab-trigger">
               <Tag size={18} />
-              Discount Codes
+              Discounts
+            </TabsTrigger>
+            <TabsTrigger value="menu" className="tab-trigger">
+              <Menu size={18} />
+              Menu/CTAs
             </TabsTrigger>
           </TabsList>
           
@@ -64,6 +69,10 @@ const AdminDashboard = () => {
           
           <TabsContent value="discounts">
             <DiscountsManager />
+          </TabsContent>
+          
+          <TabsContent value="menu">
+            <MenuManager />
           </TabsContent>
         </Tabs>
       </div>

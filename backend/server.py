@@ -164,6 +164,23 @@ class SteakBoxCreate(BaseModel):
     icon: str = "🥩"
     highlight: bool = False
 
+class MenuItem(BaseModel):
+    id: str = Field(default_factory=lambda: str(ObjectId()), alias="_id")
+    label: str
+    link: str
+    position: str = "header"  # header, hero, footer
+    order: int = 0
+    enabled: bool = True
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class MenuItemCreate(BaseModel):
+    label: str
+    link: str
+    position: str = "header"
+    order: int = 0
+    enabled: bool = True
+
+
 class CartItem(BaseModel):
     product_id: str
     product_name: str
@@ -393,6 +410,37 @@ async def delete_steak_box(box_id: str):
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Box not found")
     return {"message": "Box deleted successfully"}
+
+# Menu Items Routes
+@api_router.get("/menu-items", response_model=List[MenuItem])
+async def get_menu_items():
+    items = await db.menu_items.find({}, {"_id": 0}).sort("order", 1).to_list(100)
+    return items
+
+@api_router.post("/menu-items", response_model=MenuItem, dependencies=[Depends(get_current_user)])
+async def create_menu_item(item: MenuItemCreate):
+    item_dict = item.model_dump()
+    item_dict["created_at"] = datetime.now(timezone.utc)
+    result = await db.menu_items.insert_one(item_dict)
+    created = await db.menu_items.find_one({"_id": result.inserted_id}, {"_id": 0})
+    return created
+
+@api_router.put("/menu-items/{item_id}", response_model=MenuItem, dependencies=[Depends(get_current_user)])
+async def update_menu_item(item_id: str, item: MenuItemCreate):
+    item_dict = item.model_dump()
+    await db.menu_items.update_one({"id": item_id}, {"$set": item_dict})
+    updated = await db.menu_items.find_one({"id": item_id}, {"_id": 0})
+    if not updated:
+        raise HTTPException(status_code=404, detail="Menu item not found")
+    return updated
+
+@api_router.delete("/menu-items/{item_id}", dependencies=[Depends(get_current_user)])
+async def delete_menu_item(item_id: str):
+    result = await db.menu_items.delete_one({"id": item_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Menu item not found")
+    return {"message": "Menu item deleted successfully"}
+
 
 @api_router.put("/discount-codes/{code_id}", response_model=DiscountCode)
 async def update_discount_code(code_id: str, code: DiscountCodeCreate, user: dict = Depends(get_current_user)):
