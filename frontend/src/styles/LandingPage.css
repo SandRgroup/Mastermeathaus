@@ -546,6 +546,71 @@
   background: var(--white);
 }
 
+/* Billing Toggle */
+.billing-toggle {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 2rem auto 3rem;
+  background: white;
+  padding: 0.5rem;
+  border-radius: 50px;
+  max-width: 400px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.billing-option {
+  flex: 1;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  background: transparent;
+  border-radius: 50px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: var(--text-gray);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.billing-option.active {
+  background: var(--red);
+  color: white;
+}
+
+.billing-option:hover:not(.active) {
+  background: rgba(139, 0, 0, 0.1);
+}
+
+.savings-badge-toggle {
+  font-size: 0.75rem;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-weight: 700;
+}
+
+.billing-option:not(.active) .savings-badge-toggle {
+  background: #22c55e;
+  color: white;
+}
+
+.yearly-savings-badge {
+  background: #d1fae5;
+  color: #065f46;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+
 .membership-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));

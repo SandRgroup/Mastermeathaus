@@ -253,7 +253,10 @@ async def get_me(user: dict = Depends(get_current_user)):
 # Product Routes
 @api_router.get("/products", response_model=List[Product])
 async def get_products():
-    products = await db.products.find().to_list(1000)
+    products = await db.products.find(
+        {},
+        {"_id": 1, "name": 1, "grade": 1, "description": 1, "price": 1, "originalPrice": 1, "image": 1, "cookingTemp": 1, "badge": 1, "created_at": 1}
+    ).limit(100).to_list(100)
     return [Product(**{**p, "_id": str(p["_id"])}) for p in products]
 
 @api_router.post("/products", response_model=Product)
@@ -281,7 +284,10 @@ async def delete_product(product_id: str, user: dict = Depends(get_current_user)
 # Membership Routes
 @api_router.get("/memberships", response_model=List[Membership])
 async def get_memberships():
-    memberships = await db.memberships.find().to_list(1000)
+    memberships = await db.memberships.find(
+        {},
+        {"_id": 1, "name": 1, "price": 1, "period": 1, "features": 1, "highlight": 1, "bestValue": 1, "created_at": 1}
+    ).limit(50).to_list(50)
     return [Membership(**{**m, "_id": str(m["_id"])}) for m in memberships]
 
 @api_router.post("/memberships", response_model=Membership)
@@ -309,7 +315,10 @@ async def delete_membership(membership_id: str, user: dict = Depends(get_current
 # Discount Code Routes
 @api_router.get("/discount-codes", response_model=List[DiscountCode])
 async def get_discount_codes(user: dict = Depends(get_current_user)):
-    codes = await db.discount_codes.find().to_list(1000)
+    codes = await db.discount_codes.find(
+        {},
+        {"_id": 1, "code": 1, "description": 1, "type": 1, "value": 1, "min_purchase": 1, "max_uses": 1, "used_count": 1, "expires_at": 1, "active": 1, "created_at": 1}
+    ).limit(100).to_list(100)
     return [DiscountCode(**{**c, "_id": str(c["_id"])}) for c in codes]
 
 @api_router.post("/discount-codes", response_model=DiscountCode)
@@ -598,10 +607,15 @@ async def stripe_webhook(request: Request):
 app.include_router(api_router)
 
 # CORS
-frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:3000")
+cors_origins = os.environ.get("CORS_ORIGINS", "*")
+if cors_origins == "*":
+    allow_origins = ["*"]
+else:
+    allow_origins = [origin.strip() for origin in cors_origins.split(",")]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[frontend_url],
+    allow_origins=allow_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

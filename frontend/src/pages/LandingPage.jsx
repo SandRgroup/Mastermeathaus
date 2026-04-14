@@ -173,6 +173,7 @@ const LandingPage = () => {
   const [products, setProducts] = useState([]);
   const [memberships, setMemberships] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [billingPeriod, setBillingPeriod] = useState('monthly');
   const { getItemCount, setIsOpen } = useCart();
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
@@ -335,33 +336,65 @@ const LandingPage = () => {
             <h2 className="section-title">Membership that works for you</h2>
           </div>
           
+          {/* Billing Period Toggle */}
+          <div className="billing-toggle">
+            <button 
+              className={`billing-option ${billingPeriod === 'monthly' ? 'active' : ''}`}
+              onClick={() => setBillingPeriod('monthly')}
+            >
+              Monthly
+            </button>
+            <button 
+              className={`billing-option ${billingPeriod === 'yearly' ? 'active' : ''}`}
+              onClick={() => setBillingPeriod('yearly')}
+            >
+              Yearly
+              <span className="savings-badge-toggle">Save 30%</span>
+            </button>
+          </div>
+          
           <div className="membership-grid">
-            {membershipPlans.map((plan, index) => (
-              <Card key={index} className={`membership-card ${plan.highlight ? 'highlight' : ''}`}>
-                {plan.bestValue && <div className="best-value-badge">Best Value</div>}
-                <div className="membership-header">
-                  <h3 className="membership-name">{plan.name}</h3>
-                  <div className="membership-price">
-                    <span className="price">{plan.price}</span>
-                    <span className="period">{plan.period}</span>
-                  </div>
-                </div>
-                <div className="membership-features">
-                  {plan.features.map((feature, idx) => (
-                    <div key={idx} className="feature-item">
-                      <Check size={16} />
-                      <span>{feature}</span>
+            {membershipPlans.map((plan, index) => {
+              const monthlyPrice = parseFloat(plan.price.replace('$', '').replace('/mo', ''));
+              const yearlyPrice = monthlyPrice * 12 * 0.7; // 30% discount
+              const displayPrice = billingPeriod === 'monthly' 
+                ? `$${monthlyPrice.toFixed(0)}` 
+                : `$${yearlyPrice.toFixed(0)}`;
+              const displayPeriod = billingPeriod === 'monthly' ? '/mo' : '/yr';
+              const monthlySavings = billingPeriod === 'yearly' 
+                ? `Save $${((monthlyPrice * 12 - yearlyPrice) / 12).toFixed(0)}/mo`
+                : null;
+
+              return (
+                <Card key={index} className={`membership-card ${plan.highlight ? 'highlight' : ''}`}>
+                  {plan.bestValue && <div className="best-value-badge">Best Value</div>}
+                  <div className="membership-header">
+                    <h3 className="membership-name">{plan.name}</h3>
+                    <div className="membership-price">
+                      <span className="price">{displayPrice}</span>
+                      <span className="period">{displayPeriod}</span>
                     </div>
-                  ))}
-                </div>
-                <Button 
-                  className={plan.highlight ? "membership-btn highlight" : "membership-btn"}
-                  onClick={() => window.location.href = 'https://mastermeatbox.com'}
-                >
-                  Choose plan
-                </Button>
-              </Card>
-            ))}
+                    {monthlySavings && (
+                      <div className="yearly-savings-badge">{monthlySavings}</div>
+                    )}
+                  </div>
+                  <div className="membership-features">
+                    {plan.features.map((feature, idx) => (
+                      <div key={idx} className="feature-item">
+                        <Check size={16} />
+                        <span>{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <Button 
+                    className={plan.highlight ? "membership-btn highlight" : "membership-btn"}
+                    onClick={() => window.location.href = 'https://mastermeatbox.com'}
+                  >
+                    Choose plan
+                  </Button>
+                </Card>
+              );
+            })}
           </div>
         </div>
       </section>
