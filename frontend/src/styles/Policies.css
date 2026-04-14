@@ -1,0 +1,228 @@
+/* Policy Pages */
+.policy-page {
+  min-height: 100vh;
+  background: #f8f8f8;
+  padding: 2rem 1rem;
+}
+
+.policy-container {
+  max-width: 900px;
+  margin: 0 auto;
+  background: white;
+  padding: 3rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.back-btn {
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.policy-container h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #2b2b2b;
+  margin-bottom: 1rem;
+}
+
+.policy-intro {
+  font-size: 1.125rem;
+  color: #666;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.policy-container section {
+  margin-bottom: 2.5rem;
+}
+
+.policy-container h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2b2b2b;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.policy-container h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2b2b2b;
+  margin-bottom: 0.75rem;
+}
+
+.policy-container p {
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.7;
+  margin-bottom: 1rem;
+}
+
+.policy-container ul {
+  list-style: disc;
+  padding-left: 2rem;
+  margin-bottom: 1rem;
+}
+
+.policy-container li {
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.7;
+  margin-bottom: 0.5rem;
+}
+
+.contact-section {
+  background: #f9fafb;
+  padding: 2rem;
+  border-radius: 8px;
+  border-left: 4px solid #8B0000;
+}
+
+.contact-section h2,
+.contact-section h3 {
+  margin-top: 0;
+}
+
+.contact-section a {
+  color: #8B0000;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.contact-section a:hover {
+  text-decoration: underline;
+}
+
+.contact-note {
+  font-size: 0.875rem;
+  color: #666;
+  font-style: italic;
+  margin-top: 0.5rem;
+}
+
+/* Contact Page */
+.contact-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.contact-card {
+  padding: 2rem;
+  text-align: center;
+  border: 1px solid #e5e7eb;
+}
+
+.contact-card svg {
+  color: #8B0000;
+  margin-bottom: 1rem;
+}
+
+.contact-card h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.contact-card a {
+  color: #8B0000;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1.125rem;
+}
+
+.contact-card a:hover {
+  text-decoration: underline;
+}
+
+.contact-card p {
+  margin: 0.25rem 0;
+  color: #555;
+}
+
+.response-time {
+  font-size: 1.125rem;
+  padding: 1rem;
+  background: #f0fdf4;
+  border-radius: 6px;
+  text-align: center;
+  margin-top: 1.5rem;
+}
+
+/* Delivery Works Page */
+.delivery-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin: 2rem 0;
+}
+
+.delivery-step {
+  padding: 2rem;
+  border: 1px solid #e5e7eb;
+  position: relative;
+}
+
+.step-icon {
+  color: #8B0000;
+  margin-bottom: 1rem;
+}
+
+.delivery-step h2 {
+  font-size: 1.375rem;
+  margin-bottom: 1rem;
+}
+
+.delivery-step .note {
+  font-style: italic;
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.important-notes {
+  background: #fef3c7;
+  padding: 2rem;
+  border-radius: 8px;
+  border-left: 4px solid #f59e0b;
+  margin: 2rem 0;
+}
+
+.important-notes h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #92400e;
+}
+
+.important-notes ul {
+  margin-top: 1rem;
+}
+
+.important-notes li {
+  color: #78350f;
+}
+
+@media (max-width: 768px) {
+  .policy-container {
+    padding: 2rem 1.5rem;
+  }
+
+  .policy-container h1 {
+    font-size: 2rem;
+  }
+
+  .policy-container h2 {
+    font-size: 1.25rem;
+  }
+
+  .contact-cards {
+    grid-template-columns: 1fr;
+  }
+}

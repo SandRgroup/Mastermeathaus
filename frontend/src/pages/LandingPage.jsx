@@ -438,6 +438,49 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* HOW DELIVERY WORKS */}
+      <section className="delivery-works-section">
+        <div className="container">
+          <h2 className="section-title">How Our Delivery Works</h2>
+          <p className="section-subtitle">At MasterMeatBox, we make sure every order is handled with care from the moment it leaves our facility to the moment it arrives at your door.</p>
+          
+          <div className="delivery-steps-grid">
+            <div className="delivery-step-card">
+              <div className="step-number">1</div>
+              <h3>📦 Order Processing</h3>
+              <p>Orders processed within 1–3 business days. Each box assembled with attention to quality and food safety.</p>
+            </div>
+            
+            <div className="delivery-step-card">
+              <div className="step-number">2</div>
+              <h3>❄️ Temperature Control</h3>
+              <p>Packed using insulated materials and cooling elements to maintain safe temperatures during transit.</p>
+            </div>
+            
+            <div className="delivery-step-card">
+              <div className="step-number">3</div>
+              <h3>🚚 Fast Shipping</h3>
+              <p>Shipped via trusted carriers. Most orders arrive within 48 hours. Delivery: 2–5 business days.</p>
+            </div>
+            
+            <div className="delivery-step-card">
+              <div className="step-number">4</div>
+              <h3>📍 Door Delivery</h3>
+              <p>Delivered directly to your address. Retrieve promptly and refrigerate or freeze immediately.</p>
+            </div>
+          </div>
+          
+          <div className="delivery-note">
+            <p><strong>Important:</strong> Orders may arrive fully frozen, partially thawed but cold, or refrigerated. This is normal and safe.</p>
+            <p className="contact-info">Questions? Email <a href="mailto:hello@mastermeatbox.com">hello@mastermeatbox.com</a> or call <a href="tel:8178072489">817-807-2489</a></p>
+          </div>
+          
+          <Button className="text-btn" onClick={() => window.location.href = '/delivery'}>
+            Learn more about delivery <ChevronRight size={20} />
+          </Button>
+        </div>
+      </section>
+
       {/* FINAL CTA */}
       <section className="final-cta">
         <div className="container">
@@ -452,18 +495,42 @@ const LandingPage = () => {
       {/* FOOTER */}
       <footer className="footer">
         <div className="container">
-          <div className="footer-brand">
-            <img 
-              src="https://customer-assets.emergentagent.com/job_wagyu-vault/artifacts/ebh2rfed_IMG_2421.PNG" 
-              alt="Mastermeatbox Logo"
-              className="footer-logo"
-            />
-            <p>Top-quality cuts, delivered right.</p>
+          <div className="footer-content">
+            <div className="footer-brand">
+              <img 
+                src="https://customer-assets.emergentagent.com/job_wagyu-vault/artifacts/ebh2rfed_IMG_2421.PNG" 
+                alt="Mastermeatbox Logo"
+                className="footer-logo"
+              />
+              <p>Premium meat delivered directly to your door.</p>
+            </div>
+            
+            <div className="footer-column">
+              <h4>Contact</h4>
+              <p><a href="mailto:hello@mastermeatbox.com">hello@mastermeatbox.com</a></p>
+              <p><a href="tel:8178072489">817-807-2489</a></p>
+              <p className="footer-hours">Mon-Fri, 9 AM – 5 PM CST</p>
+            </div>
+            
+            <div className="footer-column">
+              <h4>Policies</h4>
+              <a href="/shipping-policy">Shipping Policy</a>
+              <a href="/refund-policy">Refund Policy</a>
+              <a href="/terms-of-service">Terms of Service</a>
+              <a href="/privacy-policy">Privacy Policy</a>
+              <a href="/membership-terms">Membership Terms</a>
+            </div>
+            
+            <div className="footer-column">
+              <h4>Company</h4>
+              <a href="/delivery">How Delivery Works</a>
+              <a href="/contact">Contact Us</a>
+            </div>
           </div>
-          <div className="footer-links">
-            <a href="https://mastermeatbox.com">Privacy</a>
-            <a href="https://mastermeatbox.com">Delivery</a>
-            <a href="https://mastermeatbox.com">Membership</a>
+          
+          <div className="footer-bottom">
+            <p>MasterMeatBox © {new Date().getFullYear()} All rights reserved</p>
+            <p className="footer-tagline">High-quality meat delivery service based in the United States</p>
           </div>
         </div>
       </footer>
