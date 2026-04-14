@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronRight, Check, Package, Thermometer, Truck, Star, Info } from 'lucide-react';
+import { ChevronRight, Check, Package, Thermometer, Truck, Star, Info, ShoppingCart } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Checkbox } from '../components/ui/checkbox';
 import { toast } from 'sonner';
 import axios from 'axios';
+import { useCart } from '../contexts/CartContext';
+import Cart from '../components/Cart';
 import '../styles/LandingPage.css';
 
 const ProductCard = ({ product, index }) => {
+  const { addToCart } = useCart();
   const [selectedWeight, setSelectedWeight] = useState('12oz');
   const [subscribeAndSave, setSubscribeAndSave] = useState(false);
   const [showCookingTemp, setShowCookingTemp] = useState(false);
@@ -35,11 +38,12 @@ const ProductCard = ({ product, index }) => {
   const finalPrice = subscribeAndSave ? calculateSavingsPrice(currentPrice) : currentPrice;
 
   const handleAddToCart = () => {
+    addToCart(product, selectedWeight, subscribeAndSave);
     const cartMessage = subscribeAndSave 
       ? `${product.name} (${selectedWeight}) added with Subscribe & Save!`
       : `${product.name} (${selectedWeight}) added to cart`;
     toast.success(cartMessage, {
-      description: subscribeAndSave ? 'You\'ll save 10% on every delivery' : 'Continue shopping or checkout',
+      description: subscribeAndSave ? 'You\'ll save 10% on every delivery' : 'View cart to checkout',
       duration: 3000,
     });
   };
@@ -169,6 +173,7 @@ const LandingPage = () => {
   const [products, setProducts] = useState([]);
   const [memberships, setMemberships] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { getItemCount, setIsOpen } = useCart();
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   useEffect(() => {
@@ -211,6 +216,14 @@ const LandingPage = () => {
 
   return (
     <div className="butcher-page">
+      {/* Cart Icon */}
+      <button className="cart-icon-btn" onClick={() => setIsOpen(true)}>
+        <ShoppingCart size={24} />
+        {getItemCount() > 0 && <span className="cart-badge">{getItemCount()}</span>}
+      </button>
+      
+      <Cart />
+
       {/* PROMO BANNER */}
       <div className="promo-banner">
         15% off orders $299+ | 10% off orders $199+ | 5% off orders $99+ with code <span className="code">PREMIUM</span>

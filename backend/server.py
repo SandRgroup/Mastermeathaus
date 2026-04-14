@@ -4,18 +4,22 @@ from pathlib import Path
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, Depends
+from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, Depends, UploadFile, File
+from fastapi.staticfiles import StaticFiles
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel, Field, EmailStr
 from typing import List, Optional
 from datetime import datetime, timezone, timedelta
 from bson import ObjectId
+from emergentintegrations.payments.stripe.checkout import StripeCheckout, CheckoutSessionResponse, CheckoutStatusResponse, CheckoutSessionRequest
 import os
 import logging
 import bcrypt
 import jwt
 import secrets
+import shutil
+from pathlib import Path
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
@@ -135,6 +139,41 @@ class MembershipCreate(BaseModel):
     highlight: bool = False
     bestValue: bool = False
 
+class CartItem(BaseModel):
+    product_id: str
+    product_name: str
+    price: float
+    quantity: int
+    weight: str
+    subscribe: bool
+
+class CheckoutRequest(BaseModel):
+    cart_items: List[CartItem]
+    origin_url: str
+
+class PaymentTransaction(BaseModel):
+    id: str = Field(default_factory=lambda: str(ObjectId()), alias="_id")
+    session_id: str
+    amount: float
+    currency: str
+    status: str
+    payment_status: str
+    metadata: dict
+    user_email: Optional[str] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+# Initialize Stripe
+stripe_checkout = None
+
+def get_stripe_checkout(request: Request):
+    global stripe_checkout
+    if stripe_checkout is None:
+        api_key = os.environ.get("STRIPE_API_KEY", "sk_test_emergent")
+        host_url = str(request.base_url)
+        webhook_url = f"{host_url}api/webhook/stripe"
+        stripe_checkout = StripeCheckout(api_key=api_key, webhook_url=webhook_url)
+    return stripe_checkout
+
 # Auth Routes
 @api_router.post("/auth/login")
 async def login(credentials: LoginRequest, response: Response):
@@ -238,6 +277,140 @@ async def update_membership(membership_id: str, membership: MembershipCreate, us
 async def delete_membership(membership_id: str, user: dict = Depends(get_current_user)):
     await db.memberships.delete_one({"_id": ObjectId(membership_id)})
     return {"message": "Membership deleted"}
+
+# Image Upload Route
+@api_router.post("/upload/image")
+async def upload_image(file: UploadFile = File(...), user: dict = Depends(get_current_user)):
+    if not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="File must be an image")
+    
+    # Generate unique filename
+    file_ext = Path(file.filename).suffix
+    unique_filename = f"{secrets.token_hex(16)}{file_ext}"
+    file_path = Path(ROOT_DIR) / "uploads" / unique_filename
+    
+    # Save file
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+    
+    # Return URL
+    frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:3000")
+    image_url = f"{frontend_url}/uploads/{unique_filename}"
+    
+    return {"url": image_url}
+
+# Checkout Routes
+@api_router.post("/checkout/session")
+async def create_checkout_session(checkout_req: CheckoutRequest, request: Request):
+    try:
+        stripe = get_stripe_checkout(request)
+        
+        # Calculate total amount from cart
+        total_amount = 0.0
+        metadata = {"items": []}
+        
+        for item in checkout_req.cart_items:
+            item_total = item.price * item.quantity
+            if item.subscribe:
+                item_total *= 0.9  # 10% discount
+            total_amount += item_total
+            metadata["items"].append({
+                "product_id": item.product_id,
+                "name": item.product_name,
+                "quantity": item.quantity,
+                "weight": item.weight,
+                "subscribe": item.subscribe
+            })
+        
+        # Create success/cancel URLs
+        success_url = f"{checkout_req.origin_url}/checkout/success?session_id={{CHECKOUT_SESSION_ID}}"
+        cancel_url = f"{checkout_req.origin_url}/checkout/cancel"
+        
+        # Create Stripe checkout session
+        checkout_request = CheckoutSessionRequest(
+            amount=round(total_amount, 2),
+            currency="usd",
+            success_url=success_url,
+            cancel_url=cancel_url,
+            metadata={"cart": str(metadata)}
+        )
+        
+        session: CheckoutSessionResponse = await stripe.create_checkout_session(checkout_request)
+        
+        # Create payment transaction record
+        transaction = {
+            "session_id": session.session_id,
+            "amount": total_amount,
+            "currency": "usd",
+            "status": "pending",
+            "payment_status": "initiated",
+            "metadata": metadata,
+            "created_at": datetime.now(timezone.utc)
+        }
+        await db.payment_transactions.insert_one(transaction)
+        
+        return {"url": session.url, "session_id": session.session_id}
+    
+    except Exception as e:
+        logger.error(f"Checkout error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/checkout/status/{session_id}")
+async def get_checkout_status(session_id: str, request: Request):
+    try:
+        stripe = get_stripe_checkout(request)
+        
+        # Get status from Stripe
+        status: CheckoutStatusResponse = await stripe.get_checkout_status(session_id)
+        
+        # Update transaction in database
+        existing = await db.payment_transactions.find_one({"session_id": session_id})
+        if existing and existing["payment_status"] != "paid":
+            await db.payment_transactions.update_one(
+                {"session_id": session_id},
+                {"$set": {
+                    "status": status.status,
+                    "payment_status": status.payment_status,
+                    "updated_at": datetime.now(timezone.utc)
+                }}
+            )
+        
+        return {
+            "status": status.status,
+            "payment_status": status.payment_status,
+            "amount_total": status.amount_total,
+            "currency": status.currency
+        }
+    
+    except Exception as e:
+        logger.error(f"Status check error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/webhook/stripe")
+async def stripe_webhook(request: Request):
+    try:
+        stripe = get_stripe_checkout(request)
+        body = await request.body()
+        signature = request.headers.get("Stripe-Signature")
+        
+        webhook_response = await stripe.handle_webhook(body, signature)
+        
+        # Update transaction based on webhook
+        if webhook_response.payment_status == "paid":
+            await db.payment_transactions.update_one(
+                {"session_id": webhook_response.session_id},
+                {"$set": {
+                    "payment_status": "paid",
+                    "status": "completed",
+                    "updated_at": datetime.now(timezone.utc)
+                }}
+            )
+        
+        return {"status": "success"}
+    
+    except Exception as e:
+        logger.error(f"Webhook error: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
 
 # Include router
 app.include_router(api_router)

@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Plus, Edit, Trash2 } from 'lucide-react';
 import { getProducts, createProduct, updateProduct, deleteProduct } from '../../api/cms';
 import { toast } from 'sonner';
+import axios from 'axios';
 
 const ProductsManager = () => {
   const [products, setProducts] = useState([]);
@@ -24,6 +25,8 @@ const ProductsManager = () => {
     cookingTemp: '',
     badge: ''
   });
+  const [imageFile, setImageFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     fetchProducts();
@@ -37,6 +40,33 @@ const ProductsManager = () => {
       toast.error('Failed to load products');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleImageUpload = async (file) => {
+    if (!file) return null;
+    
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const backendUrl = process.env.REACT_APP_BACKEND_URL;
+      const { data } = await axios.post(
+        `${backendUrl}/api/upload/image`,
+        formData,
+        { 
+          headers: { 'Content-Type': 'multipart/form-data' },
+          withCredentials: true
+        }
+      );
+      
+      return data.url;
+    } catch (error) {
+      toast.error('Image upload failed');
+      return null;
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -91,6 +121,7 @@ const ProductsManager = () => {
 
   const resetForm = () => {
     setEditing(null);
+    setImageFile(null);
     setFormData({
       name: '',
       grade: '',
@@ -172,13 +203,31 @@ const ProductsManager = () => {
                   />
                 </div>
                 <div className="form-group full-width">
-                  <Label htmlFor="image">Image URL *</Label>
+                  <Label htmlFor="image">Image URL or Upload</Label>
                   <Input
                     id="image"
                     value={formData.image}
                     onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                    required
+                    placeholder="https://..."
+                    disabled={!!imageFile}
                   />
+                  <div className="image-upload-section">
+                    <span>OR</span>
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        setImageFile(e.target.files[0]);
+                        setFormData({ ...formData, image: '' });
+                      }}
+                    />
+                    {imageFile && (
+                      <div className="image-preview">
+                        <img src={URL.createObjectURL(imageFile)} alt="Preview" />
+                        <button type="button" onClick={() => setImageFile(null)}>Remove</button>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <div className="form-group">
                   <Label htmlFor="cookingTemp">Cooking Temp</Label>
@@ -203,7 +252,9 @@ const ProductsManager = () => {
                 <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
                   Cancel
                 </Button>
-                <Button type="submit">{editing ? 'Update' : 'Create'}</Button>
+                <Button type="submit" disabled={uploading}>
+                  {uploading ? 'Uploading...' : (editing ? 'Update' : 'Create')}
+                </Button>
               </div>
             </form>
           </DialogContent>

@@ -360,3 +360,45 @@
   color: #666;
   font-size: 1.1rem;
 }
+
+/* Image Upload */
+.image-upload-section {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e5e5;
+}
+
+.image-upload-section span {
+  display: block;
+  text-align: center;
+  color: #999;
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.image-preview {
+  margin-top: 1rem;
+  position: relative;
+}
+
+.image-preview img {
+  max-width: 200px;
+  max-height: 200px;
+  border-radius: 4px;
+  border: 2px solid #e5e5e5;
+}
+
+.image-preview button {
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.image-preview button:hover {
+  background: #dc2626;
+}
