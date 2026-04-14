@@ -16,52 +16,108 @@ const LandingPage = () => {
 
   const featuredCuts = [
     {
-      name: "Wagyu Ribeye Steak",
-      grade: "SRF Black®",
-      description: "Ultimate marbling and flavor",
-      price: "$69.00",
-      originalPrice: "$79.00",
-      image: "https://images.unsplash.com/photo-1602470521006-59ab77068b0d",
+      name: "Filet Mignon",
+      grade: "USDA Prime",
+      description: "Center-cut tenderness, minimal fat",
+      price: "$45.00",
+      image: "https://images.unsplash.com/photo-1666013942642-b7b54ecafd7d"
+    },
+    {
+      name: "Ribeye",
+      grade: "USDA Prime",
+      description: "Rich marbling, bold beef flavor",
+      price: "$38.00",
+      image: "https://images.unsplash.com/photo-1602470521006-59ab77068b0d"
+    },
+    {
+      name: "Porterhouse",
+      grade: "USDA Prime",
+      description: "Strip and tenderloin in one cut",
+      price: "$52.00",
+      image: "https://images.unsplash.com/photo-1614277786110-1a64e457c4c3"
+    },
+    {
+      name: "T-Bone",
+      grade: "USDA Prime",
+      description: "Classic steakhouse favorite",
+      price: "$42.00",
+      image: "https://images.unsplash.com/photo-1606374894242-19110fdbd56c"
+    },
+    {
+      name: "Tomahawk Steak",
+      grade: "USDA Prime",
+      description: "Impressive bone-in ribeye",
+      price: "$95.00",
+      image: "https://images.unsplash.com/photo-1632154023554-c2975e9be348"
+    },
+    {
+      name: "Beef Short Ribs",
+      grade: "USDA Prime",
+      description: "Perfect for braising or smoking",
+      price: "$28.00",
+      image: "https://images.unsplash.com/photo-1558030077-82dd9347c407"
+    },
+    {
+      name: "Picanha",
+      grade: "Whole, Fat Cap On",
+      description: "Brazilian favorite, full cap",
+      price: "$48.00",
+      originalPrice: "$55.00",
+      image: "https://images.unsplash.com/photo-1579636859172-67ced5686109",
       badge: "Sale"
     },
     {
-      name: "American Wagyu NY Strip",
-      grade: "SRF Gold®",
-      description: "Rich, beefy flavor with superior tenderness",
-      price: "$55.00",
-      originalPrice: "$67.00",
+      name: "Cupim",
+      grade: "Heritage Cut",
+      description: "Brazilian hump cut, rare delicacy",
+      price: "$58.00",
+      image: "https://images.unsplash.com/photo-1547050605-2f268cd5daf0"
+    },
+    {
+      name: "Wagyu Ribeye",
+      grade: "American Wagyu",
+      description: "Exceptional marbling and flavor",
+      price: "$72.00",
+      originalPrice: "$85.00",
       image: "https://images.unsplash.com/photo-1690983321750-ad6f6d59a84b",
       badge: "Sale"
     },
     {
-      name: "Dry-Aged Ribeye",
-      grade: "45-Day Aged",
-      description: "Intensified flavor, exceptional texture",
-      price: "$85.00",
-      image: "https://images.unsplash.com/photo-1690983323238-0b91789e1b5a"
-    },
-    {
-      name: "Wagyu Tomahawk Steak",
-      grade: "SRF Black®",
-      description: "Show-stopping presentation cut",
-      price: "$165.00",
-      image: "https://images.unsplash.com/photo-1632154023554-c2975e9be348"
-    },
-    {
-      name: "Wagyu Filet Mignon",
-      grade: "SRF Silver™",
-      description: "Buttery tenderness, delicate flavor",
-      price: "$48.00",
-      originalPrice: "$58.00",
-      image: "https://images.unsplash.com/photo-1666013942642-b7b54ecafd7d",
+      name: "Wagyu NY Strip",
+      grade: "American Wagyu",
+      description: "Perfect balance of tenderness",
+      price: "$65.00",
+      originalPrice: "$75.00",
+      image: "https://images.unsplash.com/photo-1600180786732-6189f0ad253d",
       badge: "Sale"
     },
     {
-      name: "Wagyu Picanha",
-      grade: "SRF Gold®",
-      description: "Brazilian favorite with Japanese quality",
-      price: "$62.00",
-      image: "https://images.unsplash.com/photo-1547050605-2f268cd5daf0"
+      name: "Dry-Aged Steak",
+      grade: "Upon Consultation",
+      description: "Custom aging, premium selection",
+      price: "Contact",
+      image: "https://images.unsplash.com/photo-1690983323238-0b91789e1b5a"
+    },
+    {
+      name: "Flank Steak",
+      grade: "USDA Choice",
+      description: "Lean, flavorful, great for fajitas",
+      price: "$22.00",
+      image: "https://images.unsplash.com/photo-1579636858731-24857b3f4305"
+    },
+    {
+      name: "Picanha American Wagyu",
+      grade: "American Wagyu",
+      description: "Brazilian cut meets Japanese quality",
+      price: "$68.00",
+      image: "https://images.unsplash.com/photo-1579636859172-67ced5686109"
+    },
+    {
+      name: "Flank Steak American Wagyu",
+      grade: "American Wagyu",
+      description: "Enhanced marbling, incredible flavor",
+      price: "$35.00",
+      image: "https://images.unsplash.com/photo-1614277786110-1a64e457c4c3"
     }
   ];
 
@@ -159,8 +215,8 @@ const LandingPage = () => {
       <section className="featured-cuts">
         <div className="container">
           <div className="section-header">
-            <h2 className="section-title">Spring Favorites</h2>
-            <p className="section-subtitle">A small selection, chosen for quality — not quantity.</p>
+            <h2 className="section-title">Our Top Cuts</h2>
+            <p className="section-subtitle">A curated selection of premium beef — from classic steaks to rare Brazilian cuts.</p>
           </div>
 
           <div className="products-grid">
