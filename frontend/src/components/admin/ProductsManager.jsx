@@ -4,6 +4,7 @@ import { Card } from '../ui/card';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Plus, Edit, Trash2 } from 'lucide-react';
 import { getProducts, createProduct, updateProduct, deleteProduct } from '../../api/cms';
@@ -23,7 +24,8 @@ const ProductsManager = () => {
     originalPrice: '',
     image: '',
     cookingTemp: '',
-    badge: ''
+    badge: '',
+    weight_unit: 'oz'
   });
   const [imageFile, setImageFile] = useState(null);
   const [uploading, setUploading] = useState(false);
@@ -103,7 +105,8 @@ const ProductsManager = () => {
       originalPrice: product.originalPrice || '',
       image: product.image,
       cookingTemp: product.cookingTemp || '',
-      badge: product.badge || ''
+      badge: product.badge || '',
+      weight_unit: product.weight_unit || 'oz'
     });
     setDialogOpen(true);
   };
@@ -130,7 +133,8 @@ const ProductsManager = () => {
       originalPrice: '',
       image: '',
       cookingTemp: '',
-      badge: ''
+      badge: '',
+      weight_unit: 'oz'
     });
   };
 
@@ -246,6 +250,21 @@ const ProductsManager = () => {
                     onChange={(e) => setFormData({ ...formData, badge: e.target.value })}
                     placeholder="Sale"
                   />
+                </div>
+                <div className="form-group">
+                  <Label htmlFor="weight_unit">Weight Unit *</Label>
+                  <Select 
+                    value={formData.weight_unit} 
+                    onValueChange={(value) => setFormData({ ...formData, weight_unit: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select unit" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="oz">Ounces (oz)</SelectItem>
+                      <SelectItem value="lb">Pounds (lb)</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
               <div className="form-actions">

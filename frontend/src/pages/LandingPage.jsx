@@ -235,7 +235,7 @@ const LandingPage = () => {
               <a href="/shop-boxes">Shop Boxes</a>
               <a href="/build-your-box">Build Your Box</a>
               <a href="/">Shop Cuts</a>
-              <a href="/membership/premium">Membership</a>
+              <a href="/membership/select">Membership</a>
               <a href="/about">About</a>
               <a href="/faq">FAQ</a>
             </nav>
@@ -319,7 +319,7 @@ const LandingPage = () => {
           </div>
 
           <div className="section-cta">
-            <Button className="text-btn" onClick={() => window.location.href = 'https://mastermeatbox.com'}>
+            <Button className="text-btn" onClick={() => navigate('/shop-boxes')}>
               View all cuts <ChevronRight size={20} />
             </Button>
           </div>
@@ -392,13 +392,13 @@ const LandingPage = () => {
                 : null;
               
               // Map plan names to route slugs
-              const planSlug = plan.name.toLowerCase().replace(' ', '-');
               const planRoutes = {
-                'pit-pass': 'free',
-                'prime-select': 'select',
-                'master-cut': 'prime',
-                'black-label': 'premium'
+                'Free': 'free',
+                'Select': 'select',
+                'Prime': 'prime',
+                'Premium': 'premium'
               };
+              const routeSlug = planRoutes[plan.name] || plan.name.toLowerCase();
 
               return (
                 <Card key={index} className={`membership-card ${plan.highlight ? 'highlight' : ''}`}>
@@ -424,14 +424,14 @@ const LandingPage = () => {
                   <div className="membership-actions">
                     <Button 
                       className={plan.highlight ? "membership-btn highlight" : "membership-btn"}
-                      onClick={() => navigate(`/membership/${planRoutes[planSlug]}`)}
+                      onClick={() => navigate(`/membership/${routeSlug}`)}
                     >
                       Choose plan
                     </Button>
                     <Button 
                       variant="ghost"
                       className="learn-more-btn"
-                      onClick={() => navigate(`/membership/${planRoutes[planSlug]}`)}
+                      onClick={() => navigate(`/membership/${routeSlug}`)}
                     >
                       Learn more <ChevronRight size={16} />
                     </Button>
@@ -474,7 +474,7 @@ const LandingPage = () => {
             We handle every order with temperature-controlled logistics to keep your cuts fresh.
           </p>
 
-          <Button className="text-btn" onClick={() => window.location.href = 'https://mastermeatbox.com'}>
+          <Button className="text-btn" onClick={() => navigate('/delivery')}>
             Learn more <ChevronRight size={20} />
           </Button>
         </div>
@@ -552,7 +552,7 @@ const LandingPage = () => {
             <p className="contact-info">Questions? Email <a href="mailto:hello@mastermeatbox.com">hello@mastermeatbox.com</a> or call <a href="tel:8178072489">817-807-2489</a></p>
           </div>
           
-          <Button className="text-btn" onClick={() => window.location.href = '/delivery'}>
+          <Button className="text-btn" onClick={() => navigate('/delivery')}>
             Learn more about delivery <ChevronRight size={20} />
           </Button>
         </div>
@@ -562,7 +562,7 @@ const LandingPage = () => {
       <section className="final-cta">
         <div className="container">
           <h2 className="final-title">Better cuts start here</h2>
-          <Button className="final-btn" onClick={() => window.location.href = 'https://mastermeatbox.com'}>
+          <Button className="final-btn" onClick={() => navigate('/shop-boxes')}>
             Shop Mastermeatbox
           </Button>
           <p className="final-subtext">Premium cuts. Simple process.</p>
