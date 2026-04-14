@@ -355,9 +355,15 @@ async def validate_discount(request: ValidateDiscountRequest):
     if not code.get("active", True):
         raise HTTPException(status_code=400, detail="This discount code is no longer active")
     
-    # Check expiry
-    if code.get("expires_at") and datetime.now(timezone.utc) > code["expires_at"]:
-        raise HTTPException(status_code=400, detail="This discount code has expired")
+    # Check expiry - handle both naive and aware datetimes
+    if code.get("expires_at"):
+        expires_at = code["expires_at"]
+        now = datetime.now(timezone.utc)
+        # If expires_at is naive, make it aware (assume UTC)
+        if expires_at.tzinfo is None:
+            expires_at = expires_at.replace(tzinfo=timezone.utc)
+        if now > expires_at:
+            raise HTTPException(status_code=400, detail="This discount code has expired")
     
     # Check max uses
     if code.get("max_uses") and code.get("used_count", 0) >= code["max_uses"]:
@@ -430,23 +436,43 @@ async def create_checkout_session(checkout_req: CheckoutRequest, request: Reques
                 "subscribe": item.subscribe
             })
         
-        # Apply discount code if provided
+        # Check for Subscribe & Save items
+        has_subscribe_and_save = any(item.subscribe for item in checkout_req.cart_items)
+        
+        # Apply discount code if provided (mutually exclusive with Subscribe & Save)
         discount_amount = 0.0
         discount_info = None
         
         if checkout_req.discount_code:
+            # Enforce mutual exclusivity
+            if has_subscribe_and_save:
+                raise HTTPException(
+                    status_code=400, 
+                    detail="Discount codes cannot be combined with Subscribe & Save items. Please remove Subscribe & Save items or use the discount code."
+                )
+            
             code = await db.discount_codes.find_one({"code": checkout_req.discount_code.upper()})
             
             if code and code.get("active", True):
-                # Validate code
-                if not code.get("expires_at") or datetime.now(timezone.utc) <= code["expires_at"]:
-                    if not code.get("max_uses") or code.get("used_count", 0) < code["max_uses"]:
+                # Validate code - handle datetime comparison
+                code_valid = True
+                if code.get("expires_at"):
+                    expires_at = code["expires_at"]
+                    now = datetime.now(timezone.utc)
+                    if expires_at.tzinfo is None:
+                        expires_at = expires_at.replace(tzinfo=timezone.utc)
+                    if now > expires_at:
+                        code_valid = False
+                
+                if code_valid and (not code.get("max_uses") or code.get("used_count", 0) < code["max_uses"]):
                         if total_amount >= code.get("min_purchase", 0):
-                            # Calculate discount
+                            # Calculate discount on base total (without Subscribe & Save discount)
+                            base_total = sum(item.price * item.quantity for item in checkout_req.cart_items)
+                            
                             if code["type"] == "percentage":
-                                discount_amount = total_amount * (code["value"] / 100)
+                                discount_amount = base_total * (code["value"] / 100)
                             else:  # fixed
-                                discount_amount = min(code["value"], total_amount)
+                                discount_amount = min(code["value"], base_total)
                             
                             discount_info = {
                                 "code": code["code"],
@@ -504,6 +530,9 @@ async def create_checkout_session(checkout_req: CheckoutRequest, request: Reques
             "discount_amount": round(discount_amount, 2) if discount_amount > 0 else None
         }
     
+    except HTTPException:
+        # Re-raise HTTPExceptions as-is (don't wrap in 500)
+        raise
     except Exception as e:
         logger.error(f"Checkout error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))

@@ -101,3 +101,236 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+user_problem_statement: "Create a single-page, premium e-commerce landing page for Mastermeatbox with product display, cart functionality, admin CMS for products/memberships/discount codes, Stripe checkout, and discount code system (mutually exclusive with Subscribe & Save)"
+
+backend:
+  - task: "JWT Authentication System"
+    implemented: true
+    working: "unknown"
+    file: "/app/backend/server.py (lines 33-88, 205-251)"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "previous"
+        comment: "Auth system created in previous job with JWT tokens, bcrypt hashing, and refresh tokens"
+      - working: "unknown"
+        agent: "main"
+        comment: "NEVER TESTED by previous agent. Needs comprehensive testing of login, logout, token refresh, and protected routes"
+
+  - task: "Products CRUD API"
+    implemented: true
+    working: "unknown"
+    file: "/app/backend/server.py (lines 253-280)"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "previous"
+        comment: "Products CRUD endpoints created"
+      - working: "unknown"
+        agent: "main"
+        comment: "NEVER TESTED. Need to verify GET, POST, PUT, DELETE operations"
+
+  - task: "Memberships CRUD API"
+    implemented: true
+    working: "unknown"
+    file: "/app/backend/server.py (lines 281-308)"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "previous"
+        comment: "Memberships CRUD endpoints created"
+      - working: "unknown"
+        agent: "main"
+        comment: "NEVER TESTED. Need to verify all CRUD operations"
+
+  - task: "Discount Codes CRUD API"
+    implemented: true
+    working: "unknown"
+    file: "/app/backend/server.py (lines 309-346)"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "unknown"
+        agent: "previous"
+        comment: "Discount code routes created but never tested"
+      - working: "unknown"
+        agent: "main"
+        comment: "Backend complete. Needs testing of: CREATE (with duplicate check), READ all codes, UPDATE code, DELETE code. Verify auth protection on all routes."
+
+  - task: "Discount Code Validation API"
+    implemented: true
+    working: "unknown"
+    file: "/app/backend/server.py (lines 348-388)"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "unknown"
+        agent: "main"
+        comment: "Created in previous job. Test edge cases: expired codes, max uses reached, min purchase not met, inactive codes, case-insensitive code matching"
+
+  - task: "Stripe Checkout with Discount Codes"
+    implemented: true
+    working: "unknown"
+    file: "/app/backend/server.py (lines 410-509)"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "unknown"
+        agent: "previous"
+        comment: "Stripe integration done but NEVER tested"
+      - working: "unknown"
+        agent: "main"
+        comment: "Updated to enforce mutual exclusivity: Subscribe & Save items cannot be combined with discount codes. Backend should reject checkout if both are present. Discount code increments used_count. Test: checkout with discount, checkout with Subscribe & Save, attempt both together (should fail), verify used_count increments"
+
+  - task: "Image Upload API"
+    implemented: true
+    working: "unknown"
+    file: "/app/backend/server.py (lines 389-408)"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: "unknown"
+        agent: "previous"
+        comment: "Image upload endpoint created but NEVER tested"
+      - working: "unknown"
+        agent: "main"
+        comment: "Needs testing with actual image files, verify auth protection, check file type validation"
+
+frontend:
+  - task: "Admin Login UI"
+    implemented: true
+    working: "unknown"
+    file: "/app/frontend/src/pages/admin/Login.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "previous"
+        comment: "Admin login page created"
+      - working: "unknown"
+        agent: "main"
+        comment: "Needs E2E test: login with correct credentials, verify redirect to dashboard, login with wrong credentials"
+
+  - task: "Products Manager UI"
+    implemented: true
+    working: "unknown"
+    file: "/app/frontend/src/components/admin/ProductsManager.jsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "previous"
+        comment: "Products CMS UI created with image upload"
+      - working: "unknown"
+        agent: "main"
+        comment: "Test: create product, edit product, delete product, upload image"
+
+  - task: "Memberships Manager UI"
+    implemented: true
+    working: "unknown"
+    file: "/app/frontend/src/components/admin/MembershipsManager.jsx"
+    stuck_count: 0
+    priority: "low"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "previous"
+        comment: "Memberships CMS UI created"
+      - working: "unknown"
+        agent: "main"
+        comment: "Test full CRUD operations"
+
+  - task: "Discounts Manager UI"
+    implemented: true
+    working: "unknown"
+    file: "/app/frontend/src/components/admin/DiscountsManager.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "unknown"
+        agent: "main"
+        comment: "Just created. Full discount code management UI with usage statistics (X/Y used), expiry dates, min purchase, max uses. Test: create code, edit code, delete code, verify usage stats display, verify status badges (active/inactive/expired/limit reached)"
+
+  - task: "Checkout Discount Code UI"
+    implemented: true
+    working: "unknown"
+    file: "/app/frontend/src/pages/checkout/Checkout.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "unknown"
+        agent: "main"
+        comment: "Just created. Discount code input on checkout page with validation. Test: apply valid code, apply invalid code, apply expired code, try to apply code with Subscribe & Save items (should show warning and disable input), verify discount appears in order summary, verify final total calculation"
+
+  - task: "Shopping Cart"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/contexts/CartContext.jsx, /app/frontend/src/components/Cart.jsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "previous"
+        comment: "Previous agent reported items not showing in cart"
+      - working: true
+        agent: "main"
+        comment: "TESTED with screenshot tool. Cart is working perfectly. Items add correctly, badge shows count (1), localStorage persists data, cart sidebar displays items. The bug was a false alarm or already fixed."
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 0
+  run_ui: true
+
+test_plan:
+  current_focus:
+    - "Discount Codes CRUD API"
+    - "Discount Code Validation API"
+    - "Stripe Checkout with Discount Codes"
+    - "Discounts Manager UI"
+    - "Checkout Discount Code UI"
+    - "JWT Authentication System"
+  stuck_tasks: []
+  test_all: true
+  test_priority: "high_first"
+  test_credentials:
+    admin_email: "admin@mastermeatbox.com"
+    admin_password: "MMB@dmin2025!Secure"
+  special_instructions: |
+    CRITICAL TESTING PRIORITIES:
+    1. Discount code backend endpoints (CRUD + validation) - all edge cases
+    2. Mutual exclusivity enforcement: Subscribe & Save vs Discount Codes (both backend rejection and frontend UI warnings)
+    3. Usage statistics tracking (verify used_count increments correctly)
+    4. Stripe checkout with discount codes applied
+    5. Admin CMS discount management UI (create/edit/delete, usage stats display)
+    6. User checkout flow with discount code input and validation
+    
+    IMPORTANT: Previous agent implemented auth, stripe, uploads, and discount backend WITHOUT ANY TESTING.
+    This is the first comprehensive test pass for the entire backend.
+    
+    Test discount code edge cases:
+    - Expired code (should fail validation)
+    - Max uses reached (should fail validation)
+    - Minimum purchase not met (should fail validation)
+    - Inactive code (should fail validation)
+    - Valid code on cart without Subscribe & Save (should work)
+    - Valid code on cart WITH Subscribe & Save (should be blocked with error message)
+
+agent_communication:
+  - agent: "main"
+    message: "Discount code feature implementation COMPLETE. Created DiscountsManager.jsx for admin CMS with full CRUD and usage statistics display. Updated Checkout.jsx with discount code input, validation, and mutual exclusivity warning. Modified backend checkout endpoint to enforce Subscribe & Save vs discount code mutual exclusivity (returns 400 error if both present). All frontend linting passed. Ready for comprehensive testing. CRITICAL: Previous agent never tested backend - this is first test pass for auth, stripe, uploads, and discounts."

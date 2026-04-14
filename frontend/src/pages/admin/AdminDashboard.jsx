@@ -5,7 +5,8 @@ import { Button } from '../../components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import ProductsManager from '../../components/admin/ProductsManager';
 import MembershipsManager from '../../components/admin/MembershipsManager';
-import { LogOut, Package, CreditCard } from 'lucide-react';
+import DiscountsManager from '../../components/admin/DiscountsManager';
+import { LogOut, Package, CreditCard, Tag } from 'lucide-react';
 import { toast } from 'sonner';
 import '../../styles/Admin.css';
 
@@ -50,6 +51,10 @@ const AdminDashboard = () => {
               <CreditCard size={18} />
               Memberships
             </TabsTrigger>
+            <TabsTrigger value="discounts" className="tab-trigger">
+              <Tag size={18} />
+              Discount Codes
+            </TabsTrigger>
           </TabsList>
           
           <TabsContent value="products">
@@ -58,6 +63,10 @@ const AdminDashboard = () => {
           
           <TabsContent value="memberships">
             <MembershipsManager />
+          </TabsContent>
+          
+          <TabsContent value="discounts">
+            <DiscountsManager />
           </TabsContent>
         </Tabs>
       </div>
