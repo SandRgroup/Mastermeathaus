@@ -170,6 +170,7 @@ const ProductCard = ({ product, index }) => {
 };
 
 const LandingPage = () => {
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [memberships, setMemberships] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -364,6 +365,15 @@ const LandingPage = () => {
               const monthlySavings = billingPeriod === 'yearly' 
                 ? `Save $${((monthlyPrice * 12 - yearlyPrice) / 12).toFixed(0)}/mo`
                 : null;
+              
+              // Map plan names to route slugs
+              const planSlug = plan.name.toLowerCase().replace(' ', '-');
+              const planRoutes = {
+                'pit-pass': 'free',
+                'prime-select': 'select',
+                'master-cut': 'prime',
+                'black-label': 'premium'
+              };
 
               return (
                 <Card key={index} className={`membership-card ${plan.highlight ? 'highlight' : ''}`}>
@@ -386,12 +396,21 @@ const LandingPage = () => {
                       </div>
                     ))}
                   </div>
-                  <Button 
-                    className={plan.highlight ? "membership-btn highlight" : "membership-btn"}
-                    onClick={() => window.location.href = 'https://mastermeatbox.com'}
-                  >
-                    Choose plan
-                  </Button>
+                  <div className="membership-actions">
+                    <Button 
+                      className={plan.highlight ? "membership-btn highlight" : "membership-btn"}
+                      onClick={() => navigate(`/membership/${planRoutes[planSlug]}`)}
+                    >
+                      Choose plan
+                    </Button>
+                    <Button 
+                      variant="ghost"
+                      className="learn-more-btn"
+                      onClick={() => navigate(`/membership/${planRoutes[planSlug]}`)}
+                    >
+                      Learn more <ChevronRight size={16} />
+                    </Button>
+                  </div>
                 </Card>
               );
             })}

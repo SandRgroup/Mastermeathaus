@@ -13,6 +13,7 @@ import TermsOfService from "./pages/policies/TermsOfService";
 import MembershipTerms from "./pages/policies/MembershipTerms";
 import ContactPage from "./pages/policies/ContactPage";
 import DeliveryWorks from "./pages/policies/DeliveryWorks";
+import MembershipDetail from "./pages/membership/MembershipDetail";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { CartProvider } from "./contexts/CartContext";
 import { Toaster } from "./components/ui/sonner";
@@ -68,3 +69,4 @@ function App() {
 }
 
 export default App;
+
