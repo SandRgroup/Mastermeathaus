@@ -350,7 +350,7 @@ const LandingPage = () => {
             transition={{ duration: 0.8 }}
           >
             <img 
-              src="https://customer-assets.emergentagent.com/job_wagyu-vault/artifacts/n7dly0yp_IMG_2422.PNG" 
+              src="https://customer-assets.emergentagent.com/job_wagyu-vault/artifacts/aknfflws_IMG_2421.PNG" 
               alt="Mastermeatbox Logo"
               className="logo-image"
             />
