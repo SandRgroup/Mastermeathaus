@@ -1,197 +1,168 @@
-# Mastermeatbox - Modern E-Commerce Butcher Shop
+# Mastermeatbox - Snake River Farms Style E-Commerce
 
 ## Original Problem Statement
-Create a SINGLE long-scrolling landing page for Mastermeatbox, a modern luxury online butcher shop delivering top-quality prime and Wagyu steak cuts. This is NOT a restaurant or chef experience - it's a premium butcher shop online focused on top-quality cuts, fair premium pricing, and a clean, simple shopping experience.
+Create a SINGLE long-scrolling landing page for Mastermeatbox styled like Snake River Farms - a modern luxury online butcher shop delivering top-quality prime and Wagyu steak cuts. Clean, white backgrounds, real pricing, product-focused e-commerce design.
 
-Think: Snake River Farms × Apple Store × modern butcher shop × premium e-commerce.
+## Design Inspiration
+**Snake River Farms** - clean white backgrounds, large product images, real pricing displayed, professional product photography, promotional banners, straightforward e-commerce layout.
 
 ## User Persona
 - **Target Audience**: Premium meat enthusiasts, home cooks who value quality
-- **Age Range**: 30-55 years old
-- **Income Level**: Upper-middle to high income
-- **Values**: Quality over quantity, transparency, simplicity, reliability
-- **Shopping Behavior**: Prefers online convenience with premium quality
+- **Shopping Behavior**: Direct online shoppers, price-conscious but quality-focused
+- **Values**: Transparency, quality, reliability, fair pricing
 
 ## Core Requirements (Static)
 
-### Brand Feel
-- Premium but welcoming (NOT intimidating luxury)
-- Strong, clean, premium, simple
-- Trustworthy butcher shop you can rely on
-- Better quality, cleaner experience, direct delivery
+### Brand Feel (SRF-Inspired)
+- Clean, white, professional
+- Product photography focused
+- Real pricing transparency
+- Premium but accessible
+- Straightforward e-commerce
+- Trustworthy and reliable
 
-### Design System
-**Backgrounds:**
-- Black (#050505)
-- Carbon (#0A0A0A)
-- Graphite (#111316)
-- Dark Navy depth (#0B1A2A)
-
-**Accents:**
-- Gold (#C8A96A) - used lightly
-- Bone (#E6D8B5) - primary text
-- Soft gray variations (#8A8A8A, #B8B8B8)
+### Design System (SRF Style)
+**Colors:**
+- White (#ffffff) - main background
+- Cream (#f8f8f8) - alternate sections
+- Light Gray (#e5e5e5) - dividers
+- Text Dark (#2b2b2b) - primary text
+- Red (#8B0000) - CTAs and accents
+- Gold (#C8A96A) - highlights
 
 **Style:**
-- Black marble + clean surfaces
-- Product-first layout
-- Clear buttons (not hidden)
-- Premium but practical UI
-- Modern butcher brand, not fashion brand
+- Clean white backgrounds
+- Professional product photography
+- Clear pricing structure
+- Sale badges on products
+- Promotional banner at top
+- Grid-based layouts
 
-### Typography
-- **Headlines**: Playfair Display (clean, not overly decorative)
-- **Body**: Inter (simple, readable)
-- **Tone**: Clear, confident, trustworthy, premium but accessible
+### Typography (SRF Style)
+- **Headlines**: Playfair Display (elegant, professional)
+- **Body**: Inter (clean, readable)
+- **Tone**: Direct, confident, trustworthy
 
 ### Technical Stack
 - **Frontend**: React with Framer Motion
-- **UI Components**: Shadcn UI (Button, Card components)
-- **Toast Notifications**: Sonner
-- **Styling**: Custom CSS with Google Fonts (Playfair Display + Inter)
+- **UI Components**: Shadcn UI
+- **Toast**: Sonner
+- **Styling**: Custom CSS (SRF-inspired)
 - **Icons**: Lucide React
-- **External Links**: All CTAs redirect to mastermeatbox.com
 
 ## What's Been Implemented (December 2025)
 
-### Section 1: Hero (Straight to Value)
-✅ Clean hero with dark navy gradient background
-✅ Headline: "Premium cuts. No shortcuts."
-✅ Subheadline: "A modern online butcher shop delivering top-quality prime and Wagyu cuts — fresh, simple, and reliable."
-✅ Two CTAs: "Shop Cuts" (primary gold button) and "View Membership" (outlined button)
-✅ Small note: "Limited delivery areas · contact for availability"
-✅ Smooth fade-in animations
+### Top Promotional Banner
+✅ Red banner with promo code
+✅ "15% off orders $299+ | 10% off $199+ | 5% off $99+ with code PREMIUM"
+✅ Prominent placement
 
-### Section 2: Featured Cuts (E-Commerce Main Focus)
-✅ 6 premium product cards in responsive grid
-✅ Products displayed:
-   - A5 Wagyu Ribeye
-   - American Wagyu NY Strip
-   - Dry-Aged Ribeye
-   - Tomahawk Steak
-   - Filet Mignon
-   - Wagyu Picanha
-✅ Each card shows:
-   - Clean product image
-   - Product name (Playfair Display)
-   - Short description
-   - Placeholder pricing ($XX.XX)
-   - "Add to cart" button (gold)
-✅ Interactive hover effects (card lift, image zoom, border glow)
+### Section 1: Hero
+✅ Large hero image with overlay
+✅ Headline: "Premium cuts. No shortcuts."
+✅ Clean CTAs (red primary, white outline secondary)
+✅ Professional photography background
+
+### Section 2: Spring Favorites (Products)
+✅ 6 products in clean grid layout
+✅ White product cards with borders
+✅ Sale badges on discounted items
+✅ Real pricing displayed:
+   - Wagyu Ribeye: $69 (was $79) - Sale
+   - American Wagyu NY Strip: $55 (was $67) - Sale
+   - Dry-Aged Ribeye: $85
+   - Wagyu Tomahawk: $165
+   - Wagyu Filet Mignon: $48 (was $58) - Sale
+   - Wagyu Picanha: $62
+✅ Product grades shown (SRF Black®, SRF Gold®, etc.)
+✅ "Shop Now" buttons
 ✅ Toast notifications on add to cart
-✅ "View all cuts →" CTA at bottom
+✅ Hover effects (subtle lift + shadow)
 
 ### Section 3: Why Mastermeatbox
-✅ Headline: "Quality you can trust"
-✅ Clear value proposition
-✅ 4 highlight points with checkmarks:
-   - Prime & Wagyu quality
-   - Carefully selected cuts
-   - Consistent sourcing
-   - Reliable delivery
+✅ Clean white section
+✅ 4 checkmark highlights
+✅ Professional layout
 
-### Section 4: Membership (Simple & Clear)
-✅ 4 membership tiers displayed:
-   - Free ($0/month)
-   - Select ($4.99/month)
-   - Prime ($12.99/month)
-   - Premium ($19.99/month) - highlighted
-✅ Premium tier visually emphasized (gold border, scaled up)
-✅ Clear feature lists for each tier
-✅ "Choose plan" buttons redirect to mastermeatbox.com
-✅ Clean, scannable layout
+### Section 4: Membership
+✅ 4 tiers with clean cards
+✅ Premium tier highlighted with red border
+✅ "Best Value" badge
+✅ Clear pricing structure
+✅ Red CTA button for premium tier
 
-### Section 5: Delivery Process
-✅ Headline: "Delivered fresh"
-✅ 4-step visual process:
-   - Order → Packed → Cold-chain → Delivered
-✅ Icons for each step
-✅ Brief explanation of temperature-controlled logistics
-✅ "Learn more →" CTA
+### Section 5: Delivery
+✅ Icon-based process flow
+✅ 4 steps with arrows
+✅ Red accent icons
 
-### Section 6: Trust / Social Proof
-✅ Headline: "Customers trust the quality"
-✅ 3 testimonial cards with:
-   - 5-star ratings (gold stars)
-   - Customer quotes
-   - Customer names
-✅ Clean card layout with hover effects
+### Section 6: Testimonials
+✅ 3 testimonial cards
+✅ 5-star ratings (red stars)
+✅ Clean cream backgrounds
 
 ### Section 7: Shipping
-✅ Headline: "Where we deliver"
-✅ Clear messaging about service areas
-✅ Email CTA for availability inquiries
-✅ Simple, straightforward approach
+✅ Simple messaging
+✅ Email CTA
 
 ### Section 8: Final CTA
-✅ Clean gradient background (navy to carbon)
-✅ Large headline: "Better cuts start here"
-✅ Big gold CTA button: "Shop Mastermeatbox"
-✅ Subtext: "Premium cuts. Simple process."
+✅ Dark background
+✅ Large red CTA button
+✅ Clean, professional
 
 ### Footer
-✅ Brand name "Mastermeatbox"
-✅ Tagline: "Top-quality cuts, delivered right."
-✅ Footer links: Privacy, Delivery, Membership
-✅ Clean, minimal design
+✅ White background
+✅ Brand name and tagline
+✅ Footer links
+✅ Professional layout
 
-### Features & Interactions Implemented
-✅ Smooth scroll-triggered animations
-✅ Product card hover effects (lift + image zoom)
-✅ Toast notifications for add to cart (using Sonner)
-✅ Responsive grid layouts
-✅ Clean button states and transitions
-✅ Professional product photography
-✅ E-commerce focused UI patterns
-✅ All CTAs properly linked
+## Key SRF-Style Elements Implemented
 
-### Design Quality
-✅ Clean, modern butcher shop aesthetic
-✅ Black/Carbon/Graphite color palette
-✅ Gold accents used sparingly
-✅ Playfair Display + Inter fonts
-✅ Premium but accessible tone
-✅ Product-first layout
-✅ Clear pricing and CTAs
-✅ Professional e-commerce UX
-✅ Smooth, fast animations (not flashy)
+✅ **Clean White Design**: All sections use white/cream backgrounds
+✅ **Real Pricing**: Actual prices displayed ($55-$165 range)
+✅ **Sale Indicators**: Red "SALE" badges on discounted items
+✅ **Strikethrough Pricing**: Original prices shown crossed out
+✅ **Product Grades**: SRF-style grade labels (SRF Black®, SRF Gold®)
+✅ **Promo Banner**: Top promotional banner with code
+✅ **Professional Photography**: Clean product images
+✅ **Red Accent Color**: Used for CTAs and highlights
+✅ **Grid Layouts**: Professional product grid
+✅ **Best Value Badge**: On premium membership
+✅ **Clean Typography**: Playfair Display + Inter
+✅ **Hover Effects**: Subtle shadows and lifts
+✅ **Border Cards**: White cards with gray borders
 
 ## Prioritized Backlog
 
 ### P0 (Completed)
-- ✅ Complete frontend implementation
-- ✅ All 8 sections functional
-- ✅ E-commerce product cards with add to cart
-- ✅ Membership tiers display
-- ✅ Toast notifications working
-- ✅ All CTAs properly linked
-- ✅ Responsive design
+- ✅ SRF-style design implementation
+- ✅ Real pricing structure
+- ✅ Sale badges and pricing
+- ✅ Product grades
+- ✅ Promotional banner
+- ✅ Clean white aesthetic
 
 ### P1 (Future Enhancements)
-- Add shopping cart sidebar/modal
-- Implement product quick view
-- Add product filtering/sorting
-- Create actual checkout flow
-- Add more product images (multiple angles)
-- Implement image galleries for products
+- Add product quick view
+- Implement variant selection (thickness, quantity)
+- Add more product images per item
+- Create category pages
+- Add product filtering
 
 ### P2 (Nice to Have)
-- Add product comparison feature
-- Implement wishlist functionality
-- Add recipe suggestions per cut
-- Create cooking guide resources
-- Add subscription box builder
-- Implement referral program section
+- Product reviews section
+- Recipe integration
+- Cooking guides per cut
+- Email signup popup
+- Loyalty points display
 
 ## Next Tasks
-- User review and feedback on e-commerce flow
-- Consider adding real pricing structure
-- Optimize images for production
-- Add more product details (weight, servings, etc.)
-- SEO optimization
-- Analytics implementation
+- User review and feedback
+- Consider adding product variants
+- Optimize for conversion
+- A/B test CTA placements
 
 ---
 **Last Updated**: December 2025
-**Status**: E-Commerce Frontend Complete - Ready for Review
-**Version**: 2.0 (Complete Redesign)
+**Status**: SRF-Style E-Commerce Complete
+**Version**: 3.0 (SRF-Inspired Redesign)

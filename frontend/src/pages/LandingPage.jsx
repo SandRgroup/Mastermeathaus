@@ -16,39 +16,51 @@ const LandingPage = () => {
 
   const featuredCuts = [
     {
-      name: "A5 Wagyu Ribeye",
-      description: "Premium Japanese marbling",
-      price: "$XX.XX",
-      image: "https://images.unsplash.com/photo-1602470521006-59ab77068b0d"
+      name: "Wagyu Ribeye Steak",
+      grade: "SRF Black®",
+      description: "Ultimate marbling and flavor",
+      price: "$69.00",
+      originalPrice: "$79.00",
+      image: "https://images.unsplash.com/photo-1602470521006-59ab77068b0d",
+      badge: "Sale"
     },
     {
       name: "American Wagyu NY Strip",
-      description: "Rich flavor, tender texture",
-      price: "$XX.XX",
-      image: "https://images.unsplash.com/photo-1690983321750-ad6f6d59a84b"
+      grade: "SRF Gold®",
+      description: "Rich, beefy flavor with superior tenderness",
+      price: "$55.00",
+      originalPrice: "$67.00",
+      image: "https://images.unsplash.com/photo-1690983321750-ad6f6d59a84b",
+      badge: "Sale"
     },
     {
       name: "Dry-Aged Ribeye",
-      description: "45-day aged perfection",
-      price: "$XX.XX",
+      grade: "45-Day Aged",
+      description: "Intensified flavor, exceptional texture",
+      price: "$85.00",
       image: "https://images.unsplash.com/photo-1690983323238-0b91789e1b5a"
     },
     {
-      name: "Tomahawk Steak",
-      description: "Impressive presentation cut",
-      price: "$XX.XX",
+      name: "Wagyu Tomahawk Steak",
+      grade: "SRF Black®",
+      description: "Show-stopping presentation cut",
+      price: "$165.00",
       image: "https://images.unsplash.com/photo-1632154023554-c2975e9be348"
     },
     {
-      name: "Filet Mignon",
-      description: "Ultimate tenderness",
-      price: "$XX.XX",
-      image: "https://images.unsplash.com/photo-1666013942642-b7b54ecafd7d"
+      name: "Wagyu Filet Mignon",
+      grade: "SRF Silver™",
+      description: "Buttery tenderness, delicate flavor",
+      price: "$48.00",
+      originalPrice: "$58.00",
+      image: "https://images.unsplash.com/photo-1666013942642-b7b54ecafd7d",
+      badge: "Sale"
     },
     {
       name: "Wagyu Picanha",
-      description: "Brazilian cut, Japanese quality",
-      price: "$XX.XX",
+      grade: "SRF Gold®",
+      description: "Brazilian favorite with Japanese quality",
+      price: "$62.00",
       image: "https://images.unsplash.com/photo-1547050605-2f268cd5daf0"
     }
   ];
@@ -65,43 +77,49 @@ const LandingPage = () => {
       name: "Select",
       price: "$4.99",
       period: "/month",
-      features: ["Better pricing", "Early access"],
+      features: ["Better pricing", "Early access to new products"],
       highlight: false
     },
     {
       name: "Prime",
       price: "$12.99",
       period: "/month",
-      features: ["Lower pricing", "Priority availability"],
+      features: ["Lower pricing", "Priority availability", "Member exclusives"],
       highlight: false
     },
     {
       name: "Premium",
       price: "$19.99",
       period: "/month",
-      features: ["Free delivery", "Best pricing", "Priority fulfillment"],
-      highlight: true
+      features: ["Free delivery", "Best pricing", "Priority fulfillment", "Exclusive offers"],
+      highlight: true,
+      bestValue: true
     }
   ];
 
   const testimonials = [
     {
-      text: "Best quality I've found online. Consistent and reliable.",
+      text: "Best quality I've found online. Consistent and reliable every single time.",
       author: "Michael R."
     },
     {
-      text: "Simple ordering, premium cuts. Exactly what I needed.",
+      text: "Simple ordering, premium cuts. Exactly what I needed for my family dinners.",
       author: "Sarah K."
     },
     {
-      text: "The dry-aged ribeye is exceptional. Worth every penny.",
+      text: "The dry-aged ribeye is exceptional. Worth every penny and then some.",
       author: "James L."
     }
   ];
 
   return (
     <div className="butcher-page">
-      {/* SECTION 1: HERO */}
+      {/* PROMO BANNER */}
+      <div className="promo-banner">
+        15% off orders $299+ | 10% off orders $199+ | 5% off orders $99+ with code <span className="code">PREMIUM</span>
+      </div>
+
+      {/* HERO */}
       <section className="hero">
         <div className="hero-content">
           <motion.h1
@@ -137,11 +155,11 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* SECTION 2: FEATURED CUTS */}
+      {/* FEATURED CUTS */}
       <section className="featured-cuts">
         <div className="container">
           <div className="section-header">
-            <h2 className="section-title">Our top cuts</h2>
+            <h2 className="section-title">Spring Favorites</h2>
             <p className="section-subtitle">A small selection, chosen for quality — not quantity.</p>
           </div>
 
@@ -156,18 +174,27 @@ const LandingPage = () => {
               >
                 <Card className="product-card">
                   <div className="product-image">
+                    {product.badge && <div className="product-badge">{product.badge}</div>}
                     <img src={product.image} alt={product.name} />
                   </div>
                   <div className="product-info">
+                    <div className="product-grade">{product.grade}</div>
                     <h3 className="product-name">{product.name}</h3>
                     <p className="product-description">{product.description}</p>
                     <div className="product-footer">
-                      <span className="product-price">{product.price}</span>
+                      <div>
+                        {product.originalPrice && (
+                          <span className="price-original">{product.originalPrice}</span>
+                        )}
+                        <span className={`product-price ${product.originalPrice ? 'price-sale' : ''}`}>
+                          {product.price}
+                        </span>
+                      </div>
                       <Button 
                         className="add-to-cart-btn"
                         onClick={() => handleAddToCart(product.name)}
                       >
-                        Add to cart
+                        Shop Now
                       </Button>
                     </div>
                   </div>
@@ -184,7 +211,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* SECTION 3: WHY MASTERMEATBOX */}
+      {/* WHY MASTERMEATBOX */}
       <section className="why-section">
         <div className="container">
           <h2 className="section-title">Quality you can trust</h2>
@@ -194,33 +221,36 @@ const LandingPage = () => {
           </p>
           <div className="highlights-grid">
             <div className="highlight-item">
-              <Check className="highlight-icon" />
+              <Check className="highlight-icon" size={24} />
               <span>Prime & Wagyu quality</span>
             </div>
             <div className="highlight-item">
-              <Check className="highlight-icon" />
+              <Check className="highlight-icon" size={24} />
               <span>Carefully selected cuts</span>
             </div>
             <div className="highlight-item">
-              <Check className="highlight-icon" />
+              <Check className="highlight-icon" size={24} />
               <span>Consistent sourcing</span>
             </div>
             <div className="highlight-item">
-              <Check className="highlight-icon" />
+              <Check className="highlight-icon" size={24} />
               <span>Reliable delivery</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* SECTION 4: MEMBERSHIP */}
+      {/* MEMBERSHIP */}
       <section className="membership-section">
         <div className="container">
-          <h2 className="section-title">Membership that works for you</h2>
+          <div className="section-header">
+            <h2 className="section-title">Membership that works for you</h2>
+          </div>
           
           <div className="membership-grid">
             {membershipPlans.map((plan, index) => (
               <Card key={index} className={`membership-card ${plan.highlight ? 'highlight' : ''}`}>
+                {plan.bestValue && <div className="best-value-badge">Best Value</div>}
                 <div className="membership-header">
                   <h3 className="membership-name">{plan.name}</h3>
                   <div className="membership-price">
@@ -248,7 +278,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* SECTION 5: DELIVERY */}
+      {/* DELIVERY */}
       <section className="delivery-section">
         <div className="container">
           <h2 className="section-title">Delivered fresh</h2>
@@ -258,17 +288,17 @@ const LandingPage = () => {
               <Package className="step-icon" />
               <span className="step-label">Order</span>
             </div>
-            <ChevronRight className="step-arrow" />
+            <ChevronRight className="step-arrow" size={24} />
             <div className="delivery-step">
               <Thermometer className="step-icon" />
               <span className="step-label">Packed</span>
             </div>
-            <ChevronRight className="step-arrow" />
+            <ChevronRight className="step-arrow" size={24} />
             <div className="delivery-step">
               <Thermometer className="step-icon" />
               <span className="step-label">Cold-chain</span>
             </div>
-            <ChevronRight className="step-arrow" />
+            <ChevronRight className="step-arrow" size={24} />
             <div className="delivery-step">
               <Truck className="step-icon" />
               <span className="step-label">Delivered</span>
@@ -285,7 +315,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* SECTION 6: TESTIMONIALS */}
+      {/* TESTIMONIALS */}
       <section className="testimonials-section">
         <div className="container">
           <h2 className="section-title">Customers trust the quality</h2>
@@ -295,7 +325,7 @@ const LandingPage = () => {
               <Card key={index} className="testimonial-card">
                 <div className="stars">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={16} fill="#C8A96A" stroke="#C8A96A" />
+                    <Star key={i} size={18} fill="#8B0000" stroke="#8B0000" />
                   ))}
                 </div>
                 <p className="testimonial-text">"{testimonial.text}"</p>
@@ -306,7 +336,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* SECTION 7: SHIPPING */}
+      {/* SHIPPING */}
       <section className="shipping-section">
         <div className="container">
           <h2 className="section-title">Where we deliver</h2>
@@ -320,7 +350,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* SECTION 8: FINAL CTA */}
+      {/* FINAL CTA */}
       <section className="final-cta">
         <div className="container">
           <h2 className="final-title">Better cuts start here</h2>
