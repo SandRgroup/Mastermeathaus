@@ -1,351 +1,349 @@
-import React, { useEffect, useState } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { ChevronRight, Sparkles, Award, Clock, Flame } from 'lucide-react';
+import React from 'react';
+import { motion } from 'framer-motion';
+import { ChevronRight, Check, Package, Thermometer, Truck, Star } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
+import { toast } from 'sonner';
 import '../styles/LandingPage.css';
 
 const LandingPage = () => {
-  const { scrollYProgress } = useScroll();
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
-  const heroScale = useTransform(scrollYProgress, [0, 0.3], [1, 1.2]);
+  const handleAddToCart = (productName) => {
+    toast.success(`${productName} added to cart`, {
+      description: 'Continue shopping or checkout',
+      duration: 3000,
+    });
+  };
 
-  const masterCuts = [
+  const featuredCuts = [
     {
-      category: "The Wagyu & Reserve Collection",
-      cuts: [
-        {
-          name: "Wagyu Ribeye",
-          grade: "A5 Japanese",
-          image: "https://images.unsplash.com/photo-1547050605-2f268cd5daf0",
-          description: "Unparalleled marbling perfection"
-        },
-        {
-          name: "Wagyu NY Strip",
-          grade: "Premium Grade",
-          image: "https://images.unsplash.com/photo-1600180786732-6189f0ad253d",
-          description: "The epitome of tenderness"
-        },
-        {
-          name: "Dry-Aged Steak",
-          grade: "45-Day Aged",
-          image: "https://images.unsplash.com/photo-1558030077-82dd9347c407",
-          description: "Concentrated flavor intensity"
-        }
-      ]
+      name: "A5 Wagyu Ribeye",
+      description: "Premium Japanese marbling",
+      price: "$XX.XX",
+      image: "https://images.unsplash.com/photo-1602470521006-59ab77068b0d"
     },
     {
-      category: "The Bone-In Apex",
-      cuts: [
-        {
-          name: "Porterhouse",
-          grade: "Master Cut",
-          image: "https://images.unsplash.com/photo-1614277786110-1a64e457c4c3",
-          description: "The ultimate dual experience"
-        },
-        {
-          name: "T-Bone",
-          grade: "Premium Select",
-          image: "https://images.unsplash.com/photo-1606374894242-19110fdbd56c",
-          description: "Classic steakhouse precision"
-        },
-        {
-          name: "Tomahawk Steak",
-          grade: "Seasonal Vault",
-          image: "https://images.unsplash.com/photo-1579636858731-24857b3f4305",
-          badge: true,
-          description: "The crown jewel presentation"
-        }
-      ]
+      name: "American Wagyu NY Strip",
+      description: "Rich flavor, tender texture",
+      price: "$XX.XX",
+      image: "https://images.unsplash.com/photo-1690983321750-ad6f6d59a84b"
     },
     {
-      category: "The Craftsman's Specialty",
-      cuts: [
-        {
-          name: "Whole Picanha",
-          grade: "Fat Cap On",
-          image: "https://images.unsplash.com/photo-1579636859172-67ced5686109",
-          description: "Brazilian masterpiece"
-        },
-        {
-          name: "Cupim",
-          grade: "Heritage Cut",
-          image: "https://images.unsplash.com/photo-1547050605-2f268cd5daf0",
-          description: "Rare delicacy reserve"
-        },
-        {
-          name: "Filet Mignon",
-          grade: "Center Cut",
-          image: "https://images.unsplash.com/photo-1600180786732-6189f0ad253d",
-          description: "Buttery perfection"
-        },
-        {
-          name: "Beef Short Ribs",
-          grade: "Prime Selection",
-          image: "https://images.unsplash.com/photo-1558030077-82dd9347c407",
-          description: "Braising excellence"
-        },
-        {
-          name: "Flank Steak",
-          grade: "Grain Perfect",
-          image: "https://images.unsplash.com/photo-1614277786110-1a64e457c4c3",
-          description: "Maximum flavor density"
-        }
-      ]
+      name: "Dry-Aged Ribeye",
+      description: "45-day aged perfection",
+      price: "$XX.XX",
+      image: "https://images.unsplash.com/photo-1690983323238-0b91789e1b5a"
+    },
+    {
+      name: "Tomahawk Steak",
+      description: "Impressive presentation cut",
+      price: "$XX.XX",
+      image: "https://images.unsplash.com/photo-1632154023554-c2975e9be348"
+    },
+    {
+      name: "Filet Mignon",
+      description: "Ultimate tenderness",
+      price: "$XX.XX",
+      image: "https://images.unsplash.com/photo-1666013942642-b7b54ecafd7d"
+    },
+    {
+      name: "Wagyu Picanha",
+      description: "Brazilian cut, Japanese quality",
+      price: "$XX.XX",
+      image: "https://images.unsplash.com/photo-1547050605-2f268cd5daf0"
     }
   ];
 
-  const boxBuilderSteps = [
+  const membershipPlans = [
     {
-      step: "01",
-      title: "THE FOUNDATION",
-      description: "Select your primary protein from our master inventory",
-      icon: Award
+      name: "Free",
+      price: "$0",
+      period: "/month",
+      features: ["Access to all cuts", "Standard pricing"],
+      highlight: false
     },
     {
-      step: "02",
-      title: "THE PRECISION",
-      description: "Specify your exact thickness and dry-aging duration",
-      icon: Clock
+      name: "Select",
+      price: "$4.99",
+      period: "/month",
+      features: ["Better pricing", "Early access"],
+      highlight: false
     },
     {
-      step: "03",
-      title: "THE FINISH",
-      description: "Add craftsman essentials—smoked sea salts and bone marrow compound butters",
-      icon: Flame
+      name: "Prime",
+      price: "$12.99",
+      period: "/month",
+      features: ["Lower pricing", "Priority availability"],
+      highlight: false
+    },
+    {
+      name: "Premium",
+      price: "$19.99",
+      period: "/month",
+      features: ["Free delivery", "Best pricing", "Priority fulfillment"],
+      highlight: true
+    }
+  ];
+
+  const testimonials = [
+    {
+      text: "Best quality I've found online. Consistent and reliable.",
+      author: "Michael R."
+    },
+    {
+      text: "Simple ordering, premium cuts. Exactly what I needed.",
+      author: "Sarah K."
+    },
+    {
+      text: "The dry-aged ribeye is exceptional. Worth every penny.",
+      author: "James L."
     }
   ];
 
   return (
-    <div className="landing-page">
+    <div className="butcher-page">
       {/* SECTION 1: HERO */}
-      <motion.section 
-        className="hero-section"
-        style={{ opacity: heroOpacity }}
-      >
-        <motion.div 
-          className="hero-background"
-          style={{ scale: heroScale }}
-        >
-          <img 
-            src="https://images.pexels.com/photos/31406830/pexels-photo-31406830.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940" 
-            alt="Premium Wagyu"
-            className="hero-image"
-          />
-          <div className="hero-overlay"></div>
-        </motion.div>
-        
+      <section className="hero">
         <div className="hero-content">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
+          <motion.h1
+            className="hero-title"
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.3 }}
+            transition={{ duration: 0.6 }}
           >
-            <h1 className="hero-headline">
-              THE APEX OF BONE-IN.<br/>
-              GASTRONOMY, BORN IN PRECISION.
-            </h1>
-            <p className="hero-subheadline">
-              Mastermeatbox delivers unparalleled, master-crafted Wagyu and heritage cuts.<br/>
-              Every millimeter, every grain, perfectly engineered.
-            </p>
-            <Button 
-              className="hero-cta"
-              onClick={() => window.location.href = 'https://mastermeatbox.com'}
-            >
-              <span>ENGINEER YOUR GASTRONOMY</span>
-              <ChevronRight className="cta-icon" />
+            Premium cuts. No shortcuts.
+          </motion.h1>
+          <motion.p
+            className="hero-subtitle"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            A modern online butcher shop delivering top-quality prime and Wagyu cuts — fresh, simple, and reliable.
+          </motion.p>
+          <motion.div
+            className="hero-ctas"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+          >
+            <Button className="primary-btn" onClick={() => window.location.href = 'https://mastermeatbox.com'}>
+              Shop Cuts
+            </Button>
+            <Button className="secondary-btn" onClick={() => window.location.href = 'https://mastermeatbox.com'}>
+              View Membership
             </Button>
           </motion.div>
+          <p className="hero-note">Limited delivery areas · contact for availability</p>
         </div>
-      </motion.section>
+      </section>
 
-      {/* SECTION 2: MASTER'S INVENTORY */}
-      <section className="inventory-section">
-        <div className="section-container">
-          <motion.h2 
-            className="section-headline"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-          >
-            THE MARBLING MASTERPIECE.
-          </motion.h2>
-
-          {masterCuts.map((group, groupIndex) => (
-            <div key={groupIndex} className="cut-category">
-              <h3 className="category-title">{group.category}</h3>
-              <div className="cuts-grid">
-                {group.cuts.map((cut, cutIndex) => (
-                  <motion.div
-                    key={cutIndex}
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: cutIndex * 0.1 }}
-                  >
-                    <Card className="cut-card">
-                      <div className="cut-image-wrapper">
-                        <img src={cut.image} alt={cut.name} className="cut-image" />
-                        {cut.badge && (
-                          <div className="seasonal-badge">
-                            <Sparkles size={16} />
-                            <span>SEASONAL VAULT</span>
-                          </div>
-                        )}
-                      </div>
-                      <div className="cut-details">
-                        <div className="cut-grade">{cut.grade}</div>
-                        <h4 className="cut-name">{cut.name}</h4>
-                        <p className="cut-description">{cut.description}</p>
-                      </div>
-                    </Card>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          ))}
-
-          <div className="section-cta-wrapper">
-            <Button 
-              className="section-cta"
-              onClick={() => window.location.href = 'https://mastermeatbox.com'}
-            >
-              EXPLORE THE PORTFOLIO
-              <ChevronRight className="cta-icon" />
-            </Button>
+      {/* SECTION 2: FEATURED CUTS */}
+      <section className="featured-cuts">
+        <div className="container">
+          <div className="section-header">
+            <h2 className="section-title">Our top cuts</h2>
+            <p className="section-subtitle">A small selection, chosen for quality — not quantity.</p>
           </div>
-        </div>
-      </section>
 
-      {/* SECTION 3: FLAGSHIP EXPERIENCE */}
-      <section className="flagship-section">
-        <div className="flagship-container">
-          <motion.div 
-            className="flagship-visual"
-            initial={{ opacity: 0, x: -50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-          >
-            <div className="box-wrapper">
-              <img 
-                src="https://images.unsplash.com/photo-1610245169249-c7fbf6768884?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NzR8MHwxfHNlYXJjaHwzfHxsdXh1cnklMjBibGFjayUyMGJveHxlbnwwfHx8YmxhY2t8MTc3NjEyNjQ5OHww&ixlib=rb-4.1.0&q=85" 
-                alt="Master's Box"
-                className="flagship-box"
-              />
-              <div className="box-glow"></div>
-            </div>
-          </motion.div>
-
-          <motion.div 
-            className="flagship-content"
-            initial={{ opacity: 0, x: 50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-          >
-            <h2 className="flagship-headline">
-              THE CROWN JEWEL:<br/>
-              THE MASTER'S BUTCHER.
-            </h2>
-            <p className="flagship-body">
-              Introducing our most elite curation. Hand-forged quality meets dry-aged perfection. 
-              This isn't a subscription; it's a membership into the art of the cut.
-            </p>
-            <Button 
-              className="flagship-cta"
-              onClick={() => window.location.href = 'https://mastermeatbox.com'}
-            >
-              CURATE THE MASTER'S SELECTION
-              <ChevronRight className="cta-icon" />
-            </Button>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* SECTION 4: BOX BUILDER */}
-      <section className="builder-section">
-        <div className="section-container">
-          <motion.h2 
-            className="section-headline"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-          >
-            BEYOND THE BLOCK. BUILD YOURS.
-          </motion.h2>
-
-          <div className="builder-grid">
-            {boxBuilderSteps.map((step, index) => (
+          <div className="products-grid">
+            {featuredCuts.map((product, index) => (
               <motion.div
                 key={index}
-                className="builder-step"
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: index * 0.2 }}
+                transition={{ delay: index * 0.1 }}
               >
-                <div className="step-number">{step.step}</div>
-                <step.icon className="step-icon" size={48} />
-                <h3 className="step-title">{step.title}</h3>
-                <p className="step-description">{step.description}</p>
-                {index < boxBuilderSteps.length - 1 && (
-                  <div className="step-arrow">
-                    <ChevronRight size={32} />
+                <Card className="product-card">
+                  <div className="product-image">
+                    <img src={product.image} alt={product.name} />
                   </div>
-                )}
+                  <div className="product-info">
+                    <h3 className="product-name">{product.name}</h3>
+                    <p className="product-description">{product.description}</p>
+                    <div className="product-footer">
+                      <span className="product-price">{product.price}</span>
+                      <Button 
+                        className="add-to-cart-btn"
+                        onClick={() => handleAddToCart(product.name)}
+                      >
+                        Add to cart
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
               </motion.div>
             ))}
           </div>
 
-          <div className="section-cta-wrapper">
-            <Button 
-              className="section-cta builder-cta"
-              onClick={() => window.location.href = 'https://mastermeatbox.com'}
-            >
-              LAUNCH THE BOX BUILDER
-              <ChevronRight className="cta-icon" />
+          <div className="section-cta">
+            <Button className="text-btn" onClick={() => window.location.href = 'https://mastermeatbox.com'}>
+              View all cuts <ChevronRight size={20} />
             </Button>
           </div>
         </div>
       </section>
 
-      {/* SECTION 5: FINAL CALL */}
-      <section className="final-section">
-        <div className="final-content">
-          <motion.h2 
-            className="final-headline"
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-          >
-            RESPECT THE CUT. MASTER THE MEAT.
-          </motion.h2>
-          <p className="final-body">
-            The grocery store is for the masses. Mastermeatbox is for the masters.<br/>
-            Are you ready to respect the cut?
+      {/* SECTION 3: WHY MASTERMEATBOX */}
+      <section className="why-section">
+        <div className="container">
+          <h2 className="section-title">Quality you can trust</h2>
+          <p className="why-body">
+            We focus on sourcing and delivering premium cuts without overcomplicating the process. 
+            No unnecessary options — just high-quality meat done right.
           </p>
-          <Button 
-            className="final-cta"
-            onClick={() => window.location.href = 'https://mastermeatbox.com'}
-          >
-            <span className="cta-text">ENTER THE VAULT</span>
+          <div className="highlights-grid">
+            <div className="highlight-item">
+              <Check className="highlight-icon" />
+              <span>Prime & Wagyu quality</span>
+            </div>
+            <div className="highlight-item">
+              <Check className="highlight-icon" />
+              <span>Carefully selected cuts</span>
+            </div>
+            <div className="highlight-item">
+              <Check className="highlight-icon" />
+              <span>Consistent sourcing</span>
+            </div>
+            <div className="highlight-item">
+              <Check className="highlight-icon" />
+              <span>Reliable delivery</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 4: MEMBERSHIP */}
+      <section className="membership-section">
+        <div className="container">
+          <h2 className="section-title">Membership that works for you</h2>
+          
+          <div className="membership-grid">
+            {membershipPlans.map((plan, index) => (
+              <Card key={index} className={`membership-card ${plan.highlight ? 'highlight' : ''}`}>
+                <div className="membership-header">
+                  <h3 className="membership-name">{plan.name}</h3>
+                  <div className="membership-price">
+                    <span className="price">{plan.price}</span>
+                    <span className="period">{plan.period}</span>
+                  </div>
+                </div>
+                <div className="membership-features">
+                  {plan.features.map((feature, idx) => (
+                    <div key={idx} className="feature-item">
+                      <Check size={16} />
+                      <span>{feature}</span>
+                    </div>
+                  ))}
+                </div>
+                <Button 
+                  className={plan.highlight ? "membership-btn highlight" : "membership-btn"}
+                  onClick={() => window.location.href = 'https://mastermeatbox.com'}
+                >
+                  Choose plan
+                </Button>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 5: DELIVERY */}
+      <section className="delivery-section">
+        <div className="container">
+          <h2 className="section-title">Delivered fresh</h2>
+          
+          <div className="delivery-steps">
+            <div className="delivery-step">
+              <Package className="step-icon" />
+              <span className="step-label">Order</span>
+            </div>
+            <ChevronRight className="step-arrow" />
+            <div className="delivery-step">
+              <Thermometer className="step-icon" />
+              <span className="step-label">Packed</span>
+            </div>
+            <ChevronRight className="step-arrow" />
+            <div className="delivery-step">
+              <Thermometer className="step-icon" />
+              <span className="step-label">Cold-chain</span>
+            </div>
+            <ChevronRight className="step-arrow" />
+            <div className="delivery-step">
+              <Truck className="step-icon" />
+              <span className="step-label">Delivered</span>
+            </div>
+          </div>
+
+          <p className="delivery-text">
+            We handle every order with temperature-controlled logistics to keep your cuts fresh.
+          </p>
+
+          <Button className="text-btn" onClick={() => window.location.href = 'https://mastermeatbox.com'}>
+            Learn more <ChevronRight size={20} />
           </Button>
         </div>
       </section>
 
-      {/* FOOTER */}
-      <footer className="landing-footer">
-        <div className="footer-links">
-          <a href="https://mastermeatbox.com" className="footer-link">Copyright © 2025</a>
-          <span className="footer-separator">•</span>
-          <a href="https://mastermeatbox.com" className="footer-link">Privacy Protocol</a>
-          <span className="footer-separator">•</span>
-          <a href="https://mastermeatbox.com" className="footer-link">Shipping Standards</a>
+      {/* SECTION 6: TESTIMONIALS */}
+      <section className="testimonials-section">
+        <div className="container">
+          <h2 className="section-title">Customers trust the quality</h2>
+          
+          <div className="testimonials-grid">
+            {testimonials.map((testimonial, index) => (
+              <Card key={index} className="testimonial-card">
+                <div className="stars">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} size={16} fill="#C8A96A" stroke="#C8A96A" />
+                  ))}
+                </div>
+                <p className="testimonial-text">"{testimonial.text}"</p>
+                <p className="testimonial-author">— {testimonial.author}</p>
+              </Card>
+            ))}
+          </div>
         </div>
-        <div className="footer-tagline">PRECISION IN EVERY CUT.</div>
+      </section>
+
+      {/* SECTION 7: SHIPPING */}
+      <section className="shipping-section">
+        <div className="container">
+          <h2 className="section-title">Where we deliver</h2>
+          <p className="shipping-text">
+            We currently serve select areas.<br/>
+            If you're outside, contact us to check availability.
+          </p>
+          <Button className="secondary-btn" onClick={() => window.location.href = 'mailto:hello@mastermeatbox.com'}>
+            Email us
+          </Button>
+        </div>
+      </section>
+
+      {/* SECTION 8: FINAL CTA */}
+      <section className="final-cta">
+        <div className="container">
+          <h2 className="final-title">Better cuts start here</h2>
+          <Button className="final-btn" onClick={() => window.location.href = 'https://mastermeatbox.com'}>
+            Shop Mastermeatbox
+          </Button>
+          <p className="final-subtext">Premium cuts. Simple process.</p>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer className="footer">
+        <div className="container">
+          <div className="footer-brand">
+            <h3>Mastermeatbox</h3>
+            <p>Top-quality cuts, delivered right.</p>
+          </div>
+          <div className="footer-links">
+            <a href="https://mastermeatbox.com">Privacy</a>
+            <a href="https://mastermeatbox.com">Delivery</a>
+            <a href="https://mastermeatbox.com">Membership</a>
+          </div>
+        </div>
       </footer>
     </div>
   );

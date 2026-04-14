@@ -1,128 +1,197 @@
-# Mastermeatbox - Ultra-Luxury Landing Page
+# Mastermeatbox - Modern E-Commerce Butcher Shop
 
 ## Original Problem Statement
-Generate a single-page, long-scrolling, ultra-luxury landing page for "Mastermeatbox". This page acts as a high-end gateway where EVERY button/CTA redirects to the external Mastermeatbox web application (mastermeatbox.com). The overall vibe is "Elite Gastronomy"—a Michelin-star steakhouse meets modern luxury tech platform with heavy cinematic motion and scroll-triggered animations.
+Create a SINGLE long-scrolling landing page for Mastermeatbox, a modern luxury online butcher shop delivering top-quality prime and Wagyu steak cuts. This is NOT a restaurant or chef experience - it's a premium butcher shop online focused on top-quality cuts, fair premium pricing, and a clean, simple shopping experience.
+
+Think: Snake River Farms × Apple Store × modern butcher shop × premium e-commerce.
 
 ## User Persona
-- **Target Audience**: Affluent food enthusiasts, premium meat connoisseurs, luxury subscription seekers
-- **Age Range**: 30-60 years old
-- **Income Level**: High-income professionals seeking premium culinary experiences
-- **Values**: Quality, precision, craftsmanship, exclusivity
+- **Target Audience**: Premium meat enthusiasts, home cooks who value quality
+- **Age Range**: 30-55 years old
+- **Income Level**: Upper-middle to high income
+- **Values**: Quality over quantity, transparency, simplicity, reliability
+- **Shopping Behavior**: Prefers online convenience with premium quality
 
 ## Core Requirements (Static)
 
-### Brand Aesthetic & Color Palette
-- **Primary Base/Backgrounds**: Deep Emerald Green (#0a4d3c) or Rich Sapphire Black (#0d0d0f)
-- **Primary Accents/Buttons**: Polished Rose Gold (#b76e79) or Brass (#b8860b) with metallic gradients
-- **Secondary Accents/Hover States**: Oxblood Burgundy (#5c0a1a)
-- **Dividers/Subtle Text**: Forged Steel/Gunmetal (#4a4a4a, #708090)
+### Brand Feel
+- Premium but welcoming (NOT intimidating luxury)
+- Strong, clean, premium, simple
+- Trustworthy butcher shop you can rely on
+- Better quality, cleaner experience, direct delivery
+
+### Design System
+**Backgrounds:**
+- Black (#050505)
+- Carbon (#0A0A0A)
+- Graphite (#111316)
+- Dark Navy depth (#0B1A2A)
+
+**Accents:**
+- Gold (#C8A96A) - used lightly
+- Bone (#E6D8B5) - primary text
+- Soft gray variations (#8A8A8A, #B8B8B8)
+
+**Style:**
+- Black marble + clean surfaces
+- Product-first layout
+- Clear buttons (not hidden)
+- Premium but practical UI
+- Modern butcher brand, not fashion brand
 
 ### Typography
-- **Headlines**: Heavy Serif (Cinzel) in all-caps with tight tracking, Rose Gold color
-- **Body Text/Specs**: Ultra-clean Sans-Serif (Montserrat, light weight) in pure white or light gunmetal
+- **Headlines**: Playfair Display (clean, not overly decorative)
+- **Body**: Inter (simple, readable)
+- **Tone**: Clear, confident, trustworthy, premium but accessible
 
 ### Technical Stack
-- **Frontend**: React with Framer Motion for animations
+- **Frontend**: React with Framer Motion
 - **UI Components**: Shadcn UI (Button, Card components)
-- **Styling**: Custom CSS with Google Fonts (Cinzel + Montserrat)
+- **Toast Notifications**: Sonner
+- **Styling**: Custom CSS with Google Fonts (Playfair Display + Inter)
 - **Icons**: Lucide React
-- **External Redirect**: All CTAs redirect to mastermeatbox.com
+- **External Links**: All CTAs redirect to mastermeatbox.com
 
 ## What's Been Implemented (December 2025)
 
-### Section 1: Hero Section (The Immersive Arrival)
-✅ Cinematic background image with slow-motion scroll effects
-✅ Parallax scroll animations using Framer Motion
-✅ Headline: "THE APEX OF BONE-IN. GASTRONOMY, BORN IN PRECISION."
-✅ Sub-headline with brand messaging
-✅ Primary CTA: "ENGINEER YOUR GASTRONOMY" (Rose Gold gradient button with pulsing glow effect)
-✅ Scroll-triggered opacity and scale transforms
+### Section 1: Hero (Straight to Value)
+✅ Clean hero with dark navy gradient background
+✅ Headline: "Premium cuts. No shortcuts."
+✅ Subheadline: "A modern online butcher shop delivering top-quality prime and Wagyu cuts — fresh, simple, and reliable."
+✅ Two CTAs: "Shop Cuts" (primary gold button) and "View Membership" (outlined button)
+✅ Small note: "Limited delivery areas · contact for availability"
+✅ Smooth fade-in animations
 
-### Section 2: Master's Inventory (Dynamic Carousel)
-✅ Three product categories:
-   - The Wagyu & Reserve Collection (3 cuts)
-   - The Bone-In Apex (3 cuts including Tomahawk with "SEASONAL VAULT" animated badge)
-   - The Craftsman's Specialty (5 cuts)
-✅ Interactive hover effects (image zoom, card lift, border color change)
-✅ High-quality product images from Unsplash/Pexels
-✅ Scroll-reveal animations with staggered delays
-✅ CTA: "EXPLORE THE PORTFOLIO"
+### Section 2: Featured Cuts (E-Commerce Main Focus)
+✅ 6 premium product cards in responsive grid
+✅ Products displayed:
+   - A5 Wagyu Ribeye
+   - American Wagyu NY Strip
+   - Dry-Aged Ribeye
+   - Tomahawk Steak
+   - Filet Mignon
+   - Wagyu Picanha
+✅ Each card shows:
+   - Clean product image
+   - Product name (Playfair Display)
+   - Short description
+   - Placeholder pricing ($XX.XX)
+   - "Add to cart" button (gold)
+✅ Interactive hover effects (card lift, image zoom, border glow)
+✅ Toast notifications on add to cart
+✅ "View all cuts →" CTA at bottom
 
-### Section 3: Flagship Experience (Scroll Reveal)
-✅ 50/50 split layout (responsive)
-✅ Luxury packaging imagery with animated glow effect
-✅ 3D hover transform on box image
-✅ Headline: "THE CROWN JEWEL: THE MASTER'S BUTCHER."
-✅ Premium body copy
-✅ CTA: "CURATE THE MASTER'S SELECTION"
+### Section 3: Why Mastermeatbox
+✅ Headline: "Quality you can trust"
+✅ Clear value proposition
+✅ 4 highlight points with checkmarks:
+   - Prime & Wagyu quality
+   - Carefully selected cuts
+   - Consistent sourcing
+   - Reliable delivery
 
-### Section 4: Box Builder Preview
-✅ 3-step schematic grid with glowing icons
-✅ Step cards with hover animations
-✅ Animated connecting arrows (hidden on mobile)
-✅ Large step numbers as background watermarks
-✅ CTA: "LAUNCH THE BOX BUILDER"
+### Section 4: Membership (Simple & Clear)
+✅ 4 membership tiers displayed:
+   - Free ($0/month)
+   - Select ($4.99/month)
+   - Prime ($12.99/month)
+   - Premium ($19.99/month) - highlighted
+✅ Premium tier visually emphasized (gold border, scaled up)
+✅ Clear feature lists for each tier
+✅ "Choose plan" buttons redirect to mastermeatbox.com
+✅ Clean, scannable layout
 
-### Section 5: Final Call & Footer
-✅ Dramatic Oxblood Burgundy gradient background
-✅ Textured background pattern overlay
-✅ Headline: "RESPECT THE CUT. MASTER THE MEAT."
-✅ Giant CTA: "ENTER THE VAULT" with light sweep animation
-✅ Minimal footer with Copyright, Privacy Protocol, Shipping Standards links
-✅ Footer tagline: "PRECISION IN EVERY CUT."
+### Section 5: Delivery Process
+✅ Headline: "Delivered fresh"
+✅ 4-step visual process:
+   - Order → Packed → Cold-chain → Delivered
+✅ Icons for each step
+✅ Brief explanation of temperature-controlled logistics
+✅ "Learn more →" CTA
 
-### Animations & Interactions Implemented
-✅ Framer Motion scroll-triggered animations
-✅ Hero parallax effect (opacity + scale)
-✅ Scroll-reveal animations for all sections
-✅ Card hover effects (transform, shadow, border glow)
-✅ Button hover effects (glow pulse, light sweep, ripple)
-✅ Animated seasonal badge with pulsing glow
-✅ 3D box rotation on hover
-✅ Smooth scroll behavior
+### Section 6: Trust / Social Proof
+✅ Headline: "Customers trust the quality"
+✅ 3 testimonial cards with:
+   - 5-star ratings (gold stars)
+   - Customer quotes
+   - Customer names
+✅ Clean card layout with hover effects
 
-### Design Quality Features
-✅ Luxury color palette strictly followed (no purple/blue gradients)
-✅ Google Fonts integration (Cinzel + Montserrat)
-✅ Rose Gold metallic text gradients
+### Section 7: Shipping
+✅ Headline: "Where we deliver"
+✅ Clear messaging about service areas
+✅ Email CTA for availability inquiries
+✅ Simple, straightforward approach
+
+### Section 8: Final CTA
+✅ Clean gradient background (navy to carbon)
+✅ Large headline: "Better cuts start here"
+✅ Big gold CTA button: "Shop Mastermeatbox"
+✅ Subtext: "Premium cuts. Simple process."
+
+### Footer
+✅ Brand name "Mastermeatbox"
+✅ Tagline: "Top-quality cuts, delivered right."
+✅ Footer links: Privacy, Delivery, Membership
+✅ Clean, minimal design
+
+### Features & Interactions Implemented
+✅ Smooth scroll-triggered animations
+✅ Product card hover effects (lift + image zoom)
+✅ Toast notifications for add to cart (using Sonner)
 ✅ Responsive grid layouts
-✅ High-quality curated images (17 total from vision expert)
-✅ Proper color contrast and readability
-✅ Smooth transitions (not using "transition: all")
-✅ Custom selection styling
+✅ Clean button states and transitions
+✅ Professional product photography
+✅ E-commerce focused UI patterns
+✅ All CTAs properly linked
+
+### Design Quality
+✅ Clean, modern butcher shop aesthetic
+✅ Black/Carbon/Graphite color palette
+✅ Gold accents used sparingly
+✅ Playfair Display + Inter fonts
+✅ Premium but accessible tone
+✅ Product-first layout
+✅ Clear pricing and CTAs
+✅ Professional e-commerce UX
+✅ Smooth, fast animations (not flashy)
 
 ## Prioritized Backlog
 
-### P0 (Not Required - Frontend Only Completed)
+### P0 (Completed)
 - ✅ Complete frontend implementation
-- ✅ All 5 sections fully functional
-- ✅ All CTAs redirecting to mastermeatbox.com
+- ✅ All 8 sections functional
+- ✅ E-commerce product cards with add to cart
+- ✅ Membership tiers display
+- ✅ Toast notifications working
+- ✅ All CTAs properly linked
 - ✅ Responsive design
-- ✅ Animation polish
 
 ### P1 (Future Enhancements)
-- Add mobile menu/navigation if needed
-- Implement lazy loading for images
-- Add page load animations
-- Optimize image sizes for production
-- Add meta tags for SEO
-- Implement analytics tracking
+- Add shopping cart sidebar/modal
+- Implement product quick view
+- Add product filtering/sorting
+- Create actual checkout flow
+- Add more product images (multiple angles)
+- Implement image galleries for products
 
 ### P2 (Nice to Have)
-- Add actual video backgrounds instead of static images
-- Implement custom cursor
-- Add noise/grain texture overlays
-- Create custom loading animation
-- Add micro-interactions on scroll milestones
-- Implement intersection observer for performance
+- Add product comparison feature
+- Implement wishlist functionality
+- Add recipe suggestions per cut
+- Create cooking guide resources
+- Add subscription box builder
+- Implement referral program section
 
 ## Next Tasks
-- User review and feedback
-- Minor design adjustments if needed
-- Performance optimization
-- SEO meta tags implementation
-- Final polish before handoff
+- User review and feedback on e-commerce flow
+- Consider adding real pricing structure
+- Optimize images for production
+- Add more product details (weight, servings, etc.)
+- SEO optimization
+- Analytics implementation
 
 ---
 **Last Updated**: December 2025
-**Status**: Frontend Complete - Ready for Review
+**Status**: E-Commerce Frontend Complete - Ready for Review
+**Version**: 2.0 (Complete Redesign)
