@@ -136,14 +136,19 @@ const ProductCard = ({ product, index }) => {
 
           <div className="product-footer">
             <div className="price-section">
-              {product.originalPrice && (
+              {product.originalPrice && !subscribeAndSave && (
                 <span className="price-original">{calculatePrice(product.originalPrice, selectedWeight)}</span>
               )}
-              <span className={`product-price ${product.originalPrice ? 'price-sale' : ''} ${subscribeAndSave ? 'subscribe-price' : ''}`}>
-                {finalPrice}
-              </span>
+              <div className="price-main">
+                <span className={`product-price ${product.originalPrice ? 'price-sale' : ''} ${subscribeAndSave ? 'subscribe-price' : ''}`}>
+                  {finalPrice}
+                </span>
+              </div>
               {subscribeAndSave && currentPrice !== 'Contact' && (
-                <span className="original-price-small">{currentPrice}</span>
+                <div className="subscription-info">
+                  <span className="original-price-small">{currentPrice}</span>
+                  <span className="savings-badge">Save 10%</span>
+                </div>
               )}
             </div>
             <Button 
@@ -338,11 +343,23 @@ const LandingPage = () => {
       {/* HERO */}
       <section className="hero">
         <div className="hero-content">
+          <motion.div
+            className="hero-logo"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8 }}
+          >
+            <img 
+              src="https://customer-assets.emergentagent.com/job_wagyu-vault/artifacts/ebh2rfed_IMG_2421.PNG" 
+              alt="Mastermeatbox Logo"
+              className="logo-image"
+            />
+          </motion.div>
           <motion.h1
             className="hero-title"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
           >
             Premium cuts. No shortcuts.
           </motion.h1>
@@ -547,7 +564,11 @@ const LandingPage = () => {
       <footer className="footer">
         <div className="container">
           <div className="footer-brand">
-            <h3>Mastermeatbox</h3>
+            <img 
+              src="https://customer-assets.emergentagent.com/job_wagyu-vault/artifacts/ebh2rfed_IMG_2421.PNG" 
+              alt="Mastermeatbox Logo"
+              className="footer-logo"
+            />
             <p>Top-quality cuts, delivered right.</p>
           </div>
           <div className="footer-links">

@@ -68,6 +68,25 @@
   z-index: 2;
 }
 
+.hero-logo {
+  margin-bottom: 2rem;
+}
+
+.logo-image {
+  max-width: 400px;
+  width: 100%;
+  height: auto;
+  filter: brightness(0) invert(1);
+  margin: 0 auto;
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .logo-image {
+    max-width: 280px;
+  }
+}
+
 .hero-title {
   font-family: 'Playfair Display', serif;
   font-size: clamp(2.5rem, 6vw, 4.5rem);
@@ -376,18 +395,25 @@
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  flex: 1;
+}
+
+.price-main {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
 }
 
 .product-price {
   font-family: 'Inter', sans-serif;
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   font-weight: 700;
   color: var(--text-dark);
 }
 
 .product-price.subscribe-price {
   color: var(--red);
-  font-size: 1.6rem;
+  font-size: 2rem;
 }
 
 .price-sale {
@@ -395,15 +421,35 @@
 }
 
 .price-original {
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: var(--text-light);
   text-decoration: line-through;
+  font-weight: 500;
+}
+
+.subscription-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
 }
 
 .original-price-small {
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   color: var(--text-light);
   text-decoration: line-through;
+  font-weight: 500;
+}
+
+.savings-badge {
+  background: var(--red);
+  color: var(--white);
+  padding: 0.2rem 0.5rem;
+  border-radius: 3px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .add-to-cart-btn {
@@ -801,6 +847,19 @@
   font-weight: 700;
   color: var(--text-dark);
   margin-bottom: 0.5rem;
+}
+
+.footer-logo {
+  max-width: 250px;
+  width: 100%;
+  height: auto;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+  .footer-logo {
+    max-width: 180px;
+  }
 }
 
 .footer-brand p {
