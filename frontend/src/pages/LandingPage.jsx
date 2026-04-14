@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronRight, Check, Package, Thermometer, Truck, Star, Info } from 'lucide-react';
 import { Button } from '../components/ui/button';
@@ -6,6 +6,7 @@ import { Card } from '../components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Checkbox } from '../components/ui/checkbox';
 import { toast } from 'sonner';
+import axios from 'axios';
 import '../styles/LandingPage.css';
 
 const ProductCard = ({ product, index }) => {
@@ -165,9 +166,33 @@ const ProductCard = ({ product, index }) => {
 };
 
 const LandingPage = () => {
-  const featuredCuts = [
-    {
-      name: "Filet Mignon",
+  const [products, setProducts] = useState([]);
+  const [memberships, setMemberships] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const [productsRes, membershipsRes] = await Promise.all([
+        axios.get(`${backendUrl}/api/products`),
+        axios.get(`${backendUrl}/api/memberships`)
+      ]);
+      setProducts(productsRes.data);
+      setMemberships(membershipsRes.data);
+    } catch (error) {
+      console.error('Failed to fetch data:', error);
+      toast.error('Failed to load products');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const featuredCuts = products;
+  const membershipPlans = memberships;
       grade: "USDA Prime",
       description: "Center-cut tenderness, minimal fat",
       price: "$45.00",

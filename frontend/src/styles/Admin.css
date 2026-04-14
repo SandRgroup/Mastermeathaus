@@ -1,0 +1,362 @@
+/* Login Page */
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0B1A2A 0%, #0A0A0A 100%);
+  padding: 2rem;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 450px;
+  padding: 3rem;
+  background: white;
+  border-radius: 8px;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.login-logo {
+  max-width: 200px;
+  margin: 0 auto 1.5rem;
+  display: block;
+}
+
+.login-header h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #2b2b2b;
+  margin-bottom: 0.5rem;
+}
+
+.login-header p {
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.login-btn {
+  background: #8B0000;
+  color: white;
+  padding: 0.75rem;
+  font-weight: 600;
+  margin-top: 1rem;
+}
+
+.login-btn:hover {
+  background: #a00000;
+}
+
+/* Admin Dashboard */
+.admin-dashboard {
+  min-height: 100vh;
+  background: #f8f8f8;
+}
+
+.admin-header {
+  background: white;
+  border-bottom: 2px solid #e5e5e5;
+  padding: 1.5rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.admin-brand {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.admin-logo {
+  max-width: 150px;
+  height: auto;
+}
+
+.admin-brand h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2b2b2b;
+  margin: 0;
+}
+
+.admin-brand p {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.logout-btn {
+  background: #666;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Admin Content */
+.admin-content {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.tabs-list {
+  background: white;
+  padding: 0.5rem;
+  border-radius: 6px;
+  margin-bottom: 2rem;
+  display: inline-flex;
+  gap: 0.5rem;
+}
+
+.tab-trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+}
+
+/* Manager Container */
+.manager-container {
+  background: white;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.manager-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e5e5e5;
+}
+
+.manager-header h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #2b2b2b;
+  margin: 0;
+}
+
+.add-btn {
+  background: #8B0000;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.add-btn:hover {
+  background: #a00000;
+}
+
+/* Products Grid */
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.product-item {
+  border: 1px solid #e5e5e5;
+  overflow: hidden;
+}
+
+.product-img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.product-details {
+  padding: 1rem;
+}
+
+.product-grade {
+  font-size: 0.75rem;
+  color: #666;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.product-details h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.product-details p {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 1rem;
+}
+
+.product-price-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.product-price-row .original {
+  text-decoration: line-through;
+  color: #999;
+  font-size: 0.9rem;
+}
+
+.product-price-row .price {
+  font-weight: 700;
+  color: #8B0000;
+  font-size: 1.1rem;
+}
+
+.product-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Memberships Grid */
+.memberships-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.membership-item {
+  padding: 2rem;
+  border: 2px solid #e5e5e5;
+  position: relative;
+}
+
+.membership-item.highlighted {
+  border-color: #8B0000;
+}
+
+.best-value-tag {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: #8B0000;
+  color: white;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 4px;
+}
+
+.membership-item h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.membership-price {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.membership-price .price {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2b2b2b;
+}
+
+.membership-price .period {
+  color: #666;
+}
+
+.features-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem 0;
+}
+
+.features-list li {
+  padding: 0.5rem 0;
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.features-list li::before {
+  content: "✓ ";
+  color: #8B0000;
+  font-weight: 700;
+  margin-right: 0.5rem;
+}
+
+.membership-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Dialog Forms */
+.dialog-content {
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e5e5;
+}
+
+.feature-input {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.checkbox-group {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 1.5rem;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.loading {
+  padding: 3rem;
+  text-align: center;
+  color: #666;
+  font-size: 1.1rem;
+}
