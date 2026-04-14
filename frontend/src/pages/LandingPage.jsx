@@ -293,10 +293,10 @@ const LandingPage = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
-            <Button className="primary-btn" onClick={() => window.location.href = 'https://mastermeatbox.com'}>
+            <Button className="primary-btn" onClick={() => navigate('/')}>
               Shop Cuts
             </Button>
-            <Button className="secondary-btn" onClick={() => window.location.href = 'https://mastermeatbox.com'}>
+            <Button className="secondary-btn" onClick={() => navigate('/membership/premium')}>
               View Membership
             </Button>
           </motion.div>
