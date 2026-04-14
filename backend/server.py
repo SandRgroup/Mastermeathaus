@@ -109,6 +109,7 @@ class Product(BaseModel):
     image: str
     cookingTemp: Optional[str] = None
     badge: Optional[str] = None
+    weight_unit: Optional[str] = "oz"
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class ProductCreate(BaseModel):
@@ -120,6 +121,7 @@ class ProductCreate(BaseModel):
     image: str
     cookingTemp: Optional[str] = None
     badge: Optional[str] = None
+    weight_unit: Optional[str] = "oz"  # oz or lbs
 
 class Membership(BaseModel):
     id: str = Field(default_factory=lambda: str(ObjectId()), alias="_id")
@@ -129,6 +131,8 @@ class Membership(BaseModel):
     features: List[str]
     highlight: bool = False
     bestValue: bool = False
+    billing_type: Optional[str] = "monthly"
+    yearly_price: Optional[str] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class MembershipCreate(BaseModel):
@@ -138,6 +142,27 @@ class MembershipCreate(BaseModel):
     features: List[str]
     highlight: bool = False
     bestValue: bool = False
+
+
+class SteakBox(BaseModel):
+    id: str = Field(default_factory=lambda: str(ObjectId()), alias="_id")
+    name: str
+    tagline: str
+    description: str
+    price: str
+    features: List[str]
+    icon: str = "🥩"
+    highlight: bool = False
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class SteakBoxCreate(BaseModel):
+    name: str
+    tagline: str
+    description: str
+    price: str
+    features: List[str]
+    icon: str = "🥩"
+    highlight: bool = False
 
 class CartItem(BaseModel):
     product_id: str
@@ -323,19 +348,51 @@ async def get_discount_codes(user: dict = Depends(get_current_user)):
 
 @api_router.post("/discount-codes", response_model=DiscountCode)
 async def create_discount_code(code: DiscountCodeCreate, user: dict = Depends(get_current_user)):
-    # Check if code already exists
-    existing = await db.discount_codes.find_one({"code": code.code.upper()})
+    code_dict = code.model_dump()
+    code_dict["created_at"] = datetime.now(timezone.utc)
+    code_dict["used_count"] = 0
+    
+    # Check for duplicate code
+    existing = await db.discount_codes.find_one({"code": code_dict["code"].upper()})
     if existing:
         raise HTTPException(status_code=400, detail="Discount code already exists")
     
-    code_dict = code.dict()
     code_dict["code"] = code_dict["code"].upper()
-    code_dict["used_count"] = 0
-    code_dict["created_at"] = datetime.now(timezone.utc)
-    
     result = await db.discount_codes.insert_one(code_dict)
     code_dict["_id"] = str(result.inserted_id)
     return DiscountCode(**code_dict)
+
+# Steak Boxes Routes
+@api_router.get("/steak-boxes", response_model=List[SteakBox])
+async def get_steak_boxes():
+    boxes = await db.steak_boxes.find({}, {"_id": 0}).limit(50).to_list(50)
+    return boxes
+    boxes = await db.steak_boxes.find({}, {"_id": 0}).limit(50).to_list(50)
+    return boxes
+
+@api_router.post("/steak-boxes", response_model=SteakBox, dependencies=[Depends(get_current_user)])
+async def create_steak_box(box: SteakBoxCreate):
+    box_dict = box.model_dump()
+    box_dict["created_at"] = datetime.now(timezone.utc)
+    result = await db.steak_boxes.insert_one(box_dict)
+    created_box = await db.steak_boxes.find_one({"_id": result.inserted_id}, {"_id": 0})
+    return created_box
+
+@api_router.put("/steak-boxes/{box_id}", response_model=SteakBox, dependencies=[Depends(get_current_user)])
+async def update_steak_box(box_id: str, box: SteakBoxCreate):
+    box_dict = box.model_dump()
+    await db.steak_boxes.update_one({"id": box_id}, {"$set": box_dict})
+    updated_box = await db.steak_boxes.find_one({"id": box_id}, {"_id": 0})
+    if not updated_box:
+        raise HTTPException(status_code=404, detail="Box not found")
+    return updated_box
+
+@api_router.delete("/steak-boxes/{box_id}", dependencies=[Depends(get_current_user)])
+async def delete_steak_box(box_id: str):
+    result = await db.steak_boxes.delete_one({"id": box_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Box not found")
+    return {"message": "Box deleted successfully"}
 
 @api_router.put("/discount-codes/{code_id}", response_model=DiscountCode)
 async def update_discount_code(code_id: str, code: DiscountCodeCreate, user: dict = Depends(get_current_user)):
