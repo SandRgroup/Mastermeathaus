@@ -1,61 +1,213 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronRight, Check, Package, Thermometer, Truck, Star } from 'lucide-react';
+import { ChevronRight, Check, Package, Thermometer, Truck, Star, Info } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
+import { Checkbox } from '../components/ui/checkbox';
 import { toast } from 'sonner';
 import '../styles/LandingPage.css';
 
-const LandingPage = () => {
-  const handleAddToCart = (productName) => {
-    toast.success(`${productName} added to cart`, {
-      description: 'Continue shopping or checkout',
+const ProductCard = ({ product, index }) => {
+  const [selectedWeight, setSelectedWeight] = useState('12oz');
+  const [subscribeAndSave, setSubscribeAndSave] = useState(false);
+  const [showCookingTemp, setShowCookingTemp] = useState(false);
+
+  const weights = ['6oz', '8oz', '12oz', '16oz', '18oz', '20oz', '24oz', '30oz'];
+  
+  const calculatePrice = (basePrice, weight) => {
+    if (basePrice === 'Contact') return 'Contact';
+    const base = parseFloat(basePrice.replace('$', ''));
+    const weightOz = parseFloat(weight.replace('oz', ''));
+    const pricePerOz = base / 12; // Base price is for 12oz
+    const newPrice = (pricePerOz * weightOz).toFixed(2);
+    return `$${newPrice}`;
+  };
+
+  const calculateSavingsPrice = (price) => {
+    if (price === 'Contact') return 'Contact';
+    const base = parseFloat(price.replace('$', ''));
+    return `$${(base * 0.9).toFixed(2)}`;
+  };
+
+  const currentPrice = calculatePrice(product.price, selectedWeight);
+  const finalPrice = subscribeAndSave ? calculateSavingsPrice(currentPrice) : currentPrice;
+
+  const handleAddToCart = () => {
+    const cartMessage = subscribeAndSave 
+      ? `${product.name} (${selectedWeight}) added with Subscribe & Save!`
+      : `${product.name} (${selectedWeight}) added to cart`;
+    toast.success(cartMessage, {
+      description: subscribeAndSave ? 'You\'ll save 10% on every delivery' : 'Continue shopping or checkout',
       duration: 3000,
     });
   };
 
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay: index * 0.1 }}
+    >
+      <Card className="product-card">
+        <div className="product-image">
+          {product.badge && <div className="product-badge">{product.badge}</div>}
+          <img src={product.image} alt={product.name} />
+        </div>
+        <div className="product-info">
+          <div className="product-grade">{product.grade}</div>
+          <h3 className="product-name">{product.name}</h3>
+          <p className="product-description">{product.description}</p>
+          
+          {/* Cooking Temperature Info */}
+          {product.cookingTemp && (
+            <div className="cooking-temp-section">
+              <button 
+                className="cooking-temp-toggle"
+                onClick={() => setShowCookingTemp(!showCookingTemp)}
+              >
+                <Thermometer size={16} />
+                <span>Cooking Guide</span>
+                <Info size={14} />
+              </button>
+              {showCookingTemp && (
+                <div className="cooking-temp-info">
+                  <div className="temp-item">
+                    <span className="temp-label">Rare:</span>
+                    <span className="temp-value">120-125°F</span>
+                  </div>
+                  <div className="temp-item">
+                    <span className="temp-label">Medium-Rare:</span>
+                    <span className="temp-value">130-135°F</span>
+                  </div>
+                  <div className="temp-item">
+                    <span className="temp-label">Medium:</span>
+                    <span className="temp-value">135-145°F</span>
+                  </div>
+                  <div className="temp-item recommended">
+                    <Check size={14} />
+                    <span>Recommended: {product.cookingTemp}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Weight Selector */}
+          {product.price !== 'Contact' && (
+            <div className="weight-selector">
+              <label className="weight-label">Select Size:</label>
+              <Select value={selectedWeight} onValueChange={setSelectedWeight}>
+                <SelectTrigger className="weight-select">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {weights.map((weight) => (
+                    <SelectItem key={weight} value={weight}>
+                      {weight}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {/* Subscribe & Save */}
+          {product.price !== 'Contact' && (
+            <div className="subscribe-save">
+              <div className="subscribe-checkbox">
+                <Checkbox 
+                  id={`subscribe-${index}`}
+                  checked={subscribeAndSave}
+                  onCheckedChange={setSubscribeAndSave}
+                />
+                <label htmlFor={`subscribe-${index}`} className="subscribe-label">
+                  Subscribe & Save 10%
+                </label>
+              </div>
+              {subscribeAndSave && (
+                <div className="savings-message">
+                  You save: {currentPrice !== 'Contact' && `$${(parseFloat(currentPrice.replace('$', '')) * 0.1).toFixed(2)}`}
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="product-footer">
+            <div className="price-section">
+              {product.originalPrice && (
+                <span className="price-original">{calculatePrice(product.originalPrice, selectedWeight)}</span>
+              )}
+              <span className={`product-price ${product.originalPrice ? 'price-sale' : ''} ${subscribeAndSave ? 'subscribe-price' : ''}`}>
+                {finalPrice}
+              </span>
+              {subscribeAndSave && currentPrice !== 'Contact' && (
+                <span className="original-price-small">{currentPrice}</span>
+              )}
+            </div>
+            <Button 
+              className="add-to-cart-btn"
+              onClick={handleAddToCart}
+            >
+              {product.price === 'Contact' ? 'Contact Us' : 'Shop Now'}
+            </Button>
+          </div>
+        </div>
+      </Card>
+    </motion.div>
+  );
+};
+
+const LandingPage = () => {
   const featuredCuts = [
     {
       name: "Filet Mignon",
       grade: "USDA Prime",
       description: "Center-cut tenderness, minimal fat",
       price: "$45.00",
-      image: "https://images.unsplash.com/photo-1666013942642-b7b54ecafd7d"
+      image: "https://images.unsplash.com/photo-1666013942642-b7b54ecafd7d",
+      cookingTemp: "Medium-Rare (130-135°F)"
     },
     {
       name: "Ribeye",
       grade: "USDA Prime",
       description: "Rich marbling, bold beef flavor",
       price: "$38.00",
-      image: "https://images.unsplash.com/photo-1602470521006-59ab77068b0d"
+      image: "https://images.unsplash.com/photo-1602470521006-59ab77068b0d",
+      cookingTemp: "Medium-Rare (130-135°F)"
     },
     {
       name: "Porterhouse",
       grade: "USDA Prime",
       description: "Strip and tenderloin in one cut",
       price: "$52.00",
-      image: "https://images.unsplash.com/photo-1614277786110-1a64e457c4c3"
+      image: "https://images.unsplash.com/photo-1614277786110-1a64e457c4c3",
+      cookingTemp: "Medium-Rare (130-135°F)"
     },
     {
       name: "T-Bone",
       grade: "USDA Prime",
       description: "Classic steakhouse favorite",
       price: "$42.00",
-      image: "https://images.unsplash.com/photo-1606374894242-19110fdbd56c"
+      image: "https://images.unsplash.com/photo-1606374894242-19110fdbd56c",
+      cookingTemp: "Medium-Rare (130-135°F)"
     },
     {
       name: "Tomahawk Steak",
       grade: "USDA Prime",
       description: "Impressive bone-in ribeye",
       price: "$95.00",
-      image: "https://images.unsplash.com/photo-1632154023554-c2975e9be348"
+      image: "https://images.unsplash.com/photo-1632154023554-c2975e9be348",
+      cookingTemp: "Medium-Rare (130-135°F)"
     },
     {
       name: "Beef Short Ribs",
       grade: "USDA Prime",
       description: "Perfect for braising or smoking",
       price: "$28.00",
-      image: "https://images.unsplash.com/photo-1558030077-82dd9347c407"
+      image: "https://images.unsplash.com/photo-1558030077-82dd9347c407",
+      cookingTemp: "Low & Slow (275°F, 3-4hrs)"
     },
     {
       name: "Picanha",
@@ -64,14 +216,16 @@ const LandingPage = () => {
       price: "$48.00",
       originalPrice: "$55.00",
       image: "https://images.unsplash.com/photo-1579636859172-67ced5686109",
-      badge: "Sale"
+      badge: "Sale",
+      cookingTemp: "Medium-Rare (130-135°F)"
     },
     {
       name: "Cupim",
       grade: "Heritage Cut",
       description: "Brazilian hump cut, rare delicacy",
       price: "$58.00",
-      image: "https://images.unsplash.com/photo-1547050605-2f268cd5daf0"
+      image: "https://images.unsplash.com/photo-1547050605-2f268cd5daf0",
+      cookingTemp: "Low & Slow (250°F, 4-5hrs)"
     },
     {
       name: "Wagyu Ribeye",
@@ -80,7 +234,8 @@ const LandingPage = () => {
       price: "$72.00",
       originalPrice: "$85.00",
       image: "https://images.unsplash.com/photo-1690983321750-ad6f6d59a84b",
-      badge: "Sale"
+      badge: "Sale",
+      cookingTemp: "Medium-Rare (130-135°F)"
     },
     {
       name: "Wagyu NY Strip",
@@ -89,35 +244,40 @@ const LandingPage = () => {
       price: "$65.00",
       originalPrice: "$75.00",
       image: "https://images.unsplash.com/photo-1600180786732-6189f0ad253d",
-      badge: "Sale"
+      badge: "Sale",
+      cookingTemp: "Medium-Rare (130-135°F)"
     },
     {
       name: "Dry-Aged Steak",
       grade: "Upon Consultation",
       description: "Custom aging, premium selection",
       price: "Contact",
-      image: "https://images.unsplash.com/photo-1690983323238-0b91789e1b5a"
+      image: "https://images.unsplash.com/photo-1690983323238-0b91789e1b5a",
+      cookingTemp: null
     },
     {
       name: "Flank Steak",
       grade: "USDA Choice",
       description: "Lean, flavorful, great for fajitas",
       price: "$22.00",
-      image: "https://images.unsplash.com/photo-1579636858731-24857b3f4305"
+      image: "https://images.unsplash.com/photo-1579636858731-24857b3f4305",
+      cookingTemp: "Medium (135-145°F)"
     },
     {
       name: "Picanha American Wagyu",
       grade: "American Wagyu",
       description: "Brazilian cut meets Japanese quality",
       price: "$68.00",
-      image: "https://images.unsplash.com/photo-1579636859172-67ced5686109"
+      image: "https://images.unsplash.com/photo-1579636859172-67ced5686109",
+      cookingTemp: "Medium-Rare (130-135°F)"
     },
     {
       name: "Flank Steak American Wagyu",
       grade: "American Wagyu",
       description: "Enhanced marbling, incredible flavor",
       price: "$35.00",
-      image: "https://images.unsplash.com/photo-1614277786110-1a64e457c4c3"
+      image: "https://images.unsplash.com/photo-1614277786110-1a64e457c4c3",
+      cookingTemp: "Medium (135-145°F)"
     }
   ];
 
@@ -221,41 +381,7 @@ const LandingPage = () => {
 
           <div className="products-grid">
             {featuredCuts.map((product, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <Card className="product-card">
-                  <div className="product-image">
-                    {product.badge && <div className="product-badge">{product.badge}</div>}
-                    <img src={product.image} alt={product.name} />
-                  </div>
-                  <div className="product-info">
-                    <div className="product-grade">{product.grade}</div>
-                    <h3 className="product-name">{product.name}</h3>
-                    <p className="product-description">{product.description}</p>
-                    <div className="product-footer">
-                      <div>
-                        {product.originalPrice && (
-                          <span className="price-original">{product.originalPrice}</span>
-                        )}
-                        <span className={`product-price ${product.originalPrice ? 'price-sale' : ''}`}>
-                          {product.price}
-                        </span>
-                      </div>
-                      <Button 
-                        className="add-to-cart-btn"
-                        onClick={() => handleAddToCart(product.name)}
-                      >
-                        Shop Now
-                      </Button>
-                    </div>
-                  </div>
-                </Card>
-              </motion.div>
+              <ProductCard key={index} product={product} index={index} />
             ))}
           </div>
 

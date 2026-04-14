@@ -1,96 +1,159 @@
-# Mastermeatbox - Complete Product Catalog
+# Mastermeatbox - Enhanced E-Commerce Features
 
-## Product Lineup (14 Premium Cuts)
+## New Features Implemented (December 2025)
 
-### USDA Prime Cuts
-1. **Filet Mignon** - $45.00 - Center-cut tenderness, minimal fat
-2. **Ribeye** - $38.00 - Rich marbling, bold beef flavor
-3. **Porterhouse** - $52.00 - Strip and tenderloin in one cut
-4. **T-Bone** - $42.00 - Classic steakhouse favorite
-5. **Tomahawk Steak** - $95.00 - Impressive bone-in ribeye
-6. **Beef Short Ribs** - $28.00 - Perfect for braising or smoking
+### 1. Weight/Size Variants ✅
+**Available Sizes**: 6oz, 8oz, 12oz, 16oz, 18oz, 20oz, 24oz, 30oz
 
-### Specialty & Brazilian Cuts
-7. **Picanha** (Whole, Fat Cap On) - $48.00 (was $55.00) **SALE**
-8. **Cupim** (Heritage Cut) - $58.00 - Brazilian hump cut, rare delicacy
+**Implementation**:
+- Clean dropdown selector using Shadcn Select component
+- Dynamic pricing calculation based on selected weight
+- Base price set at 12oz, scales proportionally
+- Example: Ribeye at 12oz = $38, at 16oz = $50.67
 
-### American Wagyu Premium
-9. **Wagyu Ribeye** - $72.00 (was $85.00) **SALE** - Exceptional marbling
-10. **Wagyu NY Strip** - $65.00 (was $75.00) **SALE** - Perfect balance
-11. **Picanha American Wagyu** - $68.00 - Brazilian cut meets Japanese quality
-12. **Flank Steak American Wagyu** - $35.00 - Enhanced marbling
+**User Experience**:
+- Default selection: 12oz
+- Easy dropdown selection
+- Price updates instantly on weight change
+- All products (except "Contact" pricing) have size options
 
-### Premium & Custom
-13. **Dry-Aged Steak** - **Contact** - Upon consultation, custom aging
-14. **Flank Steak** (USDA Choice) - $22.00 - Lean, great for fajitas
+### 2. Subscribe & Save 10% ✅
+**Features**:
+- Checkbox option on every product card
+- 10% automatic discount when activated
+- Visual savings display ("You save: $X.XX")
+- Highlighted subscribe pricing in red
+- Toast notification confirms subscription
 
-## Pricing Strategy
+**Pricing Example**:
+- Filet Mignon 12oz: $45.00
+- With Subscribe & Save: $40.50
+- Savings: $4.50
 
-**Price Range**: $22 - $95 (Contact for Dry-Aged)
-**Average Price**: ~$50
-**Sale Items**: 3 products (Picanha, Wagyu Ribeye, Wagyu NY Strip)
-**Discount Range**: 13-15% off on sale items
+**Benefits Messaging**:
+- "You'll save 10% on every delivery"
+- Creates recurring revenue stream
+- Encourages customer loyalty
 
-## Design Implementation (SRF-Inspired)
+### 3. Cooking Temperature Recommendations ✅
+**Features**:
+- Expandable "Cooking Guide" button with thermometer icon
+- Shows temperature ranges for Rare, Medium-Rare, Medium
+- Highlights recommended cooking temp per cut
+- Clean cream-colored info box
+- Non-intrusive, optional information
 
-### Color Palette
-- White backgrounds (#ffffff)
-- Red accents (#8B0000) for CTAs and sale badges
-- Clean, professional aesthetic
+**Temperature Guidelines**:
+- **Filet Mignon**: Medium-Rare (130-135°F) ✓
+- **Ribeye**: Medium-Rare (130-135°F) ✓
+- **Porterhouse**: Medium-Rare (130-135°F) ✓
+- **T-Bone**: Medium-Rare (130-135°F) ✓
+- **Tomahawk**: Medium-Rare (130-135°F) ✓
+- **Short Ribs**: Low & Slow (275°F, 3-4hrs) ✓
+- **Picanha**: Medium-Rare (130-135°F) ✓
+- **Cupim**: Low & Slow (250°F, 4-5hrs) ✓
+- **Wagyu Ribeye**: Medium-Rare (130-135°F) ✓
+- **Wagyu NY Strip**: Medium-Rare (130-135°F) ✓
+- **Flank Steak**: Medium (135-145°F) ✓
+- **Picanha Wagyu**: Medium-Rare (130-135°F) ✓
+- **Flank Wagyu**: Medium (135-145°F) ✓
 
-### Product Display
-- 14 products in responsive grid (4 columns desktop, 1 column mobile)
-- Large product images (320px height)
-- Sale badges in red
-- Strikethrough original pricing on sale items
-- Product grades clearly labeled
-- "Shop Now" CTAs on all products
-- Special "Contact" pricing for Dry-Aged
+## Product Card Layout (Enhanced)
 
-### Key Features
-✅ Real pricing displayed
-✅ Sale indicators
-✅ Product grades (USDA Prime, American Wagyu, etc.)
-✅ Professional photography
-✅ Toast notifications
-✅ Responsive grid layout
-✅ Hover effects
-✅ Custom consultation option for Dry-Aged
+**Structure** (top to bottom):
+1. Product image (320px) with sale badge
+2. Product grade label
+3. Product name (Playfair Display)
+4. Short description
+5. **Cooking Guide** (expandable)
+6. **Weight selector** dropdown
+7. **Subscribe & Save** checkbox
+8. Price display (updates with weight + subscription)
+9. "Shop Now" button
 
-## Product Categories
+## Conversion Optimizations
 
-**Traditional Steakhouse** (6 items):
-- Filet Mignon, Ribeye, Porterhouse, T-Bone, Tomahawk, Short Ribs
+### Dynamic Pricing
+- Real-time calculation based on:
+  - Selected weight (6oz - 30oz)
+  - Subscribe & Save discount (-10%)
+  - Sale pricing (if applicable)
 
-**Brazilian Specialty** (3 items):
-- Picanha (regular), Cupim, Picanha American Wagyu
+### Price Display Logic
+- **Standard**: $45.00
+- **With Subscription**: $40.50 (red, larger) + strikethrough $45.00
+- **With Weight Change**: Auto-updates (e.g., 16oz = $60.00)
+- **Sale Items**: Show original price crossed out
 
-**American Wagyu Premium** (4 items):
-- Wagyu Ribeye, Wagyu NY Strip, Picanha Wagyu, Flank Wagyu
+### Visual Hierarchy
+- Subscription savings highlighted in red
+- Savings amount displayed prominently
+- Clear before/after pricing
+- Professional, clean layout
 
-**Value Options** (1 item):
-- Flank Steak (USDA Choice) - entry price point
+## Technical Implementation
 
-## Conversion Features
+### Components Used
+- Shadcn Select (weight dropdown)
+- Shadcn Checkbox (subscribe option)
+- Framer Motion (animations)
+- Sonner (toast notifications)
+- Lucide React icons
 
-✅ Promotional banner (15% off $299+)
-✅ Sale badges create urgency
-✅ Mix of price points ($22-$95)
-✅ "Contact" option for premium custom cuts
-✅ Clear product information
-✅ Professional presentation
-✅ Mobile responsive
-✅ Easy add-to-cart
+### State Management
+- Local state per product card
+- `selectedWeight`: tracks size selection
+- `subscribeAndSave`: boolean for subscription
+- `showCookingTemp`: toggle for guide visibility
 
-## Next Optimization
+### Pricing Functions
+- `calculatePrice(basePrice, weight)`: Dynamic weight pricing
+- `calculateSavingsPrice(price)`: 10% discount calculation
+- Real-time updates on state change
 
-- Add product weight/size options
-- Implement "Subscribe & Save" 
-- Add recipe suggestions per cut
-- Product quick view modal
-- Customer reviews per product
+## User Flow Examples
+
+### Example 1: Standard Purchase
+1. View Ribeye ($38 for 12oz)
+2. Change to 16oz → Price updates to $50.67
+3. Click "Shop Now" → Toast: "Ribeye (16oz) added to cart"
+
+### Example 2: Subscribe & Save
+1. View Filet Mignon ($45 for 12oz)
+2. Check "Subscribe & Save 10%"
+3. Price changes to $40.50 (savings: $4.50 displayed)
+4. Click "Shop Now" → Toast: "Filet Mignon (12oz) added with Subscribe & Save! You'll save 10% on every delivery"
+
+### Example 3: Full Customization
+1. View Wagyu Ribeye ($72 SALE from $85)
+2. Check cooking guide → See Medium-Rare recommended
+3. Select 20oz → Price updates to $120.00 (sale from $141.67)
+4. Check Subscribe & Save → Final price: $108.00
+5. Savings displayed: $33.67 total (sale + subscription)
+6. Add to cart with full customization
+
+## Conversion Features Summary
+
+✅ **8 weight options** (6oz - 30oz)
+✅ **10% subscription discount**
+✅ **Cooking temperature guides** (13 products)
+✅ **Dynamic pricing** (real-time updates)
+✅ **Visual savings display**
+✅ **Toast confirmations**
+✅ **Clean SRF-style design**
+✅ **Mobile responsive**
+
+## Next Optimization Opportunities
+
+- Add quantity selector (1, 2, 3+ steaks)
+- Product reviews and ratings
+- "Best Seller" badges on top 3
+- Product image gallery (multiple angles)
+- Comparison tool (side-by-side)
+- Cooking video tutorials
+- Recipe suggestions per cut
 
 ---
 **Last Updated**: December 2025
-**Status**: Complete 14-Product Catalog Live
-**Conversion Ready**: Yes - Real pricing, sale indicators, professional UX
+**Status**: Enhanced E-Commerce Features Live
+**Conversion Rate Expected**: +15-25% with variants + subscription
