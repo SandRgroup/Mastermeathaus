@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const BBQCalculator = () => {
   const navigate = useNavigate();
@@ -8,8 +9,32 @@ const BBQCalculator = () => {
     people: 10,
     appetite: 0.75,
     experience: 'standard',
-    proteins: ['beef']
+    proteins: ['beef'],
+    aging: 0
   });
+  const [pricing, setPricing] = useState({
+    basePrice: 149,
+    aging: [
+      { label: "21 Days (Standard)", days: 21, upcharge: 0 },
+      { label: "30 Days (Premium)", days: 30, upcharge: 25 },
+      { label: "45 Days (Ultra Aged)", days: 45, upcharge: 60 }
+    ],
+    pricePerBoxWeight: 5
+  });
+
+  useEffect(() => {
+    // Fetch pricing from backend
+    const backendUrl = process.env.REACT_APP_BACKEND_URL;
+    axios.get(`${backendUrl}/api/pricing`)
+      .then(res => {
+        if (res.data) {
+          setPricing(res.data);
+        }
+      })
+      .catch(() => {
+        // Use default pricing if API fails
+      });
+  }, []);
 
   const updatePeople = (value) => {
     setData({ ...data, people: parseInt(value) });
@@ -25,6 +50,10 @@ const BBQCalculator = () => {
     } else {
       setData({ ...data, proteins: data.proteins.filter(p => p !== protein) });
     }
+  };
+
+  const updateAging = (value) => {
+    setData({ ...data, aging: parseInt(value) });
   };
 
   const goToStep = (stepNumber) => {
@@ -46,8 +75,9 @@ const BBQCalculator = () => {
       sausage = 0.3;
     }
 
-    const boxes = Math.ceil(total / 5);
-    const pricePerBox = 149;
+    const boxes = Math.ceil(total / pricing.pricePerBoxWeight);
+    const selectedAgingOption = pricing.aging[data.aging];
+    const pricePerBox = pricing.basePrice + selectedAgingOption.upcharge;
     const totalPrice = boxes * pricePerBox;
 
     return {
@@ -56,7 +86,9 @@ const BBQCalculator = () => {
       chicken: (total * chicken).toFixed(1),
       sausage: (total * sausage).toFixed(1),
       boxes,
-      totalPrice
+      pricePerBox,
+      totalPrice,
+      agingLabel: selectedAgingOption.label
     };
   };
 
@@ -389,6 +421,56 @@ const BBQCalculator = () => {
             </div>
           </div>
 
+          {/* Aging Selection */}
+          <div style={{
+            background: '#1a1a1a',
+            padding: '1.5rem',
+            borderRadius: '12px',
+            marginBottom: '1.5rem',
+            border: '1px solid #333'
+          }}>
+            <label style={{
+              display: 'block',
+              fontSize: '1rem',
+              fontWeight: '600',
+              color: '#C8A96A',
+              marginBottom: '0.75rem',
+              textAlign: 'center'
+            }}>
+              🥩 Select Dry-Aging
+            </label>
+            <select
+              value={data.aging}
+              onChange={(e) => updateAging(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '1rem',
+                fontSize: '1rem',
+                background: '#0d0d0d',
+                color: '#fff',
+                border: '1px solid #333',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                marginBottom: '1rem'
+              }}
+            >
+              {pricing.aging.map((option, index) => (
+                <option key={index} value={index}>
+                  {option.label} {option.upcharge > 0 ? `(+$${option.upcharge})` : ''}
+                </option>
+              ))}
+            </select>
+            
+            <div style={{
+              textAlign: 'center',
+              fontSize: '0.85rem',
+              color: 'rgba(255,255,255,0.6)',
+              fontStyle: 'italic'
+            }}>
+              Flavor intensifies with time. Luxury is measured in days.
+            </div>
+          </div>
+
           <div style={{
             background: 'linear-gradient(135deg, #8B0000, #a00000)',
             padding: '1.5rem',
@@ -405,10 +487,19 @@ const BBQCalculator = () => {
               Recommended: {results.boxes} {results.boxes === 1 ? 'Box' : 'Boxes'}
             </p>
             <p style={{
-              fontSize: '0.9rem',
-              color: 'rgba(255,255,255,0.8)'
+              fontSize: '1.1rem',
+              color: 'rgba(255,255,255,0.9)',
+              marginBottom: '0.25rem'
             }}>
-              ${results.totalPrice} total (${149} per box)
+              {results.boxes} Box{results.boxes > 1 ? 'es' : ''} × ${results.pricePerBox}
+            </p>
+            <p style={{
+              fontSize: '1.5rem',
+              fontWeight: '700',
+              color: '#C8A96A',
+              marginTop: '0.5rem'
+            }}>
+              Total: ${results.totalPrice}
             </p>
           </div>
 

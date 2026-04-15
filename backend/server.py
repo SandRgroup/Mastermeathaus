@@ -895,6 +895,25 @@ async def update_site_settings(settings: SiteSettings, current_user: dict = Depe
     return {"success": True, "message": "Site settings updated"}
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Pricing Configuration
+# ─────────────────────────────────────────────────────────────────────────────
+
+@api_router.get("/pricing")
+async def get_pricing():
+    """Public endpoint - Returns pricing configuration for BBQ Calculator"""
+    pricing_config = {
+        "basePrice": 149,
+        "aging": [
+            {"label": "21 Days (Standard)", "days": 21, "upcharge": 0},
+            {"label": "30 Days (Premium)", "days": 30, "upcharge": 25},
+            {"label": "45 Days (Ultra Aged)", "days": 45, "upcharge": 60}
+        ],
+        "pricePerBoxWeight": 5
+    }
+    return pricing_config
+
+
 # Include router - MUST be after all routes are defined
 app.include_router(api_router)
 

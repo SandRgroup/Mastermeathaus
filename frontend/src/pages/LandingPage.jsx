@@ -398,11 +398,40 @@ const LandingPage = () => {
       }}>
         <div className="container">
           <div className="section-header">
-            <span className="eyebrow">BBQ Planning Tool</span>
-            <h2 className="section-title">Not sure how much to <span>order?</span></h2>
-            <p className="section-subtitle">Use our BBQ calculator to estimate the perfect amount of meat for your event.</p>
+            <span className="eyebrow">Premium BBQ Planning</span>
+            <h2 className="section-title">Build a Premium BBQ <span>Experience</span></h2>
+            <p className="section-subtitle">Not just a meal — dry-aged beef, precision portions, delivered ready for your perfect BBQ. Tell us your group size and we'll build the perfect meat selection instantly.</p>
           </div>
           <BBQCalculator />
+          <div style={{ 
+            textAlign: 'center', 
+            marginTop: '3rem',
+            padding: '2rem',
+            background: 'rgba(200, 169, 106, 0.05)',
+            borderRadius: '12px',
+            border: '1px solid rgba(200, 169, 106, 0.2)'
+          }}>
+            <h3 style={{ 
+              fontSize: '1.5rem', 
+              fontWeight: '700', 
+              color: '#C8A96A',
+              marginBottom: '1rem'
+            }}>
+              The Art of Dry Aging
+            </h3>
+            <p style={{ 
+              fontSize: '1rem', 
+              color: 'rgba(255,255,255,0.7)',
+              maxWidth: '600px',
+              margin: '0 auto',
+              lineHeight: '1.7'
+            }}>
+              ✔ Dry-Aged Beef Up to 45 Days<br />
+              ✔ Premium Chicken & Artisan Sausage<br />
+              ✔ Delivered Ready for Grill<br />
+              ✔ Trusted by BBQ Hosts & Private Chefs
+            </p>
+          </div>
         </div>
       </section>
 
