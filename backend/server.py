@@ -836,23 +836,58 @@ async def delete_customer(customer_id: str, current_user: dict = Depends(get_cur
 
 # ── SITE SETTINGS (CMS) ───────────────────────────────────────────────────
 class SiteSettings(BaseModel):
+    # Promo Banner
     promo_banner: Optional[str] = None
+    
+    # Trust Bar
+    trust_items: Optional[List[dict]] = None
+    
+    # Hero Section
     hero_headline: Optional[str] = None
     hero_subheadline: Optional[str] = None
     hero_cta_primary: Optional[str] = None
     hero_cta_secondary: Optional[str] = None
     hero_note: Optional[str] = None
     hero_image: Optional[str] = None
-    trust_items: Optional[List[dict]] = None
+    
+    # Products Section
+    products_eyebrow: Optional[str] = None
+    products_title: Optional[str] = None
+    products_subtitle: Optional[str] = None
+    
+    # Why Section
     why_eyebrow: Optional[str] = None
     why_title: Optional[str] = None
     why_body: Optional[str] = None
     why_highlights: Optional[List[str]] = None
+    
+    # Membership Section
+    membership_eyebrow: Optional[str] = None
+    membership_title: Optional[str] = None
+    membership_subtitle: Optional[str] = None
+    
+    # Delivery Section
     delivery_title: Optional[str] = None
     delivery_text: Optional[str] = None
+    
+    # Testimonials Section
+    testimonials_eyebrow: Optional[str] = None
+    testimonials_title: Optional[str] = None
     testimonials: Optional[List[dict]] = None
+    
+    # BBQ Calculator Section
+    bbq_eyebrow: Optional[str] = None
+    bbq_title: Optional[str] = None
+    bbq_subtitle: Optional[str] = None
+    bbq_aging_title: Optional[str] = None
+    bbq_aging_highlights: Optional[List[str]] = None
+    
+    # Final CTA Section
     final_title: Optional[str] = None
+    final_btn_text: Optional[str] = None
     final_subtext: Optional[str] = None
+    
+    # Footer
     footer_tagline: Optional[str] = None
     footer_email: Optional[str] = None
     footer_phone: Optional[str] = None
@@ -864,14 +899,53 @@ async def get_site_settings():
     if not settings:
         return {
             "promo_banner": "15% off orders $299+ | 10% off orders $199+ | 5% off orders $99+ with code PREMIUM",
+            "trust_items": [
+                {"icon": "🔒", "text": "Secure Stripe Checkout"},
+                {"icon": "🧊", "text": "Temperature-Controlled Shipping"},
+                {"icon": "⭐", "text": "USDA Prime & Wagyu Quality"},
+                {"icon": "🚚", "text": "Free Shipping Over $150"}
+            ],
             "hero_headline": "Premium cuts. <span>No shortcuts.</span>",
             "hero_subheadline": "Hand-selected USDA Prime and Wagyu steaks delivered to your door — vacuum-sealed, temperature-controlled, and always exceptional.",
             "hero_cta_primary": "Shop Now",
             "hero_cta_secondary": "View Plans",
             "hero_note": "Free shipping over $150 · Secure checkout via Stripe",
+            "products_eyebrow": "Premium Selection",
+            "products_title": "Our Top <span>Cuts</span>",
+            "products_subtitle": "A curated selection of premium beef — from classic steakhouse favorites to rare specialties.",
+            "why_eyebrow": "Why Choose Us",
             "why_title": "Quality you can <span style='color:var(--gold);font-style:italic;'>trust</span>",
             "why_body": "We focus on sourcing and delivering premium cuts without overcomplicating the process. No unnecessary options — just high-quality meat done right.",
+            "why_highlights": [
+                "USDA Prime & Wagyu quality",
+                "Carefully hand-selected cuts",
+                "Consistent, reliable sourcing",
+                "Temperature-controlled delivery"
+            ],
+            "membership_eyebrow": "Membership Plans",
+            "membership_title": "Membership that <span>works for you</span>",
+            "membership_subtitle": "Save more, order more. Choose the plan that fits your lifestyle.",
+            "delivery_title": "Delivered <span style='color:var(--gold);font-style:italic;'>fresh</span>",
+            "delivery_text": "Every order handled with temperature-controlled logistics to keep your cuts fresh from facility to front door.",
+            "testimonials_eyebrow": "Reviews",
+            "testimonials_title": "Customers <span>trust the quality</span>",
+            "testimonials": [
+                {"text": "Best quality I've found online. Consistent and reliable every single time.", "author": "Michael R.", "stars": 5},
+                {"text": "Simple ordering, premium cuts. Exactly what I needed for my family dinners.", "author": "Sarah K.", "stars": 5},
+                {"text": "The dry-aged ribeye is exceptional. Worth every penny and then some.", "author": "James L.", "stars": 5}
+            ],
+            "bbq_eyebrow": "Premium BBQ Planning",
+            "bbq_title": "Build a Premium BBQ <span>Experience</span>",
+            "bbq_subtitle": "Not just a meal — dry-aged beef, precision portions, delivered ready for your perfect BBQ. Tell us your group size and we'll build the perfect meat selection instantly.",
+            "bbq_aging_title": "The Art of Dry Aging",
+            "bbq_aging_highlights": [
+                "Dry-Aged Beef Up to 45 Days",
+                "Premium Chicken & Artisan Sausage",
+                "Delivered Ready for Grill",
+                "Trusted by BBQ Hosts & Private Chefs"
+            ],
             "final_title": "Better cuts start here",
+            "final_btn_text": "Shop MasterMeatBox",
             "final_subtext": "Premium cuts. Simple process. Secure checkout.",
             "footer_tagline": "Premium cuts. No shortcuts.",
             "footer_email": "hello@mastermeatbox.com",
@@ -896,22 +970,51 @@ async def update_site_settings(settings: SiteSettings, current_user: dict = Depe
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Pricing Configuration
+# BBQ Calculator Pricing Configuration
 # ─────────────────────────────────────────────────────────────────────────────
+
+class BBQPricing(BaseModel):
+    basePrice: int = 149
+    aging: List[dict] = [
+        {"label": "21 Days (Standard)", "days": 21, "upcharge": 0},
+        {"label": "30 Days (Premium)", "days": 30, "upcharge": 25},
+        {"label": "45 Days (Ultra Aged)", "days": 45, "upcharge": 60}
+    ]
+    pricePerBoxWeight: int = 5
+    appetitePerPerson: float = 0.75
+    enabled: bool = True
 
 @api_router.get("/pricing")
 async def get_pricing():
     """Public endpoint - Returns pricing configuration for BBQ Calculator"""
-    pricing_config = {
-        "basePrice": 149,
-        "aging": [
-            {"label": "21 Days (Standard)", "days": 21, "upcharge": 0},
-            {"label": "30 Days (Premium)", "days": 30, "upcharge": 25},
-            {"label": "45 Days (Ultra Aged)", "days": 45, "upcharge": 60}
-        ],
-        "pricePerBoxWeight": 5
-    }
-    return pricing_config
+    pricing = await db.bbq_pricing.find_one({}, {"_id": 0})
+    if not pricing:
+        # Return default pricing if none exists
+        default_pricing = {
+            "basePrice": 149,
+            "aging": [
+                {"label": "21 Days (Standard)", "days": 21, "upcharge": 0},
+                {"label": "30 Days (Premium)", "days": 30, "upcharge": 25},
+                {"label": "45 Days (Ultra Aged)", "days": 45, "upcharge": 60}
+            ],
+            "pricePerBoxWeight": 5,
+            "appetitePerPerson": 0.75,
+            "enabled": True
+        }
+        await db.bbq_pricing.insert_one(default_pricing.copy())
+        return default_pricing
+    return pricing
+
+@api_router.put("/pricing")
+async def update_pricing(pricing: BBQPricing, current_user: dict = Depends(get_current_user)):
+    """Admin only - Update BBQ Calculator pricing configuration"""
+    pricing_data = pricing.dict()
+    await db.bbq_pricing.update_one(
+        {},
+        {"$set": pricing_data},
+        upsert=True
+    )
+    return {"success": True, "message": "BBQ pricing updated"}
 
 
 # Include router - MUST be after all routes are defined

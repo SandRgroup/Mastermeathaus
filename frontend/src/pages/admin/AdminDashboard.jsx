@@ -9,7 +9,8 @@ import BoxesManager from '../../components/admin/BoxesManager';
 import MenuManager from '../../components/admin/MenuManager';
 import CustomersManager from '../../components/admin/CustomersManager';
 import SiteSettingsManager from '../../components/admin/SiteSettingsManager';
-import { LogOut, Package, CreditCard, Tag, Box, Menu, Users, Settings } from 'lucide-react';
+import BBQSettingsManager from '../../components/admin/BBQSettingsManager';
+import { LogOut, Package, CreditCard, Tag, Box, Menu, Users, Settings, Flame } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import '../../styles/Admin.css';
 
@@ -63,6 +64,10 @@ const AdminDashboard = () => {
               <Settings size={18} />
               Website
             </TabsTrigger>
+            <TabsTrigger value="bbq" className="tab-trigger">
+              <Flame size={18} />
+              BBQ Calculator
+            </TabsTrigger>
           </TabsList>
           
           <TabsContent value="products">
@@ -91,6 +96,10 @@ const AdminDashboard = () => {
           
           <TabsContent value="settings">
             <SiteSettingsManager />
+          </TabsContent>
+          
+          <TabsContent value="bbq">
+            <BBQSettingsManager />
           </TabsContent>
         </Tabs>
       </div>
