@@ -708,9 +708,6 @@ async def stripe_webhook(request: Request):
         logger.error(f"Webhook error: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
 
-# Include router
-app.include_router(api_router)
-
 # CORS
 cors_origins = os.environ.get("CORS_ORIGINS", "*")
 if cors_origins == "*":
@@ -897,6 +894,9 @@ async def update_site_settings(settings: SiteSettings, current_user: dict = Depe
     )
     return {"success": True, "message": "Site settings updated"}
 
+
+# Include router - MUST be after all routes are defined
+app.include_router(api_router)
 
 @app.on_event("shutdown")
 async def shutdown_db_client():

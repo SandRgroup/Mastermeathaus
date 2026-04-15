@@ -299,12 +299,12 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Discount Codes CRUD API"
-    - "Discount Code Validation API"
-    - "Stripe Checkout with Discount Codes"
-    - "Discounts Manager UI"
-    - "Checkout Discount Code UI"
-    - "JWT Authentication System"
+    - "BBQ Calculator Component"
+    - "Landing Page BBQ Calculator Integration"
+    - "Complete Frontend E2E Testing"
+    - "Backend API Stability"
+    - "CRM System"
+    - "Site Settings Manager"
   stuck_tasks: []
   test_all: true
   test_priority: "high_first"
@@ -313,23 +313,34 @@ test_plan:
     admin_password: "MMB@dmin2025!Secure"
   special_instructions: |
     CRITICAL TESTING PRIORITIES:
-    1. Discount code backend endpoints (CRUD + validation) - all edge cases
-    2. Mutual exclusivity enforcement: Subscribe & Save vs Discount Codes (both backend rejection and frontend UI warnings)
-    3. Usage statistics tracking (verify used_count increments correctly)
-    4. Stripe checkout with discount codes applied
-    5. Admin CMS discount management UI (create/edit/delete, usage stats display)
-    6. User checkout flow with discount code input and validation
+    1. NEW: BBQ Calculator - multi-step wizard functionality
+       - Step 1: People count slider (1-100)
+       - Step 2: Experience selection (standard/premium/casual)
+       - Step 3: Protein selection (beef/chicken/sausage)
+       - Step 4: Results calculation and box recommendation
+       - Final CTA: Redirect to /shop-boxes
     
-    IMPORTANT: Previous agent implemented auth, stripe, uploads, and discount backend WITHOUT ANY TESTING.
-    This is the first comprehensive test pass for the entire backend.
+    2. Landing Page Integration
+       - BBQ Calculator renders correctly
+       - Positioned above footer section
+       - Dark theme styling matches landing page
+       - All step transitions work smoothly
     
-    Test discount code edge cases:
-    - Expired code (should fail validation)
-    - Max uses reached (should fail validation)
-    - Minimum purchase not met (should fail validation)
-    - Inactive code (should fail validation)
-    - Valid code on cart without Subscribe & Save (should work)
-    - Valid code on cart WITH Subscribe & Save (should be blocked with error message)
+    3. Previous Massive Changes Need Validation:
+       - Complete landing page overhaul (LandingPage.jsx + CSS)
+       - New CRM system (CustomersManager.jsx)
+       - New Site Settings (SiteSettingsManager.jsx)
+       - Product Manager oz/lb weight selector
+       - Admin link removed from header
+    
+    4. Backend Stability Check:
+       - All existing APIs still working after frontend changes
+       - CRM endpoints (/api/crm/customers)
+       - Site Settings endpoints (/api/settings)
+       - Products, Memberships, Discounts, Checkout
+    
+    IMPORTANT: Previous agent did MASSIVE frontend rewrite without running testing subagent.
+    This is the first comprehensive test since the major overhaul.
 
 agent_communication:
   - agent: "main"

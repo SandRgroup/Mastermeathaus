@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import axios from 'axios';
 import { useCart } from '../contexts/CartContext';
 import Cart from '../components/Cart';
+import BBQCalculator from '../components/BBQCalculator';
 import '../styles/LandingPage.css';
 
 const LandingPage = () => {
@@ -386,6 +387,22 @@ const LandingPage = () => {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* BBQ Calculator */}
+      <section style={{
+        background: '#0e0e0e',
+        padding: '5rem 0',
+        borderTop: '1px solid #222'
+      }}>
+        <div className="container">
+          <div className="section-header">
+            <span className="eyebrow">BBQ Planning Tool</span>
+            <h2 className="section-title">Not sure how much to <span>order?</span></h2>
+            <p className="section-subtitle">Use our BBQ calculator to estimate the perfect amount of meat for your event.</p>
+          </div>
+          <BBQCalculator />
         </div>
       </section>
 

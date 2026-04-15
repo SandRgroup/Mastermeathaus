@@ -838,6 +838,177 @@ class TestCheckoutWithDiscounts:
                 auth_session.delete(f"{BASE_URL}/api/discount-codes/{code_id}")
 
 
+# ── NEW TESTS: CRM Customers and Site Settings ──────────────────────────────
+
+class TestCRMCustomers:
+    """CRM Customer endpoints tests"""
+    
+    @pytest.fixture
+    def auth_session(self):
+        """Get authenticated session"""
+        session = requests.Session()
+        resp = session.post(f"{BASE_URL}/api/auth/login", json={
+            "email": "admin@mastermeatbox.com",
+            "password": "MMB@dmin2025!Secure"
+        })
+        if resp.status_code != 200:
+            pytest.skip("Authentication failed")
+        return session
+    
+    def test_get_customers_requires_auth(self):
+        """Test GET /customers requires authentication"""
+        response = requests.get(f"{BASE_URL}/api/customers")
+        assert response.status_code == 401, f"Expected 401, got {response.status_code}"
+        print("SUCCESS: GET /customers requires auth")
+    
+    def test_create_customer_public(self):
+        """Test POST /customers is public (for checkout submissions)"""
+        response = requests.post(f"{BASE_URL}/api/customers", json={
+            "first_name": "TEST_John",
+            "last_name": "Doe",
+            "email": "test_john@example.com",
+            "phone": "555-1234",
+            "address": "123 Test St",
+            "city": "Test City",
+            "state": "TX",
+            "zip": "75001",
+            "source": "checkout"
+        })
+        assert response.status_code == 200, f"Create failed: {response.text}"
+        data = response.json()
+        assert data["success"] == True
+        assert "customer_id" in data
+        print(f"SUCCESS: Created customer {data['customer_id']}")
+        return data["customer_id"]
+    
+    def test_get_customers_with_auth(self, auth_session):
+        """Test GET /customers with authentication"""
+        response = auth_session.get(f"{BASE_URL}/api/customers")
+        assert response.status_code == 200, f"Failed: {response.text}"
+        data = response.json()
+        assert isinstance(data, list)
+        print(f"SUCCESS: GET /customers returned {len(data)} customers")
+    
+    def test_delete_customer(self, auth_session):
+        """Test DELETE /customers/:id"""
+        # First create a customer
+        create_resp = requests.post(f"{BASE_URL}/api/customers", json={
+            "first_name": "TEST_Delete",
+            "last_name": "Me",
+            "email": "test_delete@example.com",
+            "source": "test"
+        })
+        customer_id = create_resp.json()["customer_id"]
+        
+        # Delete
+        delete_resp = auth_session.delete(f"{BASE_URL}/api/customers/{customer_id}")
+        assert delete_resp.status_code == 200, f"Delete failed: {delete_resp.text}"
+        print("SUCCESS: Customer deleted")
+        
+        # Verify deletion
+        get_resp = auth_session.get(f"{BASE_URL}/api/customers/{customer_id}")
+        assert get_resp.status_code == 404
+        print("SUCCESS: Customer deletion verified")
+
+
+class TestSiteSettings:
+    """Site Settings CMS endpoints tests"""
+    
+    @pytest.fixture
+    def auth_session(self):
+        """Get authenticated session"""
+        session = requests.Session()
+        resp = session.post(f"{BASE_URL}/api/auth/login", json={
+            "email": "admin@mastermeatbox.com",
+            "password": "MMB@dmin2025!Secure"
+        })
+        if resp.status_code != 200:
+            pytest.skip("Authentication failed")
+        return session
+    
+    def test_get_site_settings_public(self):
+        """Test GET /site-settings is public"""
+        response = requests.get(f"{BASE_URL}/api/site-settings")
+        assert response.status_code == 200, f"Failed: {response.text}"
+        data = response.json()
+        # Should have default values
+        assert "promo_banner" in data
+        assert "hero_headline" in data
+        print(f"SUCCESS: GET /site-settings returned settings")
+    
+    def test_update_site_settings_requires_auth(self):
+        """Test PUT /site-settings requires authentication"""
+        response = requests.put(f"{BASE_URL}/api/site-settings", json={
+            "promo_banner": "Test banner"
+        })
+        assert response.status_code == 401, f"Expected 401, got {response.status_code}"
+        print("SUCCESS: PUT /site-settings requires auth")
+    
+    def test_update_site_settings_with_auth(self, auth_session):
+        """Test PUT /site-settings with authentication"""
+        # Get current settings
+        get_resp = auth_session.get(f"{BASE_URL}/api/site-settings")
+        original = get_resp.json()
+        
+        # Update
+        update_resp = auth_session.put(f"{BASE_URL}/api/site-settings", json={
+            "promo_banner": "TEST: 20% off everything!",
+            "hero_headline": "TEST Premium cuts. <span>No shortcuts.</span>"
+        })
+        assert update_resp.status_code == 200, f"Update failed: {update_resp.text}"
+        data = update_resp.json()
+        assert data["success"] == True
+        print("SUCCESS: Site settings updated")
+        
+        # Verify update
+        verify_resp = requests.get(f"{BASE_URL}/api/site-settings")
+        updated = verify_resp.json()
+        assert updated["promo_banner"] == "TEST: 20% off everything!"
+        print("SUCCESS: Site settings update verified")
+        
+        # Restore original (if it was set)
+        if original.get("promo_banner"):
+            auth_session.put(f"{BASE_URL}/api/site-settings", json={
+                "promo_banner": original["promo_banner"]
+            })
+
+
+class TestSteakBoxes:
+    """Steak Boxes CRUD tests"""
+    
+    @pytest.fixture
+    def auth_session(self):
+        """Get authenticated session"""
+        session = requests.Session()
+        resp = session.post(f"{BASE_URL}/api/auth/login", json={
+            "email": "admin@mastermeatbox.com",
+            "password": "MMB@dmin2025!Secure"
+        })
+        if resp.status_code != 200:
+            pytest.skip("Authentication failed")
+        return session
+    
+    def test_get_steak_boxes_public(self):
+        """Test GET /steak-boxes is public"""
+        response = requests.get(f"{BASE_URL}/api/steak-boxes")
+        assert response.status_code == 200, f"Failed: {response.text}"
+        data = response.json()
+        assert isinstance(data, list)
+        print(f"SUCCESS: GET /steak-boxes returned {len(data)} boxes")
+
+
+class TestMenuItems:
+    """Menu Items CRUD tests"""
+    
+    def test_get_menu_items_public(self):
+        """Test GET /menu-items is public"""
+        response = requests.get(f"{BASE_URL}/api/menu-items")
+        assert response.status_code == 200, f"Failed: {response.text}"
+        data = response.json()
+        assert isinstance(data, list)
+        print(f"SUCCESS: GET /menu-items returned {len(data)} items")
+
+
 # Cleanup function to remove test data
 def cleanup_test_data():
     """Remove all TEST_ prefixed data"""
