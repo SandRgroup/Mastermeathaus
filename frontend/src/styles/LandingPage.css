@@ -239,6 +239,21 @@
   width: 100%;
 }
 
+.admin-link {
+  font-size: 1.1rem !important;
+  opacity: 0.6;
+  transition: opacity 0.3s, transform 0.3s !important;
+}
+
+.admin-link:hover {
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+.admin-link::after {
+  display: none !important;
+}
+
 .cart-btn {
   display: flex;
   align-items: center;
@@ -434,6 +449,19 @@
 
 .product-badge {
   position: absolute;
+
+.admin-footer-link {
+  color: var(--gold) !important;
+  font-weight: 600 !important;
+  font-size: 0.9rem !important;
+  opacity: 0.8;
+}
+
+.admin-footer-link:hover {
+  opacity: 1 !important;
+  color: #d4b87a !important;
+}
+
   top: 12px;
   right: 12px;
   background: var(--red);
