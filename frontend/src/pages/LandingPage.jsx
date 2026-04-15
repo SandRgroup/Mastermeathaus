@@ -12,6 +12,7 @@ const LandingPage = () => {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [memberships, setMemberships] = useState([]);
+  const [siteSettings, setSiteSettings] = useState(null);
   const [loading, setLoading] = useState(true);
   const [billingPeriod, setBillingPeriod] = useState('monthly');
   const [activeFilter, setActiveFilter] = useState('all');
@@ -39,18 +40,36 @@ const LandingPage = () => {
 
   const fetchData = async () => {
     try {
-      const [productsRes, membershipsRes] = await Promise.all([
+      const [productsRes, membershipsRes, settingsRes] = await Promise.all([
         axios.get(`${backendUrl}/api/products`),
-        axios.get(`${backendUrl}/api/memberships`)
+        axios.get(`${backendUrl}/api/memberships`),
+        axios.get(`${backendUrl}/api/site-settings`)
       ]);
       setProducts(productsRes.data);
       setMemberships(membershipsRes.data);
+      setSiteSettings(settingsRes.data);
     } catch (error) {
       console.error('Failed to fetch data:', error);
       toast.error('Failed to load data');
     } finally {
       setLoading(false);
     }
+  };
+
+  const renderIcon = (iconData) => {
+    if (!iconData) return null;
+    // If iconData is a string, check if it's a URL or emoji
+    if (typeof iconData === 'string') {
+      if (iconData.startsWith('http://') || iconData.startsWith('https://') || iconData.startsWith('/')) {
+        return <img src={iconData} alt="icon" className="icon-image" style={{width: '1.2rem', height: '1.2rem', display: 'inline-block'}} />;
+      }
+      return <span>{iconData}</span>;
+    }
+    // If iconData is an object with icon and possibly iconUrl
+    if (iconData.iconUrl && iconData.iconUrl.trim()) {
+      return <img src={iconData.iconUrl} alt={iconData.text || 'icon'} className="icon-image" style={{width: '1.2rem', height: '1.2rem', display: 'inline-block'}} />;
+    }
+    return <span>{iconData.icon || ''}</span>;
   };
 
   const handleAddToCart = (product) => {
@@ -147,10 +166,18 @@ const LandingPage = () => {
       <div className="trust-bar">
         <div className="container">
           <div className="trust-items">
-            <div className="trust-item"><span className="trust-icon">🔒</span> Secure Stripe Checkout</div>
-            <div className="trust-item"><span className="trust-icon">🧊</span> Temperature-Controlled Shipping</div>
-            <div className="trust-item"><span className="trust-icon">⭐</span> USDA Prime &amp; Wagyu Quality</div>
-            <div className="trust-item"><span className="trust-icon">🚚</span> Free Shipping Over $150</div>
+            {siteSettings?.trust_items?.map((item, index) => (
+              <div key={index} className="trust-item">
+                <span className="trust-icon">{renderIcon(item)}</span> {item.text}
+              </div>
+            )) || (
+              <>
+                <div className="trust-item"><span className="trust-icon">🔒</span> Secure Stripe Checkout</div>
+                <div className="trust-item"><span className="trust-icon">🧊</span> Temperature-Controlled Shipping</div>
+                <div className="trust-item"><span className="trust-icon">⭐</span> USDA Prime &amp; Wagyu Quality</div>
+                <div className="trust-item"><span className="trust-icon">🚚</span> Free Shipping Over $150</div>
+              </>
+            )}
           </div>
         </div>
       </div>

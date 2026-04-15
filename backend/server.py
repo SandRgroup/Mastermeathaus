@@ -840,7 +840,7 @@ class SiteSettings(BaseModel):
     promo_banner: Optional[str] = None
     
     # Trust Bar
-    trust_items: Optional[List[dict]] = None
+    trust_items: Optional[List[dict]] = None  # [{icon, iconUrl, text}]
     
     # Hero Section
     hero_headline: Optional[str] = None
@@ -859,6 +859,8 @@ class SiteSettings(BaseModel):
     why_eyebrow: Optional[str] = None
     why_title: Optional[str] = None
     why_body: Optional[str] = None
+    why_check_icon: Optional[str] = None  # Default: ✓
+    why_check_icon_url: Optional[str] = None  # Image URL alternative
     why_highlights: Optional[List[str]] = None
     
     # Membership Section
@@ -869,10 +871,13 @@ class SiteSettings(BaseModel):
     # Delivery Section
     delivery_title: Optional[str] = None
     delivery_text: Optional[str] = None
+    delivery_steps: Optional[List[dict]] = None  # [{icon, iconUrl, label}]
     
     # Testimonials Section
     testimonials_eyebrow: Optional[str] = None
     testimonials_title: Optional[str] = None
+    testimonial_star_icon: Optional[str] = None  # Default: ★
+    testimonial_star_icon_url: Optional[str] = None  # Image URL alternative
     testimonials: Optional[List[dict]] = None
     
     # BBQ Calculator Section
@@ -880,6 +885,8 @@ class SiteSettings(BaseModel):
     bbq_title: Optional[str] = None
     bbq_subtitle: Optional[str] = None
     bbq_aging_title: Optional[str] = None
+    bbq_check_icon: Optional[str] = None  # Default: ✔
+    bbq_check_icon_url: Optional[str] = None  # Image URL alternative
     bbq_aging_highlights: Optional[List[str]] = None
     
     # Final CTA Section
@@ -900,10 +907,10 @@ async def get_site_settings():
         return {
             "promo_banner": "15% off orders $299+ | 10% off orders $199+ | 5% off orders $99+ with code PREMIUM",
             "trust_items": [
-                {"icon": "🔒", "text": "Secure Stripe Checkout"},
-                {"icon": "🧊", "text": "Temperature-Controlled Shipping"},
-                {"icon": "⭐", "text": "USDA Prime & Wagyu Quality"},
-                {"icon": "🚚", "text": "Free Shipping Over $150"}
+                {"icon": "🔒", "iconUrl": "", "text": "Secure Stripe Checkout"},
+                {"icon": "🧊", "iconUrl": "", "text": "Temperature-Controlled Shipping"},
+                {"icon": "⭐", "iconUrl": "", "text": "USDA Prime & Wagyu Quality"},
+                {"icon": "🚚", "iconUrl": "", "text": "Free Shipping Over $150"}
             ],
             "hero_headline": "Premium cuts. <span>No shortcuts.</span>",
             "hero_subheadline": "Hand-selected USDA Prime and Wagyu steaks delivered to your door — vacuum-sealed, temperature-controlled, and always exceptional.",
@@ -916,6 +923,8 @@ async def get_site_settings():
             "why_eyebrow": "Why Choose Us",
             "why_title": "Quality you can <span style='color:var(--gold);font-style:italic;'>trust</span>",
             "why_body": "We focus on sourcing and delivering premium cuts without overcomplicating the process. No unnecessary options — just high-quality meat done right.",
+            "why_check_icon": "✓",
+            "why_check_icon_url": "",
             "why_highlights": [
                 "USDA Prime & Wagyu quality",
                 "Carefully hand-selected cuts",
@@ -927,8 +936,16 @@ async def get_site_settings():
             "membership_subtitle": "Save more, order more. Choose the plan that fits your lifestyle.",
             "delivery_title": "Delivered <span style='color:var(--gold);font-style:italic;'>fresh</span>",
             "delivery_text": "Every order handled with temperature-controlled logistics to keep your cuts fresh from facility to front door.",
+            "delivery_steps": [
+                {"icon": "📦", "iconUrl": "", "label": "Order"},
+                {"icon": "🧊", "iconUrl": "", "label": "Packed"},
+                {"icon": "🌡️", "iconUrl": "", "label": "Cold-chain"},
+                {"icon": "🚚", "iconUrl": "", "label": "Delivered"}
+            ],
             "testimonials_eyebrow": "Reviews",
             "testimonials_title": "Customers <span>trust the quality</span>",
+            "testimonial_star_icon": "★",
+            "testimonial_star_icon_url": "",
             "testimonials": [
                 {"text": "Best quality I've found online. Consistent and reliable every single time.", "author": "Michael R.", "stars": 5},
                 {"text": "Simple ordering, premium cuts. Exactly what I needed for my family dinners.", "author": "Sarah K.", "stars": 5},
@@ -938,6 +955,8 @@ async def get_site_settings():
             "bbq_title": "Build a Premium BBQ <span>Experience</span>",
             "bbq_subtitle": "Not just a meal — dry-aged beef, precision portions, delivered ready for your perfect BBQ. Tell us your group size and we'll build the perfect meat selection instantly.",
             "bbq_aging_title": "The Art of Dry Aging",
+            "bbq_check_icon": "✔",
+            "bbq_check_icon_url": "",
             "bbq_aging_highlights": [
                 "Dry-Aged Beef Up to 45 Days",
                 "Premium Chicken & Artisan Sausage",
