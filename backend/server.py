@@ -785,6 +785,119 @@ async def startup_event():
 - DELETE /api/memberships/:id
 """)
 
+# ── CRM / CUSTOMER DATA ──────────────────────────────────────────────────
+class CustomerSubmission(BaseModel):
+    first_name: str
+    last_name: str
+    email: EmailStr
+    phone: Optional[str] = None
+    address: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    zip: Optional[str] = None
+    country: Optional[str] = "US"
+    source: Optional[str] = "checkout"
+    notes: Optional[str] = None
+
+@api_router.post("/customers")
+async def create_customer(customer: CustomerSubmission):
+    """Store customer information"""
+    customer_data = customer.dict()
+    customer_data["created_at"] = datetime.now(timezone.utc).isoformat()
+    customer_data["id"] = secrets.token_urlsafe(16)
+    
+    await db.customers.insert_one(customer_data)
+    return {"success": True, "customer_id": customer_data["id"]}
+
+@api_router.get("/customers")
+async def get_customers(current_user: dict = Depends(get_current_user)):
+    """Get all customers (admin only)"""
+    if current_user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    customers = await db.customers.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
+    return customers
+
+@api_router.get("/customers/{customer_id}")
+async def get_customer(customer_id: str, current_user: dict = Depends(get_current_user)):
+    """Get specific customer details"""
+    if current_user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    customer = await db.customers.find_one({"id": customer_id}, {"_id": 0})
+    if not customer:
+        raise HTTPException(status_code=404, detail="Customer not found")
+    return customer
+
+@api_router.delete("/customers/{customer_id}")
+async def delete_customer(customer_id: str, current_user: dict = Depends(get_current_user)):
+    """Delete customer"""
+    if current_user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    result = await db.customers.delete_one({"id": customer_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Customer not found")
+    return {"success": True}
+
+# ── SITE SETTINGS (CMS) ───────────────────────────────────────────────────
+class SiteSettings(BaseModel):
+    promo_banner: Optional[str] = None
+    hero_headline: Optional[str] = None
+    hero_subheadline: Optional[str] = None
+    hero_cta_primary: Optional[str] = None
+    hero_cta_secondary: Optional[str] = None
+    hero_note: Optional[str] = None
+    hero_image: Optional[str] = None
+    trust_items: Optional[List[dict]] = None
+    why_eyebrow: Optional[str] = None
+    why_title: Optional[str] = None
+    why_body: Optional[str] = None
+    why_highlights: Optional[List[str]] = None
+    delivery_title: Optional[str] = None
+    delivery_text: Optional[str] = None
+    testimonials: Optional[List[dict]] = None
+    final_title: Optional[str] = None
+    final_subtext: Optional[str] = None
+    footer_tagline: Optional[str] = None
+    footer_email: Optional[str] = None
+    footer_phone: Optional[str] = None
+
+@api_router.get("/site-settings")
+async def get_site_settings():
+    """Get current site settings"""
+    settings = await db.site_settings.find_one({}, {"_id": 0})
+    if not settings:
+        return {
+            "promo_banner": "15% off orders $299+ | 10% off orders $199+ | 5% off orders $99+ with code PREMIUM",
+            "hero_headline": "Premium cuts. <span>No shortcuts.</span>",
+            "hero_subheadline": "Hand-selected USDA Prime and Wagyu steaks delivered to your door — vacuum-sealed, temperature-controlled, and always exceptional.",
+            "hero_cta_primary": "Shop Now",
+            "hero_cta_secondary": "View Plans",
+            "hero_note": "Free shipping over $150 · Secure checkout via Stripe",
+            "why_title": "Quality you can <span style='color:var(--gold);font-style:italic;'>trust</span>",
+            "why_body": "We focus on sourcing and delivering premium cuts without overcomplicating the process. No unnecessary options — just high-quality meat done right.",
+            "final_title": "Better cuts start here",
+            "final_subtext": "Premium cuts. Simple process. Secure checkout.",
+            "footer_tagline": "Premium cuts. No shortcuts.",
+            "footer_email": "hello@mastermeatbox.com",
+            "footer_phone": "817-807-2489"
+        }
+    return settings
+
+@api_router.put("/site-settings")
+async def update_site_settings(settings: SiteSettings, current_user: dict = Depends(get_current_user)):
+    """Update site settings (admin only)"""
+    if current_user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    settings_data = {k: v for k, v in settings.dict().items() if v is not None}
+    settings_data["updated_at"] = datetime.now(timezone.utc).isoformat()
+    
+    await db.site_settings.update_one(
+        {},
+        {"$set": settings_data},
+        upsert=True
+    )
+    return {"success": True, "message": "Site settings updated"}
+
+
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()

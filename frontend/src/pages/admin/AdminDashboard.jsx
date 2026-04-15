@@ -7,7 +7,9 @@ import MembershipsManager from '../../components/admin/MembershipsManager';
 import DiscountsManager from '../../components/admin/DiscountsManager';
 import BoxesManager from '../../components/admin/BoxesManager';
 import MenuManager from '../../components/admin/MenuManager';
-import { LogOut, Package, CreditCard, Tag, Box, Menu } from 'lucide-react';
+import CustomersManager from '../../components/admin/CustomersManager';
+import SiteSettingsManager from '../../components/admin/SiteSettingsManager';
+import { LogOut, Package, CreditCard, Tag, Box, Menu, Users, Settings } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import '../../styles/Admin.css';
 
@@ -53,6 +55,14 @@ const AdminDashboard = () => {
               <Menu size={18} />
               Menu/CTAs
             </TabsTrigger>
+            <TabsTrigger value="customers" className="tab-trigger">
+              <Users size={18} />
+              CRM
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="tab-trigger">
+              <Settings size={18} />
+              Website
+            </TabsTrigger>
           </TabsList>
           
           <TabsContent value="products">
@@ -73,6 +83,14 @@ const AdminDashboard = () => {
           
           <TabsContent value="menu">
             <MenuManager />
+          </TabsContent>
+          
+          <TabsContent value="customers">
+            <CustomersManager />
+          </TabsContent>
+          
+          <TabsContent value="settings">
+            <SiteSettingsManager />
           </TabsContent>
         </Tabs>
       </div>
