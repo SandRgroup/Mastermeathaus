@@ -240,18 +240,12 @@
 }
 
 .admin-link {
-  font-size: 1.1rem !important;
-  opacity: 0.6;
-  transition: opacity 0.3s, transform 0.3s !important;
+  opacity: 0.5;
+  font-size: 0.85rem !important;
 }
 
 .admin-link:hover {
   opacity: 1;
-  transform: scale(1.2);
-}
-
-.admin-link::after {
-  display: none !important;
 }
 
 .cart-btn {

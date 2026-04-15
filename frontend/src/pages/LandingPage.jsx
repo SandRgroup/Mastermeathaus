@@ -133,7 +133,7 @@ const LandingPage = () => {
               <a href="#membership">Membership</a>
               <a href="#delivery">Delivery</a>
               <a href="#testimonials">Reviews</a>
-              <a href="/admin" className="admin-link" title="Admin Portal">⚙️</a>
+              <a href="/admin" className="admin-link">Admin</a>
               <button className="cart-btn" onClick={handleOpenCart}>
                 <ShoppingCart size={18} />
                 Cart <span className="cart-count">{getItemCount()}</span>
@@ -427,7 +427,7 @@ const LandingPage = () => {
               <a href="/about">About Us</a>
               <a href="/faq">FAQ</a>
               <a href="/contact">Contact</a>
-              <a href="/admin" className="admin-footer-link">🔐 Admin Portal</a>
+              <a href="/admin">Admin</a>
             </div>
             <div className="footer-col">
               <h4>Legal</h4>
