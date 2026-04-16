@@ -8,8 +8,8 @@ const BBQCalculator = () => {
   const [people, setPeople] = useState(10);
   const [selectedProducts, setSelectedProducts] = useState({});
   const [aging, setAging] = useState(0);
+  const [unit, setUnit] = useState('lbs'); // 'lbs' or 'kg'
   const [pricing, setPricing] = useState(null);
-  const [products, setProducts] = useState([]);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(true);
   const [ordering, setOrdering] = useState(false);
@@ -20,20 +20,12 @@ const BBQCalculator = () => {
 
   const fetchData = async () => {
     try {
-      const [pricingRes, productsRes] = await Promise.all([
-        axios.get(`${backendUrl}/api/pricing`),
-        axios.get(`${backendUrl}/api/products`)
-      ]);
-      
+      const pricingRes = await axios.get(`${backendUrl}/api/pricing`);
       setPricing(pricingRes.data);
       
-      // Filter products available for BBQ
-      const bbqProducts = productsRes.data.filter(p => p.availableForBBQ && p.pricePerLb);
-      setProducts(bbqProducts);
-      
-      // Auto-select first product
-      if (bbqProducts.length > 0) {
-        setSelectedProducts({ [bbqProducts[0]._id]: true });
+      // Auto-select first product if any
+      if (pricingRes.data.bbqProducts && pricingRes.data.bbqProducts.length > 0) {
+        setSelectedProducts({ [0]: true }); // Select first product by index
       }
       
       setLoading(false);
@@ -52,54 +44,68 @@ const BBQCalculator = () => {
   };
 
   const calculate = () => {
-    if (!pricing) return;
+    if (!pricing || !pricing.bbqProducts) return;
 
-    const selectedIds = Object.keys(selectedProducts).filter(id => selectedProducts[id]);
+    const selectedIndices = Object.keys(selectedProducts).filter(idx => selectedProducts[idx]);
     
-    if (selectedIds.length === 0) {
+    if (selectedIndices.length === 0) {
       toast.error('Please select at least one product');
       return;
     }
 
-    // Better steak calculation: 10-12 oz per person (0.625-0.75 lbs)
-    // We'll use 0.7 lbs as a good ballpark for mixed selections
-    const lbsPerPersonPerCut = 0.7;
     const breakdown = [];
-    let totalCost = 0;
     let totalMeat = 0;
+    let totalCost = 0;
 
-    selectedIds.forEach(productId => {
-      const product = products.find(p => p._id === productId);
-      if (product) {
-        // Each selected cut gets this amount per person
-        const lbs = people * lbsPerPersonPerCut;
-        totalMeat += lbs;
-        
-        const cost = lbs * product.pricePerLb;
-        totalCost += cost;
-        
-        breakdown.push({
-          name: product.name,
-          lbs: lbs.toFixed(1),
-          ozPerPerson: (lbsPerPersonPerCut * 16).toFixed(0), // Convert to oz for display
-          pricePerLb: product.pricePerLb,
-          cost: cost.toFixed(2),
-          description: product.description
-        });
+    selectedIndices.forEach(index => {
+      const product = pricing.bbqProducts[index];
+      if (!product) return;
+      
+      // Get portion size based on category
+      let lbsPerPerson = 0.7; // default
+      if (product.category === 'steak') {
+        lbsPerPerson = pricing.steakPerPerson || 0.7;
+      } else if (product.category === 'chicken') {
+        lbsPerPerson = pricing.chickenPerPerson || 0.5;
+      } else if (product.category === 'sausage') {
+        lbsPerPerson = pricing.sausagePerPerson || 0.4;
       }
+      
+      const totalLbs = people * lbsPerPerson;
+      const cost = totalLbs * (product.pricePerLb || 0);
+      
+      totalMeat += totalLbs;
+      totalCost += cost;
+      
+      breakdown.push({
+        name: product.name,
+        category: product.category,
+        lbs: totalLbs,
+        ozPerPerson: (lbsPerPerson * 16).toFixed(1),
+        pricePerLb: product.pricePerLb,
+        cost: cost.toFixed(2)
+      });
     });
 
-    const agingOption = pricing.aging[aging];
+    const agingOption = pricing.aging[aging] || { label: 'Standard', upcharge: 0 };
     const finalTotal = totalCost + agingOption.upcharge;
 
+    // Convert to kg if needed
+    const displayUnit = unit;
+    const conversionFactor = displayUnit === 'kg' ? 0.453592 : 1;
+
     setResult({
-      totalMeat: totalMeat.toFixed(1),
-      breakdown,
+      totalMeat: (totalMeat * conversionFactor).toFixed(1),
+      breakdown: breakdown.map(item => ({
+        ...item,
+        lbs: (item.lbs * conversionFactor).toFixed(1),
+        displayUnit
+      })),
       subtotal: totalCost.toFixed(2),
       agingLabel: agingOption.label,
       agingCost: agingOption.upcharge,
       totalPrice: finalTotal.toFixed(2),
-      ballparkNote: `~${(totalMeat / people).toFixed(1)} lbs per person`
+      ballparkNote: `~${(totalMeat / people * conversionFactor).toFixed(1)} ${displayUnit} per person`
     });
   };
 
@@ -143,10 +149,10 @@ const BBQCalculator = () => {
     );
   }
 
-  if (products.length === 0) {
+  if (!pricing.bbqProducts || pricing.bbqProducts.length === 0) {
     return (
       <div style={{ textAlign: 'center', padding: '2rem', color: 'rgba(255,255,255,0.6)' }}>
-        No products available for BBQ yet. Admin: Enable products in Products Manager.
+        No products available for BBQ yet. Admin: Add products in BBQ Settings.
       </div>
     );
   }
@@ -176,12 +182,45 @@ const BBQCalculator = () => {
           <Flame size={32} />
           BBQ Planner
         </h2>
-        <p style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.6)', marginBottom: '0.25rem' }}>
+        <p style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.6)', marginBottom: '0.5rem' }}>
           Select your meats and we'll calculate what you need
         </p>
-        <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)', fontStyle: 'italic' }}>
-          Ballpark estimates • ~11 oz of steak per person
-        </p>
+        
+        {/* Unit Toggle */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginTop: '1rem' }}>
+          <button
+            onClick={() => setUnit('lbs')}
+            style={{
+              padding: '0.5rem 1.5rem',
+              background: unit === 'lbs' ? '#C8A96A' : '#1a1a1a',
+              color: unit === 'lbs' ? '#000' : '#fff',
+              border: `1px solid ${unit === 'lbs' ? '#C8A96A' : '#333'}`,
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '0.9rem',
+              fontWeight: '600',
+              transition: 'all 0.2s'
+            }}
+          >
+            lbs
+          </button>
+          <button
+            onClick={() => setUnit('kg')}
+            style={{
+              padding: '0.5rem 1.5rem',
+              background: unit === 'kg' ? '#C8A96A' : '#1a1a1a',
+              color: unit === 'kg' ? '#000' : '#fff',
+              border: `1px solid ${unit === 'kg' ? '#C8A96A' : '#333'}`,
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '0.9rem',
+              fontWeight: '600',
+              transition: 'all 0.2s'
+            }}
+          >
+            kg
+          </button>
+        </div>
       </div>
 
       {/* People Input */}
@@ -231,12 +270,12 @@ const BBQCalculator = () => {
         <select
           multiple
           size={6}
-          value={Object.keys(selectedProducts).filter(id => selectedProducts[id])}
+          value={Object.keys(selectedProducts).filter(idx => selectedProducts[idx])}
           onChange={(e) => {
             const selectedOptions = Array.from(e.target.selectedOptions).map(opt => opt.value);
             const newSelection = {};
-            selectedOptions.forEach(id => {
-              newSelection[id] = true;
+            selectedOptions.forEach(idx => {
+              newSelection[idx] = true;
             });
             setSelectedProducts(newSelection);
           }}
@@ -252,10 +291,10 @@ const BBQCalculator = () => {
             outline: 'none'
           }}
         >
-          {products.map((product) => (
+          {(pricing.bbqProducts || []).map((product, index) => (
             <option
-              key={product._id}
-              value={product._id}
+              key={index}
+              value={index}
               style={{
                 padding: '0.75rem',
                 background: '#0d0d0d',
@@ -263,7 +302,10 @@ const BBQCalculator = () => {
                 cursor: 'pointer'
               }}
             >
-              {product.name} - {product.description}
+              {product.category === 'steak' && '🥩'} 
+              {product.category === 'chicken' && '🍗'} 
+              {product.category === 'sausage' && '🌭'} 
+              {' '}{product.name} - {product.description}
             </option>
           ))}
         </select>
@@ -377,9 +419,14 @@ const BBQCalculator = () => {
                 color: 'rgba(255,255,255,0.85)'
               }}>
                 <div>
-                  <div style={{ fontWeight: '600', color: '#fff' }}>{item.name}</div>
+                  <div style={{ fontWeight: '600', color: '#fff' }}>
+                    {item.category === 'steak' && '🥩'} 
+                    {item.category === 'chicken' && '🍗'} 
+                    {item.category === 'sausage' && '🌭'} 
+                    {' '}{item.name}
+                  </div>
                   <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>
-                    {item.lbs} lbs total • ~{item.ozPerPerson} oz/person × ${item.pricePerLb}/lb
+                    {item.lbs} {item.displayUnit} total • ~{item.ozPerPerson} oz/person
                   </div>
                 </div>
                 <div style={{ fontWeight: '700', color: '#C8A96A' }}>
@@ -391,7 +438,7 @@ const BBQCalculator = () => {
 
           <div style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.7)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-              <span>Subtotal ({result.totalMeat} lbs):</span>
+              <span>Subtotal ({result.totalMeat} {unit}):</span>
               <span>${result.subtotal}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem' }}>

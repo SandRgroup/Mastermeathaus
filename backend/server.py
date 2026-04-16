@@ -998,8 +998,12 @@ async def update_site_settings(settings: SiteSettings, current_user: dict = Depe
 
 class BBQPricing(BaseModel):
     # Calculator Settings
-    appetitePerPerson: float = 0.75
     enabled: bool = True
+    
+    # Portions per person by category (in lbs)
+    steakPerPerson: float = 0.7  # 11 oz
+    chickenPerPerson: float = 0.5  # 8 oz
+    sausagePerPerson: float = 0.4  # 6.4 oz
     
     # Aging Options
     aging: List[dict] = [
@@ -1007,6 +1011,9 @@ class BBQPricing(BaseModel):
         {"label": "30 Days (Premium)", "days": 30, "upcharge": 25},
         {"label": "45 Days (Ultra Aged)", "days": 45, "upcharge": 60}
     ]
+    
+    # BBQ Products with categories and pricing
+    bbqProducts: List[dict] = []
     
     class Config:
         extra = "allow"
@@ -1023,7 +1030,10 @@ async def get_pricing():
                 {"label": "30 Days (Premium)", "days": 30, "upcharge": 25},
                 {"label": "45 Days (Ultra Aged)", "days": 45, "upcharge": 60}
             ],
-            "appetitePerPerson": 0.75,
+            "steakPerPerson": 0.7,
+            "chickenPerPerson": 0.5,
+            "sausagePerPerson": 0.4,
+            "bbqProducts": [],
             "enabled": True
         }
         await db.bbq_pricing.insert_one(default_pricing.copy())

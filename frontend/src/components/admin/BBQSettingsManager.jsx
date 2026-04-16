@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'sonner';
-import { Settings, DollarSign, Calendar, Users, Power, Plus, Trash2 } from 'lucide-react';
+import { Settings, Plus, Trash2, Save } from 'lucide-react';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
 const BBQSettingsManager = () => {
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
   const [settings, setSettings] = useState({
-    beefCuts: [],
-    chickenCuts: [],
-    sausageCuts: [],
+    steakPerPerson: 0.7,
+    chickenPerPerson: 0.5,
+    sausagePerPerson: 0.4,
     aging: [],
-    appetitePerPerson: 0.75,
+    bbqProducts: [],
     enabled: true
   });
   const [loading, setLoading] = useState(true);
@@ -37,9 +41,10 @@ const BBQSettingsManager = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.put(`${backendUrl}/api/pricing`, settings, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true
       });
-      toast.success('BBQ Calculator settings updated!');
+      toast.success('BBQ settings saved successfully!');
     } catch (error) {
       console.error('Failed to save settings:', error);
       toast.error('Failed to save settings');
@@ -48,255 +53,238 @@ const BBQSettingsManager = () => {
     }
   };
 
-  const updateCut = (category, index, field, value) => {
-    const currentCuts = settings[category] || [];
-    const newCuts = [...currentCuts];
-    newCuts[index] = { ...newCuts[index], [field]: value };
-    setSettings({ ...settings, [category]: newCuts });
-  };
-
-  const addCut = (category) => {
-    const currentCuts = settings[category] || [];
-    const newCuts = [...currentCuts, {
-      name: "New Cut",
-      pricePerLb: 10.0,
-      enabled: true,
-      description: ""
+  const addProduct = () => {
+    const newProducts = [...(settings.bbqProducts || []), {
+      name: '',
+      category: 'steak',
+      pricePerLb: 0,
+      description: ''
     }];
-    setSettings({ ...settings, [category]: newCuts });
+    setSettings({ ...settings, bbqProducts: newProducts });
   };
 
-  const removeCut = (category, index) => {
-    const currentCuts = settings[category] || [];
-    const newCuts = currentCuts.filter((_, i) => i !== index);
-    setSettings({ ...settings, [category]: newCuts });
+  const updateProduct = (index, field, value) => {
+    const newProducts = [...settings.bbqProducts];
+    newProducts[index] = { ...newProducts[index], [field]: value };
+    setSettings({ ...settings, bbqProducts: newProducts });
+  };
+
+  const removeProduct = (index) => {
+    const newProducts = settings.bbqProducts.filter((_, i) => i !== index);
+    setSettings({ ...settings, bbqProducts: newProducts });
   };
 
   const updateAging = (index, field, value) => {
-    const currentAging = settings.aging || [];
-    const newAging = [...currentAging];
+    const newAging = [...settings.aging];
     newAging[index] = { ...newAging[index], [field]: value };
     setSettings({ ...settings, aging: newAging });
   };
 
   const addAgingOption = () => {
-    const currentAging = settings.aging || [];
-    const newAging = [...currentAging, { label: "New Aging Option", days: 0, upcharge: 0 }];
+    const newAging = [...(settings.aging || []), { label: '', days: 0, upcharge: 0 }];
     setSettings({ ...settings, aging: newAging });
   };
 
   const removeAgingOption = (index) => {
-    const currentAging = settings.aging || [];
-    const newAging = currentAging.filter((_, i) => i !== index);
+    const newAging = settings.aging.filter((_, i) => i !== index);
     setSettings({ ...settings, aging: newAging });
   };
 
-  const renderCutEditor = (category, title, emoji) => {
-    const cuts = settings[category] || [];
-    
-    return (
-      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-800">
-            {emoji} {title}
-          </h3>
-          <button
-            onClick={() => addCut(category)}
-            className="px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-md hover:bg-emerald-700 transition-colors flex items-center gap-2"
-          >
-            <Plus size={16} />
-            Add Cut
-          </button>
+  if (loading) return <div className="p-8">Loading BBQ settings...</div>;
+
+  return (
+    <div className="p-6 max-w-6xl">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <Settings className="w-6 h-6 text-amber-600" />
+          <h2 className="text-2xl font-bold text-gray-800">BBQ Planner Settings</h2>
         </div>
-        
+        <Button onClick={handleSave} disabled={saving}>
+          <Save className="w-4 h-4 mr-2" />
+          {saving ? 'Saving...' : 'Save All Changes'}
+        </Button>
+      </div>
+
+      {/* Portion Sizes Per Category */}
+      <div className="bg-white p-6 rounded-lg shadow-sm border mb-6">
+        <h3 className="text-lg font-semibold mb-4 text-gray-800">Portion Sizes Per Person (lbs)</h3>
+        <div className="grid grid-cols-3 gap-4">
+          <div>
+            <Label>🥩 Steak per Person</Label>
+            <Input
+              type="number"
+              step="0.1"
+              value={settings.steakPerPerson}
+              onChange={(e) => setSettings({ ...settings, steakPerPerson: parseFloat(e.target.value) || 0 })}
+            />
+            <p className="text-xs text-gray-500 mt-1">~{(settings.steakPerPerson * 16).toFixed(0)} oz</p>
+          </div>
+          <div>
+            <Label>🍗 Chicken per Person</Label>
+            <Input
+              type="number"
+              step="0.1"
+              value={settings.chickenPerPerson}
+              onChange={(e) => setSettings({ ...settings, chickenPerPerson: parseFloat(e.target.value) || 0 })}
+            />
+            <p className="text-xs text-gray-500 mt-1">~{(settings.chickenPerPerson * 16).toFixed(0)} oz</p>
+          </div>
+          <div>
+            <Label>🌭 Sausage per Person</Label>
+            <Input
+              type="number"
+              step="0.1"
+              value={settings.sausagePerPerson}
+              onChange={(e) => setSettings({ ...settings, sausagePerPerson: parseFloat(e.target.value) || 0 })}
+            />
+            <p className="text-xs text-gray-500 mt-1">~{(settings.sausagePerPerson * 16).toFixed(0)} oz</p>
+          </div>
+        </div>
+      </div>
+
+      {/* BBQ Products */}
+      <div className="bg-white p-6 rounded-lg shadow-sm border mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-800">BBQ Products</h3>
+          <Button onClick={addProduct} variant="outline" size="sm">
+            <Plus className="w-4 h-4 mr-2" />
+            Add Product
+          </Button>
+        </div>
+
         <div className="space-y-3">
-          {cuts.length === 0 ? (
+          {(settings.bbqProducts || []).length === 0 ? (
             <div className="text-center py-8 text-gray-500">
-              No cuts added yet. Click "Add Cut" to get started.
+              No BBQ products added yet. Click "Add Product" to start.
             </div>
           ) : (
-            cuts.map((cut, index) => (
-              <div key={index} className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <input
-                  type="checkbox"
-                  checked={cut.enabled}
-                  onChange={(e) => updateCut(category, index, 'enabled', e.target.checked)}
-                  className="w-5 h-5 rounded border-gray-300 text-emerald-600"
-                />
+            (settings.bbqProducts || []).map((product, index) => (
+              <div key={index} className="flex gap-3 p-4 bg-gray-50 rounded-lg border">
                 <div className="flex-1 grid grid-cols-4 gap-3">
-                  <input
-                    type="text"
-                    value={cut.name}
-                    onChange={(e) => updateCut(category, index, 'name', e.target.value)}
-                    placeholder="Cut name"
-                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  />
-                  <input
-                    type="number"
-                    step="0.5"
-                    value={cut.pricePerLb}
-                    onChange={(e) => updateCut(category, index, 'pricePerLb', parseFloat(e.target.value) || 0)}
-                    placeholder="Price/lb"
-                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  />
-                  <input
-                    type="text"
-                    value={cut.description || ''}
-                    onChange={(e) => updateCut(category, index, 'description', e.target.value)}
-                    placeholder="Description (optional)"
-                    className="col-span-2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  />
+                  <div>
+                    <Label className="text-xs">Name</Label>
+                    <Input
+                      placeholder="Product name"
+                      value={product.name}
+                      onChange={(e) => updateProduct(index, 'name', e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Category</Label>
+                    <Select
+                      value={product.category}
+                      onValueChange={(value) => updateProduct(index, 'category', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="steak">🥩 Steak</SelectItem>
+                        <SelectItem value="chicken">🍗 Chicken</SelectItem>
+                        <SelectItem value="sausage">🌭 Sausage</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-xs">Price per lb ($)</Label>
+                    <Input
+                      type="number"
+                      step="0.5"
+                      placeholder="0.00"
+                      value={product.pricePerLb}
+                      onChange={(e) => updateProduct(index, 'pricePerLb', parseFloat(e.target.value) || 0)}
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Description</Label>
+                    <Input
+                      placeholder="Brief description"
+                      value={product.description}
+                      onChange={(e) => updateProduct(index, 'description', e.target.value)}
+                    />
+                  </div>
                 </div>
-                <button
-                  onClick={() => removeCut(category, index)}
-                  className="px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => removeProduct(index)}
+                  className="self-end"
                 >
-                  <Trash2 size={16} />
-                </button>
+                  <Trash2 className="w-4 h-4" />
+                </Button>
               </div>
             ))
           )}
-        </div>
-      </div>
-    );
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-gray-400">Loading BBQ Calculator settings...</div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Settings className="w-6 h-6 text-gray-700" />
-            <div>
-              <h2 className="text-xl font-bold text-gray-800">BBQ Calculator Settings</h2>
-              <p className="text-sm text-gray-600">Manage all meat cuts, pricing, and calculator options</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={settings.enabled}
-                onChange={(e) => setSettings({ ...settings, enabled: e.target.checked })}
-                className="w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
-              />
-              <Power className={`w-5 h-5 ${settings.enabled ? 'text-emerald-600' : 'text-gray-400'}`} />
-              <span className="text-sm font-medium text-gray-700">
-                {settings.enabled ? 'Enabled' : 'Disabled'}
-              </span>
-            </label>
-          </div>
-        </div>
-      </div>
-
-      {/* Beef Cuts */}
-      {renderCutEditor('beefCuts', 'Steak Cuts', '🥩')}
-
-      {/* Chicken Cuts */}
-      {renderCutEditor('chickenCuts', 'Chicken Cuts', '🍗')}
-
-      {/* Sausage Cuts */}
-      {renderCutEditor('sausageCuts', 'Sausage Types', '🌭')}
-
-      {/* Calculator Settings */}
-      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-          <Users className="w-5 h-5 text-gray-600" />
-          Calculator Settings
-        </h3>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Appetite per Person (lbs)
-          </label>
-          <input
-            type="number"
-            step="0.05"
-            value={settings.appetitePerPerson}
-            onChange={(e) => setSettings({ ...settings, appetitePerPerson: parseFloat(e.target.value) || 0 })}
-            className="w-full md:w-64 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-          />
-          <p className="text-xs text-gray-500 mt-1">Total meat needed = People × Appetite per person</p>
         </div>
       </div>
 
       {/* Aging Options */}
-      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+      <div className="bg-white p-6 rounded-lg shadow-sm border mb-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-gray-600" />
-            Dry-Aging Options
-          </h3>
-          <button
-            onClick={addAgingOption}
-            className="px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-md hover:bg-emerald-700 transition-colors"
-          >
-            + Add Option
-          </button>
+          <h3 className="text-lg font-semibold text-gray-800">Dry-Aging Options</h3>
+          <Button onClick={addAgingOption} variant="outline" size="sm">
+            <Plus className="w-4 h-4 mr-2" />
+            Add Option
+          </Button>
         </div>
-        
-        <div className="space-y-4">
-          {(settings.aging || []).length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              No aging options added yet. Click "Add Option" to get started.
-            </div>
-          ) : (
-            (settings.aging || []).map((option, index) => (
-              <div key={index} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <div className="flex-1 grid grid-cols-3 gap-3">
-                  <input
-                    type="text"
+
+        <div className="space-y-3">
+          {(settings.aging || []).map((option, index) => (
+            <div key={index} className="flex gap-3 p-4 bg-gray-50 rounded-lg border">
+              <div className="flex-1 grid grid-cols-3 gap-3">
+                <div>
+                  <Label className="text-xs">Label</Label>
+                  <Input
+                    placeholder="e.g., 30 Days (Premium)"
                     value={option.label}
                     onChange={(e) => updateAging(index, 'label', e.target.value)}
-                    placeholder="Label"
-                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  />
-                  <input
-                    type="number"
-                    value={option.days}
-                    onChange={(e) => updateAging(index, 'days', parseInt(e.target.value) || 0)}
-                    placeholder="Days"
-                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  />
-                  <input
-                    type="number"
-                    value={option.upcharge}
-                    onChange={(e) => updateAging(index, 'upcharge', parseInt(e.target.value) || 0)}
-                    placeholder="Upcharge ($)"
-                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
-                {settings.aging.length > 1 && (
-                  <button
-                    onClick={() => removeAgingOption(index)}
-                    className="px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                )}
+                <div>
+                  <Label className="text-xs">Days</Label>
+                  <Input
+                    type="number"
+                    placeholder="30"
+                    value={option.days}
+                    onChange={(e) => updateAging(index, 'days', parseInt(e.target.value) || 0)}
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs">Upcharge ($)</Label>
+                  <Input
+                    type="number"
+                    placeholder="25"
+                    value={option.upcharge}
+                    onChange={(e) => updateAging(index, 'upcharge', parseFloat(e.target.value) || 0)}
+                  />
+                </div>
               </div>
-            ))
-          )}
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => removeAgingOption(index)}
+                className="self-end"
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Save Button */}
-      <div className="flex justify-end">
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="px-6 py-3 bg-emerald-600 text-white font-medium rounded-md hover:bg-emerald-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
-        >
-          {saving ? 'Saving...' : 'Save All Settings'}
-        </button>
+      {/* Enable/Disable */}
+      <div className="bg-white p-6 rounded-lg shadow-sm border">
+        <label className="flex items-center gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={settings.enabled}
+            onChange={(e) => setSettings({ ...settings, enabled: e.target.checked })}
+            className="w-5 h-5 rounded border-gray-300 text-emerald-600"
+          />
+          <span className="text-sm font-medium text-gray-700">
+            Enable BBQ Planner on website
+          </span>
+        </label>
       </div>
     </div>
   );
