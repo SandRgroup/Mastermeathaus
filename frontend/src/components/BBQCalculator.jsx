@@ -228,64 +228,53 @@ const BBQCalculator = () => {
         }}>
           Select Your Meats
         </h4>
-        <div style={{ display: 'grid', gap: '0.5rem' }}>
-          {products.map((product) => {
-            const isSelected = selectedProducts[product._id];
-            
-            return (
-              <label
-                key={product._id}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  padding: '0.75rem',
-                  background: isSelected ? '#1a1a1a' : '#0d0d0d',
-                  border: `1px solid ${isSelected ? '#C8A96A' : '#333'}`,
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s'
-                }}
-              >
-                <input
-                  type="checkbox"
-                  checked={isSelected || false}
-                  onChange={() => toggleProduct(product._id)}
-                  style={{
-                    marginRight: '0.75rem',
-                    width: '18px',
-                    height: '18px',
-                    cursor: 'pointer'
-                  }}
-                />
-                <div style={{ flex: 1 }}>
-                  <div style={{ 
-                    fontSize: '0.95rem', 
-                    fontWeight: '600',
-                    color: isSelected ? '#fff' : 'rgba(255,255,255,0.9)'
-                  }}>
-                    {product.name}
-                  </div>
-                  {product.description && (
-                    <div style={{
-                      fontSize: '0.75rem',
-                      color: 'rgba(255,255,255,0.5)',
-                      marginTop: '0.25rem'
-                    }}>
-                      {product.description}
-                    </div>
-                  )}
-                </div>
-                <div style={{
-                  fontSize: '0.9rem',
-                  fontWeight: '700',
-                  color: '#C8A96A'
-                }}>
-                  ${product.pricePerLb}/lb
-                </div>
-              </label>
-            );
-          })}
-        </div>
+        <select
+          multiple
+          size={6}
+          value={Object.keys(selectedProducts).filter(id => selectedProducts[id])}
+          onChange={(e) => {
+            const selectedOptions = Array.from(e.target.selectedOptions).map(opt => opt.value);
+            const newSelection = {};
+            selectedOptions.forEach(id => {
+              newSelection[id] = true;
+            });
+            setSelectedProducts(newSelection);
+          }}
+          style={{
+            width: '100%',
+            padding: '0.5rem',
+            background: '#0d0d0d',
+            border: '1px solid #333',
+            borderRadius: '8px',
+            color: '#fff',
+            fontSize: '0.95rem',
+            cursor: 'pointer',
+            outline: 'none'
+          }}
+        >
+          {products.map((product) => (
+            <option
+              key={product._id}
+              value={product._id}
+              style={{
+                padding: '0.75rem',
+                background: '#0d0d0d',
+                color: '#fff',
+                cursor: 'pointer'
+              }}
+            >
+              {product.name} - {product.description}
+            </option>
+          ))}
+        </select>
+        <p style={{
+          fontSize: '0.75rem',
+          color: 'rgba(255,255,255,0.5)',
+          marginTop: '0.5rem',
+          fontStyle: 'italic'
+        }}>
+          Hold Ctrl/Cmd to select multiple cuts
+        </p>
       </div>
 
       {/* Aging Selection */}
