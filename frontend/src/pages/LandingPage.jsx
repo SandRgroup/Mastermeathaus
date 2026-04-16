@@ -190,20 +190,27 @@ const LandingPage = () => {
       {/* Hero */}
       <section className="hero">
         <div className="hero-content">
-          <img 
-            src="/assets/logo-dark-bg.jpg" 
-            alt="Masters Meat Haus - Premium Butchery" 
-            className="hero-logo-image"
-            style={{
-              maxWidth: '500px', 
-              width: '100%', 
-              height: 'auto',
-              marginBottom: '2rem',
-              mixBlendMode: 'screen',
-              filter: 'brightness(1.8) contrast(2.5)',
-              opacity: 0.98
-            }}
-          />
+          <div style={{
+            position: 'relative',
+            maxWidth: '500px',
+            width: '100%',
+            marginBottom: '2rem'
+          }}>
+            <img 
+              src="/assets/logo-dark-bg.jpg" 
+              alt="Masters Meat Haus - Premium Butchery" 
+              className="hero-logo-image"
+              style={{
+                width: '100%', 
+                height: 'auto',
+                display: 'block',
+                mixBlendMode: 'lighten',
+                filter: 'brightness(3) contrast(4) saturate(0)',
+                WebkitMaskImage: 'linear-gradient(to bottom, black 60%, transparent 100%)',
+                maskImage: 'linear-gradient(to bottom, black 60%, transparent 100%)'
+              }}
+            />
+          </div>
           <h1 className="hero-title">Premium cuts. <span>No shortcuts.</span></h1>
           <p className="hero-subtitle">
             Hand-selected USDA Prime and Wagyu steaks delivered to your door — vacuum-sealed, temperature-controlled, and always exceptional.
