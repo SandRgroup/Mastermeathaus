@@ -54,7 +54,6 @@ const BBQCalculator = () => {
   const calculate = () => {
     if (!pricing) return;
 
-    const totalMeat = people * pricing.appetitePerPerson;
     const selectedIds = Object.keys(selectedProducts).filter(id => selectedProducts[id]);
     
     if (selectedIds.length === 0) {
@@ -62,18 +61,27 @@ const BBQCalculator = () => {
       return;
     }
 
-    const lbsPerProduct = totalMeat / selectedIds.length;
+    // Better steak calculation: 10-12 oz per person (0.625-0.75 lbs)
+    // We'll use 0.7 lbs as a good ballpark for mixed selections
+    const lbsPerPersonPerCut = 0.7;
     const breakdown = [];
     let totalCost = 0;
+    let totalMeat = 0;
 
     selectedIds.forEach(productId => {
       const product = products.find(p => p._id === productId);
       if (product) {
-        const cost = lbsPerProduct * product.pricePerLb;
+        // Each selected cut gets this amount per person
+        const lbs = people * lbsPerPersonPerCut;
+        totalMeat += lbs;
+        
+        const cost = lbs * product.pricePerLb;
         totalCost += cost;
+        
         breakdown.push({
           name: product.name,
-          lbs: lbsPerProduct.toFixed(1),
+          lbs: lbs.toFixed(1),
+          ozPerPerson: (lbsPerPersonPerCut * 16).toFixed(0), // Convert to oz for display
           pricePerLb: product.pricePerLb,
           cost: cost.toFixed(2),
           description: product.description
@@ -90,7 +98,8 @@ const BBQCalculator = () => {
       subtotal: totalCost.toFixed(2),
       agingLabel: agingOption.label,
       agingCost: agingOption.upcharge,
-      totalPrice: finalTotal.toFixed(2)
+      totalPrice: finalTotal.toFixed(2),
+      ballparkNote: `~${(totalMeat / people).toFixed(1)} lbs per person`
     });
   };
 
@@ -167,8 +176,11 @@ const BBQCalculator = () => {
           <Flame size={32} />
           BBQ Planner
         </h2>
-        <p style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.6)' }}>
+        <p style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.6)', marginBottom: '0.25rem' }}>
           Select your meats and we'll calculate what you need
+        </p>
+        <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)', fontStyle: 'italic' }}>
+          Ballpark estimates • ~11 oz of steak per person
         </p>
       </div>
 
@@ -346,11 +358,20 @@ const BBQCalculator = () => {
             fontSize: '1.3rem',
             fontWeight: '700',
             color: '#C8A96A',
-            marginBottom: '1rem',
+            marginBottom: '0.5rem',
             textAlign: 'center'
           }}>
             Your BBQ Needs
           </h3>
+          <p style={{
+            fontSize: '0.8rem',
+            color: 'rgba(255,255,255,0.5)',
+            textAlign: 'center',
+            marginBottom: '1rem',
+            fontStyle: 'italic'
+          }}>
+            Ballpark Estimate • {result.ballparkNote}
+          </p>
 
           <div style={{
             fontSize: '0.85rem',
@@ -369,7 +390,7 @@ const BBQCalculator = () => {
                 <div>
                   <div style={{ fontWeight: '600', color: '#fff' }}>{item.name}</div>
                   <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>
-                    {item.lbs} lbs × ${item.pricePerLb}/lb
+                    {item.lbs} lbs total • ~{item.ozPerPerson} oz/person × ${item.pricePerLb}/lb
                   </div>
                 </div>
                 <div style={{ fontWeight: '700', color: '#C8A96A' }}>
