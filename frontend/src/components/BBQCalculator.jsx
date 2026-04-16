@@ -9,6 +9,7 @@ const BBQCalculator = () => {
   const [selectedProducts, setSelectedProducts] = useState({});
   const [aging, setAging] = useState(0);
   const [unit, setUnit] = useState('lbs'); // 'lbs' or 'kg'
+  const [totalMeatPerPerson, setTotalMeatPerPerson] = useState(1.2); // Editable by customer!
   const [pricing, setPricing] = useState(null);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -18,10 +19,25 @@ const BBQCalculator = () => {
     fetchData();
   }, []);
 
+  // Convert when unit changes
+  useEffect(() => {
+    if (unit === 'kg') {
+      // Convert to kg (1.2 lbs ≈ 0.54 kg, we'll use 0.5 kg = 500g)
+      setTotalMeatPerPerson(0.5);
+    } else {
+      // Back to lbs
+      setTotalMeatPerPerson(1.2);
+    }
+  }, [unit]);
+
   const fetchData = async () => {
     try {
       const pricingRes = await axios.get(`${backendUrl}/api/pricing`);
       setPricing(pricingRes.data);
+      
+      // Set initial total from CMS or use default
+      const initialTotal = pricingRes.data.totalMeatPerPerson || 1.2;
+      setTotalMeatPerPerson(initialTotal);
       
       // Auto-select first product if any
       if (pricingRes.data.bbqProducts && pricingRes.data.bbqProducts.length > 0) {
@@ -53,9 +69,8 @@ const BBQCalculator = () => {
       return;
     }
 
-    const totalMeatPerPerson = pricing.totalMeatPerPerson || 1.2;
     const numberOfMeats = selectedIndices.length;
-    const lbsPerMeatPerPerson = totalMeatPerPerson / numberOfMeats;
+    const amountPerMeat = totalMeatPerPerson / numberOfMeats;
 
     const breakdown = [];
     let totalMeat = 0;
@@ -66,17 +81,20 @@ const BBQCalculator = () => {
       if (!product) return;
       
       // Math: people × (total per person / number of meats) = total for this meat
-      const totalLbs = people * lbsPerMeatPerPerson;
+      const totalAmount = people * amountPerMeat;
+      
+      // Convert to lbs for pricing (prices are in $/lb)
+      const totalLbs = unit === 'kg' ? totalAmount / 0.453592 : totalAmount;
       const cost = totalLbs * (product.pricePerLb || 0);
       
-      totalMeat += totalLbs;
+      totalMeat += totalAmount;
       totalCost += cost;
       
       breakdown.push({
         name: product.name,
         category: product.category,
-        lbs: totalLbs,
-        lbsPerPerson: lbsPerMeatPerPerson,
+        amount: totalAmount,
+        amountPerPerson: amountPerMeat,
         people: people,
         pricePerLb: product.pricePerLb,
         cost: cost.toFixed(2)
@@ -86,27 +104,22 @@ const BBQCalculator = () => {
     const agingOption = pricing.aging[aging] || { label: 'Standard', upcharge: 0 };
     const finalTotal = totalCost + agingOption.upcharge;
 
-    // Convert to kg if needed
-    const displayUnit = unit;
-    const conversionFactor = displayUnit === 'kg' ? 0.453592 : 1;
-
     setResult({
-      totalMeat: (totalMeat * conversionFactor).toFixed(1),
-      totalMeatPerPerson: (totalMeatPerPerson * conversionFactor).toFixed(2),
+      totalMeat: totalMeat.toFixed(1),
+      totalMeatPerPerson: totalMeatPerPerson.toFixed(2),
       numberOfMeats: numberOfMeats,
-      lbsPerMeat: (lbsPerMeatPerPerson * conversionFactor).toFixed(2),
+      amountPerMeat: amountPerMeat.toFixed(2),
       breakdown: breakdown.map(item => ({
         ...item,
-        lbs: (item.lbs * conversionFactor).toFixed(1),
-        lbsPerPerson: (item.lbsPerPerson * conversionFactor).toFixed(2),
-        displayUnit
+        amount: item.amount.toFixed(1),
+        amountPerPerson: item.amountPerPerson.toFixed(2)
       })),
       subtotal: totalCost.toFixed(2),
       agingLabel: agingOption.label,
       agingCost: agingOption.upcharge,
       totalPrice: finalTotal.toFixed(2),
       people: people,
-      unit: displayUnit
+      unit: unit
     });
   };
 
@@ -258,37 +271,51 @@ const BBQCalculator = () => {
         />
       </div>
 
-      {/* Total Meat Per Person Info */}
+      {/* Total Meat Per Person - EDITABLE BY CUSTOMER */}
       <div style={{ marginBottom: '1.5rem' }}>
         <div style={{
           background: 'linear-gradient(135deg, #8B0000 0%, #C8A96A 100%)',
           padding: '1rem',
-          borderRadius: '8px',
-          textAlign: 'center'
+          borderRadius: '8px'
         }}>
           <p style={{
             fontSize: '0.8rem',
-            color: 'rgba(255,255,255,0.8)',
-            marginBottom: '0.25rem',
+            color: 'rgba(255,255,255,0.9)',
+            marginBottom: '0.5rem',
+            textAlign: 'center',
             textTransform: 'uppercase',
             letterSpacing: '1px'
           }}>
             Total Meat Per Person
           </p>
-          <p style={{
-            fontSize: '2rem',
-            fontWeight: '700',
-            color: '#fff',
-            marginBottom: '0.25rem'
-          }}>
-            {pricing?.totalMeatPerPerson || 1.2} {unit}
-          </p>
+          <input
+            type="number"
+            step={unit === 'kg' ? '0.1' : '0.1'}
+            min={unit === 'kg' ? '0.2' : '0.5'}
+            max={unit === 'kg' ? '2' : '5'}
+            value={totalMeatPerPerson}
+            onChange={(e) => setTotalMeatPerPerson(parseFloat(e.target.value) || (unit === 'kg' ? 0.5 : 1.2))}
+            style={{
+              width: '100%',
+              padding: '0.75rem',
+              background: '#fff',
+              border: '3px solid #C8A96A',
+              borderRadius: '8px',
+              color: '#8B0000',
+              fontSize: '2rem',
+              fontWeight: '700',
+              textAlign: 'center',
+              outline: 'none',
+              marginBottom: '0.5rem'
+            }}
+          />
           <p style={{
             fontSize: '0.75rem',
-            color: 'rgba(255,255,255,0.7)',
+            color: 'rgba(255,255,255,0.9)',
+            textAlign: 'center',
             fontStyle: 'italic'
           }}>
-            Divided among your selected meats
+            {unit === 'kg' ? `${(totalMeatPerPerson * 1000).toFixed(0)}g` : `${(totalMeatPerPerson * 16).toFixed(1)} oz`} divided among your selected meats
           </p>
         </div>
       </div>
@@ -481,8 +508,13 @@ const BBQCalculator = () => {
               Total Per Person ÷ Number of Meats = Amount Each
             </p>
             <p style={{ fontSize: '1.1rem', color: '#fff', fontWeight: '600' }}>
-              {result.totalMeatPerPerson} {result.unit} ÷ {result.numberOfMeats} meats = {result.lbsPerMeat} {result.unit} each
+              {result.totalMeatPerPerson} {result.unit} ÷ {result.numberOfMeats} meats = {result.amountPerMeat} {result.unit} each
             </p>
+            {result.unit === 'kg' && (
+              <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', marginTop: '0.25rem' }}>
+                ({(result.amountPerMeat * 1000).toFixed(0)}g per meat)
+              </p>
+            )}
           </div>
 
           <div style={{
@@ -507,7 +539,7 @@ const BBQCalculator = () => {
                     {' '}{item.name}
                   </div>
                   <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>
-                    {item.people} × {item.lbsPerPerson} {item.displayUnit} = {item.lbs} {item.displayUnit} total
+                    {item.people} × {item.amountPerPerson} {item.displayUnit} = {item.amount} {item.displayUnit} total
                   </div>
                 </div>
                 <div style={{ fontWeight: '700', color: '#C8A96A' }}>
