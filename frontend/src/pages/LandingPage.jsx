@@ -22,6 +22,18 @@ const LandingPage = () => {
   const { getItemCount, setIsOpen, addToCart } = useCart();
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
+  // Badge color mapping
+  const getBadgeStyle = (badgeColor) => {
+    const colors = {
+      gold: { background: 'linear-gradient(135deg, #FFD700, #FFA500)', color: '#000' },
+      platinum: { background: 'linear-gradient(135deg, #E5E4E2, #C0C0C0)', color: '#000' },
+      red: { background: 'linear-gradient(135deg, #DC143C, #8B0000)', color: '#fff' },
+      green: { background: 'linear-gradient(135deg, #32CD32, #228B22)', color: '#fff' },
+      bronze: { background: 'linear-gradient(135deg, #CD7F32, #8B4513)', color: '#fff' }
+    };
+    return colors[badgeColor] || colors.gold;
+  };
+
   useEffect(() => {
     fetchData();
     window.addEventListener('scroll', handleScroll);
