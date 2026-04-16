@@ -139,14 +139,12 @@ const LandingPage = () => {
         <div className="container">
           <div className="header-wrapper">
             <a href="/" className="header-logo-link">
-              <div className="brand-logo header-brand">
-                <div className="brand-logo-top">
-                  <span className="brand-mmb">MMH</span>
-                  <span className="brand-bar"></span>
-                  <span className="brand-kanji">傑</span>
-                </div>
-                <div className="brand-sub">MASTERS MEAT HAUS®</div>
-              </div>
+              <img 
+                src="/assets/logo-text.jpg" 
+                alt="Masters Meat Haus" 
+                className="header-logo-image"
+                style={{height: '60px', width: 'auto', objectFit: 'contain'}}
+              />
             </a>
             <nav className="main-nav">
               <a href="#products">Shop</a>
@@ -185,14 +183,12 @@ const LandingPage = () => {
       {/* Hero */}
       <section className="hero">
         <div className="hero-content">
-          <div className="brand-logo hero-brand">
-            <div className="brand-logo-top">
-              <span className="brand-mmb">MMH</span>
-              <span className="brand-bar"></span>
-              <span className="brand-kanji">傑</span>
-            </div>
-            <div className="brand-sub">MASTERS MEAT HAUS®</div>
-          </div>
+          <img 
+            src="/assets/logo-full.jpg" 
+            alt="Masters Meat Haus - Premium Butchery" 
+            className="hero-logo-image"
+            style={{maxWidth: '450px', width: '100%', height: 'auto', marginBottom: '2rem'}}
+          />
           <h1 className="hero-title">Premium cuts. <span>No shortcuts.</span></h1>
           <p className="hero-subtitle">
             Hand-selected USDA Prime and Wagyu steaks delivered to your door — vacuum-sealed, temperature-controlled, and always exceptional.
@@ -509,14 +505,12 @@ const LandingPage = () => {
         <div className="container">
           <div className="footer-top">
             <div className="footer-col">
-              <div className="brand-logo footer-brand-logo">
-                <div className="brand-logo-top">
-                  <span className="brand-mmb">MMH</span>
-                  <span className="brand-bar"></span>
-                  <span className="brand-kanji">傑</span>
-                </div>
-                <div className="brand-sub">MASTERS MEAT HAUS®</div>
-              </div>
+              <img 
+                src="/assets/logo-full.jpg" 
+                alt="Masters Meat Haus" 
+                className="footer-logo-image"
+                style={{maxWidth: '280px', width: '100%', height: 'auto', marginBottom: '1rem'}}
+              />
               <p className="footer-tagline">Premium cuts. No shortcuts.</p>
             </div>
             <div className="footer-col">
