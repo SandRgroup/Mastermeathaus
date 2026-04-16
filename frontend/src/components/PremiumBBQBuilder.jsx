@@ -17,6 +17,13 @@ const PremiumBBQBuilder = () => {
 
   useEffect(() => {
     fetchBBQProducts();
+    
+    // Auto-refresh every 10 seconds to sync with CMS
+    const refreshInterval = setInterval(() => {
+      fetchBBQProducts();
+    }, 10000);
+    
+    return () => clearInterval(refreshInterval);
   }, []);
 
   const fetchBBQProducts = async () => {

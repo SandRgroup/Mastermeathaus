@@ -37,7 +37,16 @@ const LandingPage = () => {
   useEffect(() => {
     fetchData();
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    
+    // Auto-refresh products every 10 seconds to sync with CMS
+    const refreshInterval = setInterval(() => {
+      fetchData();
+    }, 10000);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      clearInterval(refreshInterval);
+    };
   }, []);
 
   const handleScroll = () => {
