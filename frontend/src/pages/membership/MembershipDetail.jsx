@@ -26,7 +26,7 @@ const MembershipDetail = () => {
     select: {
       name: 'Prime Select',
       tagline: 'Better Value',
-      price: '$5',
+      price: '$4.99',
       period: 'per month',
       yearlyPrice: '$42/year (save $18)',
       description: 'Better pricing on every order for regular buyers.',
@@ -42,7 +42,7 @@ const MembershipDetail = () => {
     prime: {
       name: 'Master Cut',
       tagline: 'Premium Savings',
-      price: '$13',
+      price: '$12.99',
       period: 'per month',
       yearlyPrice: '$109/year (save $47)',
       description: 'Maximum savings for serious meat enthusiasts.',
@@ -60,7 +60,7 @@ const MembershipDetail = () => {
     premium: {
       name: 'Black Label',
       tagline: 'Ultimate Experience',
-      price: '$20',
+      price: '$19.99',
       period: 'per month',
       yearlyPrice: '$168/year (save $72)',
       description: 'The pinnacle of membership with concierge service.',

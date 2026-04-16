@@ -331,8 +331,8 @@ const LandingPage = () => {
 
           <div className="membership-grid">
             {memberships.map((plan, index) => {
-              const monthlyPrice = parseFloat(plan.price) || 0;
-              const yearlyPrice = parseFloat(plan.yearly_price) || (monthlyPrice * 12 * 0.7);
+              const monthlyPrice = parseFloat(plan.price?.replace('$', '')) || 0;
+              const yearlyPrice = parseFloat(plan.yearly_price?.replace('$', '')) || (monthlyPrice * 12 * 0.7);
               const displayPrice = billingPeriod === 'monthly' 
                 ? `$${monthlyPrice.toFixed(2)}` 
                 : `$${yearlyPrice.toFixed(0)}`;
