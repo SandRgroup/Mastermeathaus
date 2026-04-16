@@ -104,38 +104,75 @@ const BBQSettingsManager = () => {
         </div>
       </div>
 
-      {/* Basic Settings */}
+      {/* Protein Pricing */}
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
         <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
           <DollarSign className="w-5 h-5 text-gray-600" />
-          Basic Pricing
+          Protein Pricing (per pound)
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Base Price per Box ($)
+              🥩 Beef ($/lb)
             </label>
             <input
               type="number"
-              value={settings.basePrice}
-              onChange={(e) => setSettings({ ...settings, basePrice: parseInt(e.target.value) || 0 })}
+              step="0.5"
+              value={settings.beefPricePerLb}
+              onChange={(e) => setSettings({ ...settings, beefPricePerLb: parseFloat(e.target.value) || 0 })}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              placeholder="149"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Price per Pound ($)
+            <label className="flex items-center justify-between text-sm font-medium text-gray-700 mb-2">
+              <span>🍗 Chicken ($/lb)</span>
+              <input
+                type="checkbox"
+                checked={settings.chickenEnabled}
+                onChange={(e) => setSettings({ ...settings, chickenEnabled: e.target.checked })}
+                className="w-4 h-4 rounded border-gray-300 text-emerald-600"
+              />
             </label>
             <input
               type="number"
-              step="0.1"
-              value={settings.basePricePerLb}
-              onChange={(e) => setSettings({ ...settings, basePricePerLb: parseFloat(e.target.value) || 0 })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              placeholder="12.0"
+              step="0.5"
+              value={settings.chickenPricePerLb}
+              onChange={(e) => setSettings({ ...settings, chickenPricePerLb: parseFloat(e.target.value) || 0 })}
+              disabled={!settings.chickenEnabled}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
             />
+            <p className="text-xs text-gray-500 mt-1">Uncheck to hide from calculator</p>
           </div>
+          <div>
+            <label className="flex items-center justify-between text-sm font-medium text-gray-700 mb-2">
+              <span>🌭 Sausage ($/lb)</span>
+              <input
+                type="checkbox"
+                checked={settings.sausageEnabled}
+                onChange={(e) => setSettings({ ...settings, sausageEnabled: e.target.checked })}
+                className="w-4 h-4 rounded border-gray-300 text-emerald-600"
+              />
+            </label>
+            <input
+              type="number"
+              step="0.5"
+              value={settings.sausagePricePerLb}
+              onChange={(e) => setSettings({ ...settings, sausagePricePerLb: parseFloat(e.target.value) || 0 })}
+              disabled={!settings.sausageEnabled}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+            />
+            <p className="text-xs text-gray-500 mt-1">Uncheck to hide from calculator</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Calculator Settings */}
+      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+          <Settings className="w-5 h-5 text-gray-600" />
+          Calculator Settings
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
               <Weight className="w-4 h-4" />
@@ -147,7 +184,6 @@ const BBQSettingsManager = () => {
               value={settings.pricePerBoxWeight}
               onChange={(e) => setSettings({ ...settings, pricePerBoxWeight: parseFloat(e.target.value) || 0 })}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              placeholder="5"
             />
           </div>
           <div>
@@ -161,7 +197,6 @@ const BBQSettingsManager = () => {
               value={settings.appetitePerPerson}
               onChange={(e) => setSettings({ ...settings, appetitePerPerson: parseFloat(e.target.value) || 0 })}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              placeholder="0.75"
             />
           </div>
         </div>
@@ -238,25 +273,34 @@ const BBQSettingsManager = () => {
 
       {/* Preview */}
       <div className="bg-gradient-to-r from-emerald-50 to-blue-50 p-6 rounded-lg border border-emerald-200">
-        <h3 className="text-lg font-semibold text-gray-800 mb-3">Preview Calculation</h3>
+        <h3 className="text-lg font-semibold text-gray-800 mb-3">Preview Calculation (20 people, Mixed BBQ)</h3>
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
-            <p className="text-gray-600">Example: 20 people</p>
+            <p className="text-gray-600">Total meat: {(20 * settings.appetitePerPerson).toFixed(1)} lbs</p>
             <p className="font-semibold text-gray-800">
-              Total meat: {(20 * settings.appetitePerPerson).toFixed(1)} lbs
+              🥩 Beef: {(20 * settings.appetitePerPerson * 0.5).toFixed(1)} lbs @ ${settings.beefPricePerLb}/lb = ${(20 * settings.appetitePerPerson * 0.5 * settings.beefPricePerLb).toFixed(2)}
             </p>
-            <p className="font-semibold text-gray-800">
-              Boxes needed: {Math.ceil((20 * settings.appetitePerPerson) / settings.pricePerBoxWeight)}
-            </p>
+            {settings.chickenEnabled && (
+              <p className="font-semibold text-gray-800">
+                🍗 Chicken: {(20 * settings.appetitePerPerson * 0.3).toFixed(1)} lbs @ ${settings.chickenPricePerLb}/lb = ${(20 * settings.appetitePerPerson * 0.3 * settings.chickenPricePerLb).toFixed(2)}
+              </p>
+            )}
+            {settings.sausageEnabled && (
+              <p className="font-semibold text-gray-800">
+                🌭 Sausage: {(20 * settings.appetitePerPerson * 0.2).toFixed(1)} lbs @ ${settings.sausagePricePerLb}/lb = ${(20 * settings.appetitePerPerson * 0.2 * settings.sausagePricePerLb).toFixed(2)}
+              </p>
+            )}
           </div>
           <div>
-            <p className="text-gray-600">Price range:</p>
+            <p className="text-gray-600">Price breakdown:</p>
             {settings.aging.map((option, index) => {
-              const boxes = Math.ceil((20 * settings.appetitePerPerson) / settings.pricePerBoxWeight);
-              const price = (settings.basePrice + option.upcharge) * boxes;
+              const beef = 20 * settings.appetitePerPerson * 0.5 * settings.beefPricePerLb;
+              const chicken = settings.chickenEnabled ? 20 * settings.appetitePerPerson * 0.3 * settings.chickenPricePerLb : 0;
+              const sausage = settings.sausageEnabled ? 20 * settings.appetitePerPerson * 0.2 * settings.sausagePricePerLb : 0;
+              const total = beef + chicken + sausage + option.upcharge;
               return (
                 <p key={index} className="font-semibold text-gray-800">
-                  {option.label}: ${price}
+                  {option.label}: ${total.toFixed(2)}
                 </p>
               );
             })}

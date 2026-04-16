@@ -1,560 +1,354 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { Users, Flame } from 'lucide-react';
+import { toast } from 'sonner';
 
-const BBQCalculator = () => {
-  const navigate = useNavigate();
-  const [step, setStep] = useState(1);
-  const [data, setData] = useState({
-    people: 10,
-    appetite: 0.75,
-    experience: 'standard',
-    proteins: ['beef'],
-    aging: 0
-  });
-  const [pricing, setPricing] = useState({
-    basePrice: 149,
-    aging: [
-      { label: "21 Days (Standard)", days: 21, upcharge: 0 },
-      { label: "30 Days (Premium)", days: 30, upcharge: 25 },
-      { label: "45 Days (Ultra Aged)", days: 45, upcharge: 60 }
-    ],
-    pricePerBoxWeight: 5
-  });
+const BBQCalculatorSimple = () => {
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
+  const [people, setPeople] = useState(10);
+  const [mode, setMode] = useState('mixed');
+  const [aging, setAging] = useState(0);
+  const [pricing, setPricing] = useState(null);
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [ordering, setOrdering] = useState(false);
 
   useEffect(() => {
-    // Fetch pricing from backend
-    const backendUrl = process.env.REACT_APP_BACKEND_URL;
-    axios.get(`${backendUrl}/api/pricing`)
-      .then(res => {
-        if (res.data) {
-          setPricing(res.data);
-        }
-      })
-      .catch(() => {
-        // Use default pricing if API fails
-      });
+    fetchPricing();
   }, []);
 
-  const updatePeople = (value) => {
-    setData({ ...data, people: parseInt(value) });
-  };
-
-  const updateExperience = (value) => {
-    setData({ ...data, experience: value });
-  };
-
-  const updateProteins = (protein, checked) => {
-    if (checked) {
-      setData({ ...data, proteins: [...data.proteins, protein] });
-    } else {
-      setData({ ...data, proteins: data.proteins.filter(p => p !== protein) });
+  const fetchPricing = async () => {
+    try {
+      const response = await axios.get(`${backendUrl}/api/pricing`);
+      setPricing(response.data);
+      setLoading(false);
+    } catch (error) {
+      console.error('Failed to fetch pricing:', error);
+      toast.error('Failed to load pricing');
+      setLoading(false);
     }
   };
 
-  const updateAging = (value) => {
-    setData({ ...data, aging: parseInt(value) });
+  const calculate = () => {
+    if (!pricing) return;
+
+    const totalMeat = people * pricing.appetitePerPerson;
+    const modeConfig = pricing.modes[mode];
+    const ratios = modeConfig.ratios;
+
+    const beefLbs = totalMeat * ratios.beef;
+    const chickenLbs = totalMeat * ratios.chicken;
+    const sausageLbs = totalMeat * ratios.sausage;
+
+    // Calculate price using individual protein prices
+    const beefCost = beefLbs * pricing.beefPricePerLb;
+    const chickenCost = chickenLbs * (pricing.chickenPricePerLb || 0);
+    const sausageCost = sausageLbs * (pricing.sausagePricePerLb || 0);
+
+    const agingOption = pricing.aging[aging];
+    const totalPrice = beefCost + chickenCost + sausageCost + agingOption.upcharge;
+
+    setResult({
+      totalMeat: totalMeat.toFixed(1),
+      beef: beefLbs.toFixed(1),
+      chicken: chickenLbs.toFixed(1),
+      sausage: sausageLbs.toFixed(1),
+      totalPrice: totalPrice.toFixed(2),
+      agingLabel: agingOption.label,
+      modeLabel: modeConfig.label
+    });
   };
 
-  const goToStep = (stepNumber) => {
-    setStep(stepNumber);
-  };
-
-  const calculateResults = () => {
-    const total = data.people * data.appetite;
-    let beef = 0.5, chicken = 0.3, sausage = 0.2;
-
-    if (data.experience === 'premium') {
-      beef = 0.7;
-      chicken = 0.2;
-      sausage = 0.1;
+  const handleOrder = async () => {
+    if (!result) {
+      toast.error('Please calculate your order first');
+      return;
     }
-    if (data.experience === 'casual') {
-      beef = 0.4;
-      chicken = 0.3;
-      sausage = 0.3;
+
+    setOrdering(true);
+    try {
+      const response = await axios.post(`${backendUrl}/api/bbq-checkout`, {
+        totalPrice: parseFloat(result.totalPrice),
+        people,
+        mode: result.modeLabel,
+        aging: result.agingLabel
+      });
+
+      // Redirect to Stripe checkout
+      window.location.href = response.data.url;
+    } catch (error) {
+      console.error('Checkout failed:', error);
+      toast.error('Failed to create checkout session');
+      setOrdering(false);
     }
-
-    const boxes = Math.ceil(total / pricing.pricePerBoxWeight);
-    const selectedAgingOption = pricing.aging[data.aging];
-    const pricePerBox = pricing.basePrice + selectedAgingOption.upcharge;
-    const totalPrice = boxes * pricePerBox;
-
-    return {
-      total: total.toFixed(1),
-      beef: (total * beef).toFixed(1),
-      chicken: (total * chicken).toFixed(1),
-      sausage: (total * sausage).toFixed(1),
-      boxes,
-      pricePerBox,
-      totalPrice,
-      agingLabel: selectedAgingOption.label
-    };
   };
 
-  const handleCheckout = () => {
-    navigate('/shop-boxes');
-  };
+  if (loading) {
+    return (
+      <div style={{ textAlign: 'center', padding: '2rem', color: 'rgba(255,255,255,0.6)' }}>
+        Loading calculator...
+      </div>
+    );
+  }
 
-  const results = step === 4 ? calculateResults() : null;
+  if (!pricing || !pricing.enabled) {
+    return (
+      <div style={{ textAlign: 'center', padding: '2rem', color: 'rgba(255,255,255,0.6)' }}>
+        BBQ Calculator is currently unavailable
+      </div>
+    );
+  }
 
   return (
     <div style={{
-      maxWidth: '520px',
+      maxWidth: '580px',
       margin: 'auto',
-      padding: '25px',
-      borderRadius: '18px',
+      padding: '30px',
+      borderRadius: '16px',
       background: '#0d0d0d',
       border: '1px solid #222',
-      boxShadow: '0 15px 40px rgba(0,0,0,0.3)',
-      fontFamily: 'Inter, sans-serif',
-      color: '#fff'
+      boxShadow: '0 15px 40px rgba(0,0,0,0.4)'
     }}>
-      {/* STEP 1: People Count */}
-      {step === 1 && (
-        <div>
-          <h2 style={{
-            fontSize: '1.8rem',
-            fontWeight: '700',
-            marginBottom: '1rem',
-            color: '#fff',
-            textAlign: 'center'
-          }}>
-            🔥 Build Your BBQ Box
-          </h2>
-          <p style={{
+      {/* Header */}
+      <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+        <h2 style={{
+          fontSize: '2rem',
+          fontWeight: '700',
+          color: '#C8A96A',
+          marginBottom: '0.5rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '0.5rem'
+        }}>
+          <Flame size={32} />
+          BBQ Planner
+        </h2>
+        <p style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.6)' }}>
+          Calculate perfect portions for your BBQ
+        </p>
+      </div>
+
+      {/* Inputs */}
+      <div style={{ marginBottom: '1.5rem' }}>
+        <label style={{
+          display: 'block',
+          fontSize: '0.9rem',
+          fontWeight: '600',
+          color: 'rgba(255,255,255,0.8)',
+          marginBottom: '0.5rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem'
+        }}>
+          <Users size={18} />
+          How many people? ({people})
+        </label>
+        <input
+          type="range"
+          min="1"
+          max="100"
+          value={people}
+          onChange={(e) => setPeople(parseInt(e.target.value))}
+          style={{
+            width: '100%',
+            height: '8px',
+            borderRadius: '5px',
+            outline: 'none',
+            background: 'linear-gradient(to right, #8B0000, #C8A96A)',
+            cursor: 'pointer'
+          }}
+        />
+      </div>
+
+      <div style={{ marginBottom: '1.5rem' }}>
+        <label style={{
+          display: 'block',
+          fontSize: '0.9rem',
+          fontWeight: '600',
+          color: 'rgba(255,255,255,0.8)',
+          marginBottom: '0.5rem'
+        }}>
+          BBQ Style
+        </label>
+        <select
+          value={mode}
+          onChange={(e) => setMode(e.target.value)}
+          style={{
+            width: '100%',
+            padding: '0.85rem',
             fontSize: '1rem',
-            marginBottom: '1rem',
-            color: 'rgba(255,255,255,0.8)'
-          }}>
-            How many people?
-          </p>
-          <input
-            type="range"
-            min="1"
-            max="100"
-            value={data.people}
-            onChange={(e) => updatePeople(e.target.value)}
-            style={{
-              width: '100%',
-              height: '8px',
-              borderRadius: '5px',
-              outline: 'none',
-              background: 'linear-gradient(to right, #8B0000, #C8A96A)',
-              cursor: 'pointer',
-              marginBottom: '1rem'
-            }}
-          />
-          <div style={{
-            fontSize: '2.5rem',
-            fontWeight: '700',
-            textAlign: 'center',
-            color: '#C8A96A',
-            marginBottom: '1.5rem'
-          }}>
-            {data.people}
-          </div>
-          <button
-            onClick={() => goToStep(2)}
-            style={{
-              width: '100%',
-              padding: '1rem',
-              fontSize: '1rem',
-              fontWeight: '600',
-              background: '#8B0000',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              transition: 'all 0.3s',
-              textTransform: 'uppercase',
-              letterSpacing: '1px'
-            }}
-            onMouseOver={(e) => e.target.style.background = '#a00000'}
-            onMouseOut={(e) => e.target.style.background = '#8B0000'}
-          >
-            Next →
-          </button>
-        </div>
-      )}
-
-      {/* STEP 2: Experience Level */}
-      {step === 2 && (
-        <div>
-          <h3 style={{
-            fontSize: '1.5rem',
-            fontWeight: '600',
-            marginBottom: '1rem',
-            color: '#fff',
-            textAlign: 'center'
-          }}>
-            Choose your experience
-          </h3>
-          <select
-            value={data.experience}
-            onChange={(e) => updateExperience(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '1rem',
-              fontSize: '1rem',
-              background: '#1a1a1a',
-              color: '#fff',
-              border: '1px solid #333',
-              borderRadius: '8px',
-              marginBottom: '1.5rem',
-              cursor: 'pointer'
-            }}
-          >
-            <option value="standard">Balanced BBQ</option>
-            <option value="premium">Steak Experience</option>
-            <option value="casual">Casual Cookout</option>
-          </select>
-          <div style={{ display: 'flex', gap: '0.75rem' }}>
-            <button
-              onClick={() => goToStep(1)}
-              style={{
-                flex: '1',
-                padding: '1rem',
-                fontSize: '0.9rem',
-                fontWeight: '600',
-                background: 'transparent',
-                color: '#fff',
-                border: '1px solid #333',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                transition: 'all 0.3s'
-              }}
-              onMouseOver={(e) => e.target.style.borderColor = '#C8A96A'}
-              onMouseOut={(e) => e.target.style.borderColor = '#333'}
-            >
-              ← Back
-            </button>
-            <button
-              onClick={() => goToStep(3)}
-              style={{
-                flex: '2',
-                padding: '1rem',
-                fontSize: '0.9rem',
-                fontWeight: '600',
-                background: '#8B0000',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                transition: 'all 0.3s',
-                textTransform: 'uppercase',
-                letterSpacing: '1px'
-              }}
-              onMouseOver={(e) => e.target.style.background = '#a00000'}
-              onMouseOut={(e) => e.target.style.background = '#8B0000'}
-            >
-              Next →
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* STEP 3: Protein Selection */}
-      {step === 3 && (
-        <div>
-          <h3 style={{
-            fontSize: '1.5rem',
-            fontWeight: '600',
-            marginBottom: '1rem',
-            color: '#fff',
-            textAlign: 'center'
-          }}>
-            Select proteins
-          </h3>
-          <div style={{ marginBottom: '1.5rem' }}>
-            <label style={{
-              display: 'flex',
-              alignItems: 'center',
-              padding: '0.75rem',
-              marginBottom: '0.5rem',
-              background: '#1a1a1a',
-              border: '1px solid #333',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontSize: '1rem',
-              color: 'rgba(255,255,255,0.9)'
-            }}>
-              <input
-                type="checkbox"
-                value="beef"
-                checked={data.proteins.includes('beef')}
-                onChange={(e) => updateProteins('beef', e.target.checked)}
-                style={{ marginRight: '0.75rem', width: '18px', height: '18px', cursor: 'pointer' }}
-              />
-              🥩 Beef
-            </label>
-            <label style={{
-              display: 'flex',
-              alignItems: 'center',
-              padding: '0.75rem',
-              marginBottom: '0.5rem',
-              background: '#1a1a1a',
-              border: '1px solid #333',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontSize: '1rem',
-              color: 'rgba(255,255,255,0.9)'
-            }}>
-              <input
-                type="checkbox"
-                value="chicken"
-                checked={data.proteins.includes('chicken')}
-                onChange={(e) => updateProteins('chicken', e.target.checked)}
-                style={{ marginRight: '0.75rem', width: '18px', height: '18px', cursor: 'pointer' }}
-              />
-              🍗 Chicken
-            </label>
-            <label style={{
-              display: 'flex',
-              alignItems: 'center',
-              padding: '0.75rem',
-              background: '#1a1a1a',
-              border: '1px solid #333',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontSize: '1rem',
-              color: 'rgba(255,255,255,0.9)'
-            }}>
-              <input
-                type="checkbox"
-                value="sausage"
-                checked={data.proteins.includes('sausage')}
-                onChange={(e) => updateProteins('sausage', e.target.checked)}
-                style={{ marginRight: '0.75rem', width: '18px', height: '18px', cursor: 'pointer' }}
-              />
-              🌭 Sausage
-            </label>
-          </div>
-          <div style={{ display: 'flex', gap: '0.75rem' }}>
-            <button
-              onClick={() => goToStep(2)}
-              style={{
-                flex: '1',
-                padding: '1rem',
-                fontSize: '0.9rem',
-                fontWeight: '600',
-                background: 'transparent',
-                color: '#fff',
-                border: '1px solid #333',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                transition: 'all 0.3s'
-              }}
-              onMouseOver={(e) => e.target.style.borderColor = '#C8A96A'}
-              onMouseOut={(e) => e.target.style.borderColor = '#333'}
-            >
-              ← Back
-            </button>
-            <button
-              onClick={() => goToStep(4)}
-              disabled={data.proteins.length === 0}
-              style={{
-                flex: '2',
-                padding: '1rem',
-                fontSize: '0.9rem',
-                fontWeight: '600',
-                background: data.proteins.length === 0 ? '#333' : '#8B0000',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: data.proteins.length === 0 ? 'not-allowed' : 'pointer',
-                transition: 'all 0.3s',
-                textTransform: 'uppercase',
-                letterSpacing: '1px',
-                opacity: data.proteins.length === 0 ? 0.5 : 1
-              }}
-              onMouseOver={(e) => {
-                if (data.proteins.length > 0) e.target.style.background = '#a00000';
-              }}
-              onMouseOut={(e) => {
-                if (data.proteins.length > 0) e.target.style.background = '#8B0000';
-              }}
-            >
-              Next →
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* STEP 4: Results */}
-      {step === 4 && results && (
-        <div>
-          <h3 style={{
-            fontSize: '1.8rem',
-            fontWeight: '700',
-            marginBottom: '1.5rem',
-            color: '#C8A96A',
-            textAlign: 'center'
-          }}>
-            Your Perfect BBQ Box
-          </h3>
-
-          <div style={{
             background: '#1a1a1a',
-            padding: '1.5rem',
-            borderRadius: '12px',
-            marginBottom: '1.5rem',
-            border: '1px solid #333'
-          }}>
-            <p style={{
-              fontSize: '1.1rem',
-              marginBottom: '1rem',
-              color: '#fff',
-              fontWeight: '600'
-            }}>
-              Total Meat: <strong style={{ color: '#C8A96A' }}>{results.total} lbs</strong>
-            </p>
+            color: '#fff',
+            border: '1px solid #333',
+            borderRadius: '8px',
+            cursor: 'pointer'
+          }}
+        >
+          {Object.entries(pricing.modes).map(([key, config]) => (
+            <option key={key} value={key}>{config.label}</option>
+          ))}
+        </select>
+      </div>
 
-            <div style={{
-              fontSize: '0.95rem',
-              lineHeight: '1.8',
-              color: 'rgba(255,255,255,0.8)'
-            }}>
-              🥩 Beef: <strong>{results.beef} lbs</strong><br />
-              🍗 Chicken: <strong>{results.chicken} lbs</strong><br />
-              🌭 Sausage: <strong>{results.sausage} lbs</strong>
-            </div>
-          </div>
-
-          {/* Aging Selection */}
-          <div style={{
+      <div style={{ marginBottom: '1.5rem' }}>
+        <label style={{
+          display: 'block',
+          fontSize: '0.9rem',
+          fontWeight: '600',
+          color: 'rgba(255,255,255,0.8)',
+          marginBottom: '0.5rem'
+        }}>
+          Dry-Aging Level
+        </label>
+        <select
+          value={aging}
+          onChange={(e) => setAging(parseInt(e.target.value))}
+          style={{
+            width: '100%',
+            padding: '0.85rem',
+            fontSize: '1rem',
             background: '#1a1a1a',
-            padding: '1.5rem',
-            borderRadius: '12px',
-            marginBottom: '1.5rem',
-            border: '1px solid #333'
+            color: '#fff',
+            border: '1px solid #333',
+            borderRadius: '8px',
+            cursor: 'pointer'
+          }}
+        >
+          {pricing.aging.map((option, index) => (
+            <option key={index} value={index}>
+              {option.label} {option.upcharge > 0 ? `(+$${option.upcharge})` : ''}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Calculate Button */}
+      <button
+        onClick={calculate}
+        style={{
+          width: '100%',
+          padding: '1rem',
+          fontSize: '1rem',
+          fontWeight: '700',
+          background: '#8B0000',
+          color: '#fff',
+          border: 'none',
+          borderRadius: '8px',
+          cursor: 'pointer',
+          transition: 'all 0.3s',
+          textTransform: 'uppercase',
+          letterSpacing: '1px',
+          marginBottom: '1.5rem'
+        }}
+        onMouseOver={(e) => e.target.style.background = '#a00000'}
+        onMouseOut={(e) => e.target.style.background = '#8B0000'}
+      >
+        Calculate My BBQ
+      </button>
+
+      {/* Results */}
+      {result && (
+        <div style={{
+          background: '#1a1a1a',
+          padding: '1.5rem',
+          borderRadius: '12px',
+          border: '1px solid #333',
+          marginBottom: '1.5rem'
+        }}>
+          <h3 style={{
+            fontSize: '1.3rem',
+            fontWeight: '700',
+            color: '#C8A96A',
+            marginBottom: '1rem',
+            textAlign: 'center'
           }}>
-            <label style={{
-              display: 'block',
-              fontSize: '1rem',
-              fontWeight: '600',
-              color: '#C8A96A',
-              marginBottom: '0.75rem',
-              textAlign: 'center'
-            }}>
-              🥩 Select Dry-Aging
-            </label>
-            <select
-              value={data.aging}
-              onChange={(e) => updateAging(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '1rem',
-                fontSize: '1rem',
-                background: '#0d0d0d',
-                color: '#fff',
-                border: '1px solid #333',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                marginBottom: '1rem'
-              }}
-            >
-              {pricing.aging.map((option, index) => (
-                <option key={index} value={index}>
-                  {option.label} {option.upcharge > 0 ? `(+$${option.upcharge})` : ''}
-                </option>
-              ))}
-            </select>
-            
-            <div style={{
-              textAlign: 'center',
-              fontSize: '0.85rem',
-              color: 'rgba(255,255,255,0.6)',
-              fontStyle: 'italic'
-            }}>
-              Flavor intensifies with time. Luxury is measured in days.
-            </div>
+            Your Perfect BBQ Plan
+          </h3>
+
+          <div style={{
+            fontSize: '0.95rem',
+            lineHeight: '1.9',
+            color: 'rgba(255,255,255,0.85)',
+            marginBottom: '1rem'
+          }}>
+            🥩 Beef: <strong>{result.beef} lbs</strong><br />
+            {pricing.chickenEnabled && parseFloat(result.chicken) > 0 && (
+              <>🍗 Chicken: <strong>{result.chicken} lbs</strong><br /></>
+            )}
+            {pricing.sausageEnabled && parseFloat(result.sausage) > 0 && (
+              <>🌭 Sausage: <strong>{result.sausage} lbs</strong><br /></>
+            )}
+            <div style={{ height: '1px', background: '#333', margin: '0.75rem 0' }}></div>
+            📊 Total Meat: <strong style={{ color: '#C8A96A' }}>{result.totalMeat} lbs</strong><br />
+            🥩 Aging: <strong>{result.agingLabel}</strong>
           </div>
 
           <div style={{
             background: 'linear-gradient(135deg, #8B0000, #a00000)',
-            padding: '1.5rem',
-            borderRadius: '12px',
-            marginBottom: '1.5rem',
+            padding: '1.25rem',
+            borderRadius: '10px',
             textAlign: 'center'
           }}>
             <p style={{
-              fontSize: '1.3rem',
-              fontWeight: '700',
-              color: '#fff',
-              marginBottom: '0.5rem'
-            }}>
-              Recommended: {results.boxes} {results.boxes === 1 ? 'Box' : 'Boxes'}
-            </p>
-            <p style={{
-              fontSize: '1.1rem',
-              color: 'rgba(255,255,255,0.9)',
-              marginBottom: '0.25rem'
-            }}>
-              {results.boxes} Box{results.boxes > 1 ? 'es' : ''} × ${results.pricePerBox}
-            </p>
-            <p style={{
               fontSize: '1.5rem',
               fontWeight: '700',
-              color: '#C8A96A',
-              marginTop: '0.5rem'
+              color: '#fff',
+              marginBottom: '0.25rem'
             }}>
-              Total: ${results.totalPrice}
+              ${result.totalPrice}
             </p>
-          </div>
-
-          <div style={{ display: 'flex', gap: '0.75rem' }}>
-            <button
-              onClick={() => goToStep(1)}
-              style={{
-                flex: '1',
-                padding: '1rem',
-                fontSize: '0.9rem',
-                fontWeight: '600',
-                background: 'transparent',
-                color: '#fff',
-                border: '1px solid #333',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                transition: 'all 0.3s'
-              }}
-              onMouseOver={(e) => e.target.style.borderColor = '#C8A96A'}
-              onMouseOut={(e) => e.target.style.borderColor = '#333'}
-            >
-              ← Start Over
-            </button>
-            <button
-              onClick={handleCheckout}
-              style={{
-                flex: '2',
-                padding: '1rem',
-                fontSize: '1rem',
-                fontWeight: '700',
-                background: '#C8A96A',
-                color: '#0a0a0a',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                transition: 'all 0.3s',
-                textTransform: 'uppercase',
-                letterSpacing: '1px'
-              }}
-              onMouseOver={(e) => {
-                e.target.style.background = '#d4b87a';
-                e.target.style.transform = 'translateY(-2px)';
-              }}
-              onMouseOut={(e) => {
-                e.target.style.background = '#C8A96A';
-                e.target.style.transform = 'translateY(0)';
-              }}
-            >
-              🔥 Get My Box
-            </button>
+            <p style={{
+              fontSize: '0.85rem',
+              color: 'rgba(255,255,255,0.8)'
+            }}>
+              Total Price
+            </p>
           </div>
         </div>
       )}
+
+      {/* Order Button */}
+      {result && (
+        <button
+          onClick={handleOrder}
+          disabled={ordering}
+          style={{
+            width: '100%',
+            padding: '1.2rem',
+            fontSize: '1.1rem',
+            fontWeight: '700',
+            background: '#C8A96A',
+            color: '#0a0a0a',
+            border: 'none',
+            borderRadius: '10px',
+            cursor: ordering ? 'not-allowed' : 'pointer',
+            transition: 'all 0.3s',
+            textTransform: 'uppercase',
+            letterSpacing: '1.5px',
+            opacity: ordering ? 0.6 : 1
+          }}
+          onMouseOver={(e) => {
+            if (!ordering) e.target.style.background = '#d4b87a';
+          }}
+          onMouseOut={(e) => {
+            if (!ordering) e.target.style.background = '#C8A96A';
+          }}
+        >
+          {ordering ? '🔄 Processing...' : '🔥 Order Now with Stripe'}
+        </button>
+      )}
+
+      <p style={{
+        textAlign: 'center',
+        fontSize: '0.8rem',
+        color: 'rgba(255,255,255,0.4)',
+        marginTop: '1rem'
+      }}>
+        Secure checkout powered by Stripe
+      </p>
     </div>
   );
 };
 
-export default BBQCalculator;
+export default BBQCalculatorSimple;

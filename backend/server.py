@@ -993,16 +993,27 @@ async def update_site_settings(settings: SiteSettings, current_user: dict = Depe
 # ─────────────────────────────────────────────────────────────────────────────
 
 class BBQPricing(BaseModel):
-    basePrice: int = 149
-    basePricePerLb: float = 12.0  # Price per pound of meat
+    # Protein Pricing (per pound)
+    beefPricePerLb: float = 15.0
+    chickenPricePerLb: float = 8.0
+    sausagePricePerLb: float = 10.0
+    
+    # Protein Availability
+    chickenEnabled: bool = True
+    sausageEnabled: bool = True
+    
+    # Calculator Settings
+    pricePerBoxWeight: int = 5
+    appetitePerPerson: float = 0.75
+    enabled: bool = True
+    
+    # Aging Options
     aging: List[dict] = [
         {"label": "21 Days (Standard)", "days": 21, "upcharge": 0},
         {"label": "30 Days (Premium)", "days": 30, "upcharge": 25},
         {"label": "45 Days (Ultra Aged)", "days": 45, "upcharge": 60}
     ]
-    pricePerBoxWeight: int = 5
-    appetitePerPerson: float = 0.75
-    enabled: bool = True
+    
     # BBQ Modes with protein ratios
     modes: Optional[dict] = {
         "mixed": {"label": "Mixed BBQ", "ratios": {"beef": 0.5, "chicken": 0.3, "sausage": 0.2}},
@@ -1012,7 +1023,7 @@ class BBQPricing(BaseModel):
     }
     
     class Config:
-        extra = "allow"  # Allow additional fields from database
+        extra = "allow"
 
 @api_router.get("/pricing")
 async def get_pricing():
@@ -1021,8 +1032,11 @@ async def get_pricing():
     if not pricing:
         # Return default pricing if none exists
         default_pricing = {
-            "basePrice": 149,
-            "basePricePerLb": 12.0,
+            "beefPricePerLb": 15.0,
+            "chickenPricePerLb": 8.0,
+            "sausagePricePerLb": 10.0,
+            "chickenEnabled": True,
+            "sausageEnabled": True,
             "aging": [
                 {"label": "21 Days (Standard)", "days": 21, "upcharge": 0},
                 {"label": "30 Days (Premium)", "days": 30, "upcharge": 25},
@@ -1050,8 +1064,7 @@ async def get_pricing():
             "sausage": {"label": "Sausage Focus", "ratios": {"beef": 0.0, "chicken": 0.0, "sausage": 1.0}}
         }
     
-    logger.info(f"Pricing response has modes: {'modes' in pricing}")
-    # Return raw dict (bypass any Pydantic serialization)
+    # Return raw dict
     from fastapi.responses import JSONResponse
     return JSONResponse(content=dict(pricing))
 
