@@ -6,7 +6,6 @@ import { toast } from 'sonner';
 const BBQCalculator = () => {
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
   const [people, setPeople] = useState(10);
-  const [lbsPerPerson, setLbsPerPerson] = useState(0.75); // Editable!
   const [selectedProducts, setSelectedProducts] = useState({});
   const [aging, setAging] = useState(0);
   const [unit, setUnit] = useState('lbs'); // 'lbs' or 'kg'
@@ -54,6 +53,10 @@ const BBQCalculator = () => {
       return;
     }
 
+    const totalMeatPerPerson = pricing.totalMeatPerPerson || 1.2;
+    const numberOfMeats = selectedIndices.length;
+    const lbsPerMeatPerPerson = totalMeatPerPerson / numberOfMeats;
+
     const breakdown = [];
     let totalMeat = 0;
     let totalCost = 0;
@@ -62,8 +65,8 @@ const BBQCalculator = () => {
       const product = pricing.bbqProducts[index];
       if (!product) return;
       
-      // Simple math: people × lbs per person = total for this meat
-      const totalLbs = people * lbsPerPerson;
+      // Math: people × (total per person / number of meats) = total for this meat
+      const totalLbs = people * lbsPerMeatPerPerson;
       const cost = totalLbs * (product.pricePerLb || 0);
       
       totalMeat += totalLbs;
@@ -73,7 +76,7 @@ const BBQCalculator = () => {
         name: product.name,
         category: product.category,
         lbs: totalLbs,
-        lbsPerPerson: lbsPerPerson,
+        lbsPerPerson: lbsPerMeatPerPerson,
         people: people,
         pricePerLb: product.pricePerLb,
         cost: cost.toFixed(2)
@@ -89,6 +92,9 @@ const BBQCalculator = () => {
 
     setResult({
       totalMeat: (totalMeat * conversionFactor).toFixed(1),
+      totalMeatPerPerson: (totalMeatPerPerson * conversionFactor).toFixed(2),
+      numberOfMeats: numberOfMeats,
+      lbsPerMeat: (lbsPerMeatPerPerson * conversionFactor).toFixed(2),
       breakdown: breakdown.map(item => ({
         ...item,
         lbs: (item.lbs * conversionFactor).toFixed(1),
@@ -252,46 +258,39 @@ const BBQCalculator = () => {
         />
       </div>
 
-      {/* Lbs Per Person - EDITABLE */}
+      {/* Total Meat Per Person Info */}
       <div style={{ marginBottom: '1.5rem' }}>
-        <label style={{
-          display: 'block',
-          fontSize: '0.9rem',
-          fontWeight: '600',
-          color: 'rgba(255,255,255,0.8)',
-          marginBottom: '0.5rem'
-        }}>
-          {unit === 'lbs' ? 'lbs' : 'kg'} Per Person (For Each Meat)
-        </label>
-        <input
-          type="number"
-          step="0.1"
-          min="0.1"
-          max="5"
-          value={lbsPerPerson}
-          onChange={(e) => setLbsPerPerson(parseFloat(e.target.value) || 0.75)}
-          style={{
-            width: '100%',
-            padding: '0.75rem',
-            background: '#0d0d0d',
-            border: '2px solid #C8A96A',
-            borderRadius: '8px',
-            color: '#fff',
-            fontSize: '1.2rem',
-            fontWeight: '700',
-            textAlign: 'center',
-            outline: 'none'
-          }}
-        />
-        <p style={{
-          fontSize: '0.75rem',
-          color: 'rgba(255,255,255,0.5)',
-          marginTop: '0.5rem',
-          fontStyle: 'italic',
+        <div style={{
+          background: 'linear-gradient(135deg, #8B0000 0%, #C8A96A 100%)',
+          padding: '1rem',
+          borderRadius: '8px',
           textAlign: 'center'
         }}>
-          Math: {people} people × {lbsPerPerson} {unit} = {(people * lbsPerPerson).toFixed(1)} {unit} per meat
-        </p>
+          <p style={{
+            fontSize: '0.8rem',
+            color: 'rgba(255,255,255,0.8)',
+            marginBottom: '0.25rem',
+            textTransform: 'uppercase',
+            letterSpacing: '1px'
+          }}>
+            Total Meat Per Person
+          </p>
+          <p style={{
+            fontSize: '2rem',
+            fontWeight: '700',
+            color: '#fff',
+            marginBottom: '0.25rem'
+          }}>
+            {pricing?.totalMeatPerPerson || 1.2} {unit}
+          </p>
+          <p style={{
+            fontSize: '0.75rem',
+            color: 'rgba(255,255,255,0.7)',
+            fontStyle: 'italic'
+          }}>
+            Divided among your selected meats
+          </p>
+        </div>
       </div>
 
       {/* Product Selection */}
@@ -471,17 +470,20 @@ const BBQCalculator = () => {
           }}>
             Your BBQ Needs
           </h3>
-          <p style={{
-            fontSize: '0.9rem',
-            color: 'rgba(255,255,255,0.7)',
-            textAlign: 'center',
-            marginBottom: '1rem',
-            padding: '0.75rem',
+          <div style={{
             background: '#0d0d0d',
-            borderRadius: '6px'
+            padding: '1rem',
+            borderRadius: '6px',
+            marginBottom: '1rem',
+            textAlign: 'center'
           }}>
-            📊 {result.people} people × {result.breakdown[0]?.lbsPerPerson || '?'} {result.unit}/person = {result.breakdown[0]?.lbs || '?'} {result.unit} per meat
-          </p>
+            <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)', marginBottom: '0.5rem' }}>
+              Total Per Person ÷ Number of Meats = Amount Each
+            </p>
+            <p style={{ fontSize: '1.1rem', color: '#fff', fontWeight: '600' }}>
+              {result.totalMeatPerPerson} {result.unit} ÷ {result.numberOfMeats} meats = {result.lbsPerMeat} {result.unit} each
+            </p>
+          </div>
 
           <div style={{
             fontSize: '0.85rem',

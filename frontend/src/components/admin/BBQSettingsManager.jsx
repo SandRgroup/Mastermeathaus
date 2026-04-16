@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 const BBQSettingsManager = () => {
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
   const [settings, setSettings] = useState({
+    totalMeatPerPerson: 1.2,
     steakPerPerson: 0.7,
     chickenPerPerson: 0.5,
     sausagePerPerson: 0.4,
@@ -105,9 +106,37 @@ const BBQSettingsManager = () => {
         </Button>
       </div>
 
-      {/* Portion Sizes Per Category */}
-      <div className="bg-white p-6 rounded-lg shadow-sm border mb-6">
-        <h3 className="text-lg font-semibold mb-4 text-gray-800">Portion Sizes Per Person (lbs)</h3>
+      {/* Total Meat Per Person - PRIMARY SETTING */}
+      <div className="bg-gradient-to-r from-amber-50 to-orange-50 p-6 rounded-lg shadow-md border-2 border-amber-300 mb-6">
+        <h3 className="text-xl font-bold mb-3 text-gray-800 flex items-center gap-2">
+          🍖 Total Meat Per Person
+          <span className="text-sm font-normal text-gray-600">(Combined for all selected meats)</span>
+        </h3>
+        <div className="max-w-xs">
+          <Input
+            type="number"
+            step="0.1"
+            min="0.5"
+            max="5"
+            value={settings.totalMeatPerPerson || 1.2}
+            onChange={(e) => setSettings({ ...settings, totalMeatPerPerson: parseFloat(e.target.value) || 1.2 })}
+            className="text-2xl font-bold text-center border-2 border-amber-400"
+          />
+          <p className="text-sm text-gray-600 mt-2">
+            📊 Example: If customer selects 3 meats, each gets <strong>{((settings.totalMeatPerPerson || 1.2) / 3).toFixed(2)} lbs</strong> per person
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            Total = {settings.totalMeatPerPerson || 1.2} lbs ÷ number of selected meats
+          </p>
+        </div>
+      </div>
+
+      {/* Portion Sizes Per Category - DEPRECATED (kept for reference) */}
+      <div className="bg-gray-50 p-6 rounded-lg shadow-sm border mb-6 opacity-60">
+        <h3 className="text-lg font-semibold mb-2 text-gray-600">
+          ⚠️ Individual Portions (Not Used - Use Total Above)
+        </h3>
+        <p className="text-sm text-gray-500 mb-4">These values are no longer used. The calculator now uses "Total Meat Per Person" divided among selected meats.</p>
         <div className="grid grid-cols-3 gap-4">
           <div>
             <Label>🥩 Steak per Person</Label>
