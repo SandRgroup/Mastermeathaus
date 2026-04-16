@@ -206,6 +206,18 @@ backend:
         agent: "main"
         comment: "Needs testing with actual image files, verify auth protection, check file type validation"
 
+  - task: "BBQ Products CRUD API"
+    implemented: true
+    working: true
+    file: "/app/backend/routes/bbq_products.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "API tested via curl. Returns 11 BBQ products with all fields (basePrice, wagyuUpcharge, dryAgedUpcharge, grassFedUpcharge, ranchOrigin, genetics, grainFinished, gradeLabel). GET endpoint working perfectly."
+
 frontend:
   - task: "Admin Login UI"
     implemented: true
@@ -290,6 +302,18 @@ frontend:
       - working: true
         agent: "main"
         comment: "TESTED with screenshot tool. Cart is working perfectly. Items add correctly, badge shows count (1), localStorage persists data, cart sidebar displays items. The bug was a false alarm or already fixed."
+
+  - task: "Premium BBQ Builder UI"
+    implemented: true
+    working: "unknown"
+    file: "/app/frontend/src/components/PremiumBBQBuilder.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "unknown"
+        agent: "main"
+        comment: "JUST IMPLEMENTED. Component created with all 11 BBQ meats, grade selectors (Prime/Wagyu/Grass Fed), dry-aged checkboxes, quantity inputs, dynamic pricing calculations, and Stripe checkout integration. Screenshot verified: UI loads correctly, all 11 product cards visible, selection works, options expand correctly, pricing calculates ($48 for 1lb Filet). Needs comprehensive E2E testing: select multiple meats, change grades, toggle dry-aged, adjust quantities, verify total price calculation accuracy, test Stripe checkout flow."
 
 metadata:
   created_by: "main_agent"

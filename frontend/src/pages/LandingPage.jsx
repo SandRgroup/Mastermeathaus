@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import axios from 'axios';
 import { useCart } from '../contexts/CartContext';
 import Cart from '../components/Cart';
-import BBQCalculator from '../components/BBQCalculator';
+import PremiumBBQBuilder from '../components/PremiumBBQBuilder';
 import '../styles/LandingPage.css';
 
 const LandingPage = () => {
@@ -467,19 +467,14 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* BBQ Calculator */}
+      {/* Premium BBQ Builder */}
       <section style={{
         background: '#0e0e0e',
         padding: '5rem 0',
         borderTop: '1px solid #222'
       }}>
         <div className="container">
-          <div className="section-header">
-            <span className="eyebrow">Premium BBQ Planning</span>
-            <h2 className="section-title">Build a Premium BBQ <span>Experience</span></h2>
-            <p className="section-subtitle">Not just a meal — dry-aged beef, precision portions, delivered ready for your perfect BBQ. Tell us your group size and we'll build the perfect meat selection instantly.</p>
-          </div>
-          <BBQCalculator />
+          <PremiumBBQBuilder />
           <div style={{ 
             textAlign: 'center', 
             marginTop: '3rem',
