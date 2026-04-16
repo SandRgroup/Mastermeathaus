@@ -74,7 +74,7 @@ const Login = () => {
         <div className="login-header">
           <div className="login-brand">
             <div style={{
-              background: '#1a1a1a',
+              background: 'linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%)',
               borderRadius: '12px',
               padding: '20px',
               marginBottom: '1.5rem'
@@ -88,7 +88,8 @@ const Login = () => {
                   height: 'auto',
                   display: 'block',
                   mixBlendMode: 'screen',
-                  filter: 'brightness(1.2) contrast(1.3)'
+                  filter: 'brightness(1.6) contrast(2.2)',
+                  opacity: 0.96
                 }}
               />
             </div>
