@@ -424,9 +424,10 @@ async def get_menu_items():
 @api_router.post("/menu-items", response_model=MenuItem, dependencies=[Depends(get_current_user)])
 async def create_menu_item(item: MenuItemCreate):
     item_dict = item.model_dump()
+    item_dict["id"] = str(uuid4())  # Add unique ID
     item_dict["created_at"] = datetime.now(timezone.utc)
     result = await db.menu_items.insert_one(item_dict)
-    created = await db.menu_items.find_one({"_id": result.inserted_id}, {"_id": 0})
+    created = await db.menu_items.find_one({"id": item_dict["id"]}, {"_id": 0})
     return created
 
 @api_router.put("/menu-items/{item_id}", response_model=MenuItem, dependencies=[Depends(get_current_user)])
