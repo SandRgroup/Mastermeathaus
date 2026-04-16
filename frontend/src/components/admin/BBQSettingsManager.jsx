@@ -110,7 +110,7 @@ const BBQSettingsManager = () => {
           <DollarSign className="w-5 h-5 text-gray-600" />
           Basic Pricing
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Base Price per Box ($)
@@ -121,6 +121,19 @@ const BBQSettingsManager = () => {
               onChange={(e) => setSettings({ ...settings, basePrice: parseInt(e.target.value) || 0 })}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
               placeholder="149"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Price per Pound ($)
+            </label>
+            <input
+              type="number"
+              step="0.1"
+              value={settings.basePricePerLb}
+              onChange={(e) => setSettings({ ...settings, basePricePerLb: parseFloat(e.target.value) || 0 })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              placeholder="12.0"
             />
           </div>
           <div>

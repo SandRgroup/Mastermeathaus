@@ -994,6 +994,7 @@ async def update_site_settings(settings: SiteSettings, current_user: dict = Depe
 
 class BBQPricing(BaseModel):
     basePrice: int = 149
+    basePricePerLb: float = 12.0  # Price per pound of meat
     aging: List[dict] = [
         {"label": "21 Days (Standard)", "days": 21, "upcharge": 0},
         {"label": "30 Days (Premium)", "days": 30, "upcharge": 25},
@@ -1002,6 +1003,13 @@ class BBQPricing(BaseModel):
     pricePerBoxWeight: int = 5
     appetitePerPerson: float = 0.75
     enabled: bool = True
+    # BBQ Modes with protein ratios
+    modes: dict = {
+        "mixed": {"label": "Mixed BBQ", "ratios": {"beef": 0.5, "chicken": 0.3, "sausage": 0.2}},
+        "steak": {"label": "Steak Focus", "ratios": {"beef": 1.0, "chicken": 0.0, "sausage": 0.0}},
+        "chicken": {"label": "Chicken Focus", "ratios": {"beef": 0.0, "chicken": 1.0, "sausage": 0.0}},
+        "sausage": {"label": "Sausage Focus", "ratios": {"beef": 0.0, "chicken": 0.0, "sausage": 1.0}}
+    }
 
 @api_router.get("/pricing")
 async def get_pricing():
@@ -1011,6 +1019,7 @@ async def get_pricing():
         # Return default pricing if none exists
         default_pricing = {
             "basePrice": 149,
+            "basePricePerLb": 12.0,
             "aging": [
                 {"label": "21 Days (Standard)", "days": 21, "upcharge": 0},
                 {"label": "30 Days (Premium)", "days": 30, "upcharge": 25},
@@ -1018,7 +1027,13 @@ async def get_pricing():
             ],
             "pricePerBoxWeight": 5,
             "appetitePerPerson": 0.75,
-            "enabled": True
+            "enabled": True,
+            "modes": {
+                "mixed": {"label": "Mixed BBQ", "ratios": {"beef": 0.5, "chicken": 0.3, "sausage": 0.2}},
+                "steak": {"label": "Steak Focus", "ratios": {"beef": 1.0, "chicken": 0.0, "sausage": 0.0}},
+                "chicken": {"label": "Chicken Focus", "ratios": {"beef": 0.0, "chicken": 1.0, "sausage": 0.0}},
+                "sausage": {"label": "Sausage Focus", "ratios": {"beef": 0.0, "chicken": 0.0, "sausage": 1.0}}
+            }
         }
         await db.bbq_pricing.insert_one(default_pricing.copy())
         return default_pricing
@@ -1034,6 +1049,41 @@ async def update_pricing(pricing: BBQPricing, current_user: dict = Depends(get_c
         upsert=True
     )
     return {"success": True, "message": "BBQ pricing updated"}
+
+@api_router.post("/bbq-checkout")
+async def create_bbq_checkout(request: dict):
+    """Create Stripe checkout session for BBQ order"""
+    try:
+        total_price = request.get("totalPrice", 0)
+        people = request.get("people", 0)
+        mode = request.get("mode", "mixed")
+        aging = request.get("aging", "21 Days (Standard)")
+        
+        # Create Stripe checkout session
+        checkout_request = CheckoutSessionRequest(
+            line_items=[{
+                "price_data": {
+                    "currency": "usd",
+                    "product_data": {
+                        "name": f"MasterMeatBox BBQ Order - {mode.title()} ({people} people)",
+                        "description": f"Premium BBQ package with {aging} dry-aging"
+                    },
+                    "unit_amount": int(total_price * 100)
+                },
+                "quantity": 1
+            }],
+            mode="payment",
+            success_url=f"{os.environ.get('FRONTEND_URL', 'http://localhost:3000')}/success?session_id={{CHECKOUT_SESSION_ID}}",
+            cancel_url=f"{os.environ.get('FRONTEND_URL', 'http://localhost:3000')}/"
+        )
+        
+        stripe_checkout = StripeCheckout(api_key=os.environ.get("STRIPE_SECRET_KEY"))
+        session = stripe_checkout.create_checkout_session(checkout_request)
+        
+        return {"url": session.url, "sessionId": session.id}
+    except Exception as e:
+        logger.error(f"BBQ checkout error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # Include router - MUST be after all routes are defined
