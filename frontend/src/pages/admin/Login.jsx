@@ -73,11 +73,26 @@ const Login = () => {
       <Card className="login-card">
         <div className="login-header">
           <div className="login-brand">
-            <img 
-              src="/assets/logo-full.jpg" 
-              alt="Masters Meat Haus" 
-              style={{maxWidth: '300px', width: '100%', height: 'auto', marginBottom: '1rem'}}
-            />
+            <div style={{
+              background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
+              borderRadius: '16px',
+              padding: '30px',
+              marginBottom: '1rem',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+              border: '1px solid rgba(0, 0, 0, 0.05)'
+            }}>
+              <img 
+                src="/assets/logo-full.jpg" 
+                alt="Masters Meat Haus" 
+                style={{
+                  maxWidth: '280px', 
+                  width: '100%', 
+                  height: 'auto',
+                  display: 'block',
+                  filter: 'brightness(1.05) contrast(1.1)'
+                }}
+              />
+            </div>
           </div>
           <h2 style={{ marginTop: '1.5rem', marginBottom: '0.5rem' }}>CMS Admin Login</h2>
           <p style={{ color: '#666', fontSize: '0.9rem' }}>Secure access to content management</p>
