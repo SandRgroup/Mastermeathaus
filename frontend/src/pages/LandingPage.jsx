@@ -147,7 +147,8 @@ const LandingPage = () => {
                   height: '50px', 
                   width: 'auto', 
                   objectFit: 'contain',
-                  filter: 'brightness(1.05)'
+                  mixBlendMode: 'screen',
+                  filter: 'brightness(1.2) contrast(1.3)'
                 }}
               />
             </a>
@@ -197,7 +198,8 @@ const LandingPage = () => {
               width: '100%', 
               height: 'auto',
               marginBottom: '2rem',
-              filter: 'brightness(1.1) drop-shadow(0 10px 30px rgba(0, 0, 0, 0.5))'
+              mixBlendMode: 'screen',
+              filter: 'brightness(1.3) contrast(1.4) drop-shadow(0 10px 30px rgba(255, 255, 255, 0.1))'
             }}
           />
           <h1 className="hero-title">Premium cuts. <span>No shortcuts.</span></h1>
@@ -525,7 +527,8 @@ const LandingPage = () => {
                   width: '100%', 
                   height: 'auto',
                   marginBottom: '1rem',
-                  filter: 'brightness(1.05)'
+                  mixBlendMode: 'screen',
+                  filter: 'brightness(1.2) contrast(1.3)'
                 }}
               />
               <p className="footer-tagline">Premium cuts. No shortcuts.</p>
