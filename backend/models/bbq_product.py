@@ -9,7 +9,8 @@ class BBQProduct(BaseModel):
     name: str
     description: str
     basePrice: float  # Base price per lb
-    weight: float = 1.0  # Weight in pounds
+    weight: float = 1.0  # Weight value
+    weight_unit: str = "lb"  # Unit: oz, lb, or kg
     wagyuUpcharge: float = 0.0  # Additional $ for American Wagyu
     grassFedUpcharge: float = 0.0  # Additional $ for Grass Fed
     dryAgedUpcharge: float = 0.0  # Additional $ for Dry Aged

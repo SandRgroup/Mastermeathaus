@@ -39,6 +39,26 @@ async def get_bbq_products():
 async def create_bbq_product(product: BBQProductCreate):
     """Create a new BBQ product and sync to regular products"""
     from uuid import uuid4
+    
+    # Helper function to convert weight to pounds
+    def convert_to_pounds(weight: float, unit: str) -> float:
+        if unit == "oz":
+            return weight / 16.0  # 1 lb = 16 oz
+        elif unit == "kg":
+            return weight / 0.453592  # 1 lb = 0.453592 kg
+        else:  # lb
+            return weight
+    
+    # Helper function to format weight display
+    def format_weight_display(weight: float, unit: str) -> str:
+        weight_in_lb = convert_to_pounds(weight, unit)
+        if unit == "oz":
+            return f"{weight} oz ({weight_in_lb:.2f} lb)"
+        elif unit == "kg":
+            return f"{weight} kg ({weight_in_lb:.2f} lb)"
+        else:
+            return f"{weight} lb"
+    
     product_dict = product.model_dump()
     product_id = f"bbq_{uuid4().hex[:8]}"
     product_dict["id"] = product_id
@@ -47,12 +67,15 @@ async def create_bbq_product(product: BBQProductCreate):
     await db.bbq_products.insert_one(product_dict)
     
     # Also create as regular product
+    weight_in_lb = convert_to_pounds(product_dict.get('weight', 1.0), product_dict.get('weight_unit', 'lb'))
+    
     regular_product = {
         "id": product_id,
         "name": product_dict['name'],
         "description": product_dict.get('description', ''),
         "price": f"${product_dict['basePrice']:.2f}",  # Format as string
-        "weight": f"{product_dict.get('weight', 1.0)} lb",  # Add weight with unit
+        "weight": format_weight_display(product_dict.get('weight', 1.0), product_dict.get('weight_unit', 'lb')),
+        "weight_in_lb": weight_in_lb,  # Store pounds for calculations
         "grade": product_dict.get('gradeLabel', 'PREMIUM'),
         "image": "/api/placeholder/400/300",
         "category": product_dict.get('category', 'meat'),

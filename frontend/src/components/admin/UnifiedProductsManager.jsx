@@ -31,6 +31,34 @@ const UnifiedProductsManager = () => {
 
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
+  // Conversion helper functions
+  const convertToPounds = (weight, unit) => {
+    const w = parseFloat(weight) || 0;
+    if (unit === 'oz') return w / 16;
+    if (unit === 'kg') return w / 0.453592;
+    return w;
+  };
+
+  const getConversions = (weight, unit) => {
+    const w = parseFloat(weight) || 0;
+    if (!w) return '';
+    
+    if (unit === 'lb') {
+      const oz = (w * 16).toFixed(2);
+      const kg = (w * 0.453592).toFixed(3);
+      return `= ${oz} oz = ${kg} kg`;
+    } else if (unit === 'oz') {
+      const lb = (w / 16).toFixed(3);
+      const kg = (w * 0.0283495).toFixed(3);
+      return `= ${lb} lb = ${kg} kg`;
+    } else if (unit === 'kg') {
+      const lb = (w / 0.453592).toFixed(2);
+      const oz = (w * 35.274).toFixed(2);
+      return `= ${lb} lb = ${oz} oz`;
+    }
+    return '';
+  };
+
   useEffect(() => {
     fetchProducts();
     // Auto-refresh every 5 seconds
@@ -101,6 +129,7 @@ const UnifiedProductsManager = () => {
       description: product.description,
       basePrice: product.basePrice.toString(),
       weight: (product.weight || 1.0).toString(),
+      weight_unit: product.weight_unit || 'lb',
       wagyuUpcharge: product.wagyuUpcharge.toString(),
       grassFedUpcharge: product.grassFedUpcharge.toString(),
       dryAgedUpcharge: product.dryAgedUpcharge.toString(),
@@ -142,6 +171,7 @@ const UnifiedProductsManager = () => {
       description: '',
       basePrice: '',
       weight: '1.0',
+      weight_unit: 'lb',
       wagyuUpcharge: '0',
       grassFedUpcharge: '0',
       dryAgedUpcharge: '0',
@@ -177,29 +207,51 @@ const UnifiedProductsManager = () => {
               <DialogTitle>{editing ? 'Edit Product' : 'Add New Product'}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="name">Product Name *</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="weight">Weight (lbs) *</Label>
+              <div>
+                <Label htmlFor="name">Product Name *</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <div className="col-span-2">
+                  <Label htmlFor="weight">Weight *</Label>
                   <Input
                     id="weight"
                     type="number"
-                    step="0.25"
+                    step="0.01"
                     value={formData.weight}
                     onChange={(e) => setFormData({...formData, weight: e.target.value})}
                     required
-                    placeholder="e.g., 1.0, 1.5, 2.0"
+                    placeholder="e.g., 1.0, 16, 0.453"
                   />
                 </div>
+                <div>
+                  <Label htmlFor="weight_unit">Unit *</Label>
+                  <Select value={formData.weight_unit} onValueChange={(value) => setFormData({...formData, weight_unit: value})}>
+                    <SelectTrigger id="weight_unit">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="lb">lb (pounds)</SelectItem>
+                      <SelectItem value="oz">oz (ounces)</SelectItem>
+                      <SelectItem value="kg">kg (kilograms)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
+
+              {formData.weight && (
+                <div className="bg-blue-50 p-3 rounded-md border border-blue-200">
+                  <p className="text-sm font-medium text-blue-900">
+                    📊 {formData.weight} {formData.weight_unit} {getConversions(formData.weight, formData.weight_unit)}
+                  </p>
+                </div>
+              )}
 
               <div>
                 <Label htmlFor="basePrice">Price per Pound ($/lb) *</Label>
@@ -212,8 +264,8 @@ const UnifiedProductsManager = () => {
                   required
                 />
                 {formData.basePrice && formData.weight && (
-                  <p className="text-sm text-gray-600 mt-1">
-                    Total: ${(parseFloat(formData.basePrice) * parseFloat(formData.weight)).toFixed(2)}
+                  <p className="text-sm text-green-700 mt-2 font-semibold bg-green-50 p-2 rounded">
+                    💰 Total Price: ${(parseFloat(formData.basePrice) * convertToPounds(formData.weight, formData.weight_unit)).toFixed(2)}
                   </p>
                 )}
               </div>
