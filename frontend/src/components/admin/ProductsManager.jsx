@@ -25,6 +25,7 @@ const ProductsManager = () => {
     image: '',
     cookingTemp: '',
     badge: '',
+    badgeColor: 'gold',
     weight_unit: 'oz'
   });
   const [imageFile, setImageFile] = useState(null);
@@ -106,6 +107,7 @@ const ProductsManager = () => {
       image: product.image,
       cookingTemp: product.cookingTemp || '',
       badge: product.badge || '',
+      badgeColor: product.badgeColor || 'gold',
       weight_unit: product.weight_unit || 'oz'
     });
     setDialogOpen(true);
@@ -134,6 +136,7 @@ const ProductsManager = () => {
       image: '',
       cookingTemp: '',
       badge: '',
+      badgeColor: 'gold',
       weight_unit: 'oz'
     });
   };
@@ -257,8 +260,26 @@ const ProductsManager = () => {
                     id="badge"
                     value={formData.badge}
                     onChange={(e) => setFormData({ ...formData, badge: e.target.value })}
-                    placeholder="Sale"
+                    placeholder="Best Seller"
                   />
+                </div>
+                <div className="form-group">
+                  <Label htmlFor="badgeColor">Badge Color</Label>
+                  <Select
+                    value={formData.badgeColor}
+                    onValueChange={(value) => setFormData({ ...formData, badgeColor: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select badge color" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="gold">🟡 Gold</SelectItem>
+                      <SelectItem value="platinum">⚪ Platinum</SelectItem>
+                      <SelectItem value="red">🔴 Red</SelectItem>
+                      <SelectItem value="green">🟢 Green</SelectItem>
+                      <SelectItem value="bronze">🟤 Bronze</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="form-group">
                   <Label htmlFor="weight_unit">Weight Unit *</Label>

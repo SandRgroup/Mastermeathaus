@@ -251,7 +251,14 @@ const LandingPage = () => {
               {filteredProducts.map((product) => (
                 <div key={product._id} className="product-card">
                   <div className="product-image">
-                    {product.badge && <div className="product-badge">{product.badge}</div>}
+                    {product.badge && (
+                      <div 
+                        className="product-badge" 
+                        style={getBadgeStyle(product.badgeColor)}
+                      >
+                        {product.badge}
+                      </div>
+                    )}
                     <img src={product.image} alt={product.name} loading="lazy" />
                   </div>
                   <div className="product-info">
