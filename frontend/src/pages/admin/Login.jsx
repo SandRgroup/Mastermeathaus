@@ -73,16 +73,14 @@ const Login = () => {
       <Card className="login-card">
         <div className="login-header">
           <div className="login-brand">
-            <img 
-              src="/assets/logo-transparent.png" 
-              alt="Masters Meat Haus" 
-              style={{
-                maxWidth: '300px', 
-                width: '100%', 
-                height: 'auto',
-                marginBottom: '1.5rem'
-              }}
-            />
+            <div className="brand-logo-top">
+              <span className="brand-mmb">MMH</span>
+              <span className="brand-bar"></span>
+              <span className="brand-kanji">傑</span>
+            </div>
+            <div className="brand-sub" style={{ fontSize: '0.7rem', marginTop: '0.25rem' }}>
+              MASTERS MEAT HAUS®
+            </div>
           </div>
           <h2 style={{ marginTop: '1.5rem', marginBottom: '0.5rem' }}>CMS Admin Login</h2>
           <p style={{ color: '#666', fontSize: '0.9rem' }}>Secure access to content management</p>
