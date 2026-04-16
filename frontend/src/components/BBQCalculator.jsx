@@ -286,7 +286,7 @@ const BBQCalculator = () => {
             textTransform: 'uppercase',
             letterSpacing: '1px'
           }}>
-            Total Meat Per Person
+            {pricing?.totalMeatLabel || "Total Meat Per Person"}
           </p>
           <input
             type="number"

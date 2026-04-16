@@ -11,6 +11,7 @@ const BBQSettingsManager = () => {
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
   const [settings, setSettings] = useState({
     totalMeatPerPerson: 1.2,
+    totalMeatLabel: "Total Meat Per Person",
     steakPerPerson: 0.7,
     chickenPerPerson: 0.5,
     sausagePerPerson: 0.4,
@@ -109,10 +110,27 @@ const BBQSettingsManager = () => {
       {/* Total Meat Per Person - PRIMARY SETTING */}
       <div className="bg-gradient-to-r from-amber-50 to-orange-50 p-6 rounded-lg shadow-md border-2 border-amber-300 mb-6">
         <h3 className="text-xl font-bold mb-3 text-gray-800 flex items-center gap-2">
-          🍖 Total Meat Per Person
-          <span className="text-sm font-normal text-gray-600">(Combined for all selected meats)</span>
+          🍖 Total Meat Setting
         </h3>
+        
+        {/* Editable Label */}
+        <div className="mb-4">
+          <Label className="text-sm font-medium text-gray-700">Display Name (Editable)</Label>
+          <Input
+            type="text"
+            value={settings.totalMeatLabel || "Total Meat Per Person"}
+            onChange={(e) => setSettings({ ...settings, totalMeatLabel: e.target.value })}
+            placeholder="Total Meat Per Person"
+            className="text-base"
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            This name will appear on the BBQ Calculator
+          </p>
+        </div>
+
+        {/* Amount Value */}
         <div className="max-w-xs">
+          <Label className="text-sm font-medium text-gray-700">Default Amount (lbs)</Label>
           <Input
             type="number"
             step="0.1"

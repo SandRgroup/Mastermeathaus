@@ -1,9 +1,7 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '../../components/ui/button';
-import { Card } from '../../components/ui/card';
-import { ArrowLeft, Check, Shield, Truck, Award, Users } from 'lucide-react';
-import '../../styles/MembershipDetail.css';
+import { ArrowLeft, Check, Crown, Award, Users, Zap } from 'lucide-react';
 
 const MembershipDetail = () => {
   const navigate = useNavigate();
@@ -11,246 +9,201 @@ const MembershipDetail = () => {
 
   const membershipData = {
     free: {
-      name: 'Pit Pass',
+      name: 'Free Tier',
       tagline: 'Start Your Journey',
-      monthlyPrice: 0,
-      yearlyPrice: 0,
-      description: 'Perfect for those just discovering premium meats. Get access to our full selection at standard pricing.',
+      price: 'FREE',
+      period: 'Forever',
+      description: 'Perfect for those just discovering premium meats.',
       features: [
         'Access to all cuts',
         'Standard pricing',
         'Email support',
-        'Monthly newsletter',
-        'Cooking guides'
+        'Monthly newsletter'
       ],
-      benefits: [
-        'Browse full product catalog',
-        'No commitment required',
-        'Standard delivery rates',
-        'Access to recipes and tips'
-      ],
-      bestFor: [
-        'First-time buyers',
-        'Occasional purchasers',
-        'Those wanting to try before committing'
-      ],
-      icon: Users
+      icon: Users,
+      color: 'from-gray-600 to-gray-800'
     },
     select: {
       name: 'Prime Select',
-      tagline: 'Better Pricing, Better Value',
-      monthlyPrice: 5,
-      yearlyPrice: 42,
-      description: 'Step up your game with better pricing on every order. Perfect for regular meat lovers.',
+      tagline: 'Better Value',
+      price: '$5',
+      period: 'per month',
+      yearlyPrice: '$42/year (save $18)',
+      description: 'Better pricing on every order for regular buyers.',
       features: [
-        'Better pricing',
+        '10% off all orders',
         'Early access to new products',
         'Priority email support',
-        'Exclusive recipes',
-        'Member-only deals'
+        'Exclusive recipes'
       ],
-      benefits: [
-        'Save on every order',
-        'Be first to try new cuts',
-        'Faster customer support',
-        'Access to exclusive content'
-      ],
-      bestFor: [
-        'Regular home cooks',
-        'BBQ enthusiasts',
-        'Those who order monthly'
-      ],
-      icon: Award
+      icon: Award,
+      color: 'from-amber-600 to-orange-700'
     },
     prime: {
       name: 'Master Cut',
-      tagline: 'Premium Access, Premium Savings',
-      monthlyPrice: 13,
-      yearlyPrice: 109,
-      description: 'Lower pricing and priority treatment. For serious meat enthusiasts who demand the best.',
+      tagline: 'Premium Savings',
+      price: '$13',
+      period: 'per month',
+      yearlyPrice: '$109/year (save $47)',
+      description: 'Maximum savings for serious meat enthusiasts.',
       features: [
-        'Lower pricing',
+        '15% off all orders',
         'Priority availability',
-        'Priority phone support',
+        'Phone & email support',
         'Exclusive product access',
-        'Advanced cooking techniques',
-        'Member appreciation events'
+        'Member events'
       ],
-      benefits: [
-        'Maximum savings on all orders',
-        'Never miss limited cuts',
-        'Phone and email support',
-        'VIP treatment'
-      ],
-      bestFor: [
-        'Serious home chefs',
-        'Regular grill masters',
-        'Those who order bi-weekly'
-      ],
-      icon: Shield
+      icon: Crown,
+      color: 'from-red-700 to-red-900',
+      popular: true
     },
     premium: {
       name: 'Black Label',
-      tagline: 'The Ultimate Experience',
-      monthlyPrice: 20,
-      yearlyPrice: 168,
-      highlight: true,
-      description: 'The pinnacle of membership. Free delivery, best pricing, and concierge-level service.',
+      tagline: 'Ultimate Experience',
+      price: '$20',
+      period: 'per month',
+      yearlyPrice: '$168/year (save $72)',
+      description: 'The pinnacle of membership with concierge service.',
       features: [
-        'Free delivery',
-        'Best pricing',
-        'Concierge service',
-        'Exclusive ultra-premium cuts',
-        'Private masterclasses',
-        'Personal butcher consultation',
-        'VIP event invitations'
+        '20% off all orders',
+        'FREE delivery',
+        'Best pricing guaranteed',
+        'Personal account manager',
+        'VIP events & tastings',
+        'Custom cut requests'
       ],
-      benefits: [
-        'Zero delivery fees',
-        'Absolute lowest prices',
-        '24/7 concierge support',
-        'Access to reserve inventory',
-        'Personalized recommendations'
-      ],
-      bestFor: [
-        'Professional chefs',
-        'Dedicated meat connoisseurs',
-        'Weekly shoppers',
-        'Those seeking white-glove service'
-      ],
-      icon: Truck
+      icon: Zap,
+      color: 'from-black to-gray-900',
+      highlight: true
     }
   };
 
   const currentPlan = membershipData[plan] || membershipData.free;
-  const IconComponent = currentPlan.icon;
+  const Icon = currentPlan.icon;
 
   return (
-    <div className="membership-detail-page">
-      <div className="membership-detail-container">
-        <Button onClick={() => navigate('/')} className="back-btn" variant="ghost">
-          <ArrowLeft size={18} />
-          Back to Home
-        </Button>
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+      {/* Hero */}
+      <div className={`bg-gradient-to-r ${currentPlan.color} text-white py-20 px-6`}>
+        <div className="max-w-4xl mx-auto">
+          <Button 
+            onClick={() => navigate('/')} 
+            className="mb-8 bg-white/10 hover:bg-white/20 border-0 text-white"
+            variant="ghost"
+          >
+            <ArrowLeft size={18} className="mr-2" />
+            Back to Home
+          </Button>
 
-        <div className="detail-hero">
-          <div className="detail-icon">
-            <IconComponent size={48} />
-          </div>
-          <h1>{currentPlan.name}</h1>
-          <p className="detail-tagline">{currentPlan.tagline}</p>
-          <p className="detail-description">{currentPlan.description}</p>
-        </div>
-
-        <div className="pricing-cards">
-          <Card className="pricing-card">
-            <div className="pricing-label">Monthly</div>
-            <div className="pricing-amount">
-              <span className="currency">$</span>
-              <span className="price">{currentPlan.monthlyPrice}</span>
-              <span className="period">/mo</span>
+          <div className="flex items-center gap-4 mb-6">
+            <div className="p-4 bg-white/10 rounded-2xl backdrop-blur">
+              <Icon size={48} className="text-white" />
             </div>
-            <div className="pricing-note">Billed monthly</div>
-            <Button className="select-plan-btn" onClick={() => window.location.href = 'https://mastersmeathaus.com'}>
-              Choose Monthly
-            </Button>
-          </Card>
+            <div>
+              <div className="text-sm text-white/70 uppercase tracking-wider mb-1">
+                {currentPlan.tagline}
+              </div>
+              <h1 className="text-5xl md:text-6xl font-bold">
+                {currentPlan.name}
+              </h1>
+            </div>
+          </div>
 
-          {currentPlan.monthlyPrice > 0 && (
-            <Card className={`pricing-card ${currentPlan.highlight ? 'recommended' : ''}`}>
-              {currentPlan.highlight && <div className="recommended-badge">Recommended</div>}
-              <div className="pricing-label">Yearly <span className="savings-tag">Save 30%</span></div>
-              <div className="pricing-amount">
-                <span className="currency">$</span>
-                <span className="price">{currentPlan.yearlyPrice}</span>
-                <span className="period">/yr</span>
-              </div>
-              <div className="pricing-note">
-                ${((currentPlan.monthlyPrice * 12 - currentPlan.yearlyPrice) / 12).toFixed(0)}/mo savings
-              </div>
-              <Button className="select-plan-btn highlight" onClick={() => window.location.href = 'https://mastersmeathaus.com'}>
-                Choose Yearly
-              </Button>
-            </Card>
+          {currentPlan.popular && (
+            <div className="inline-block bg-amber-500 text-black px-4 py-1 rounded-full text-sm font-bold mb-4">
+              🔥 MOST POPULAR
+            </div>
+          )}
+
+          <p className="text-2xl text-white/90 mb-8">
+            {currentPlan.description}
+          </p>
+
+          <div className="flex items-baseline gap-3 mb-2">
+            <div className="text-6xl font-bold">{currentPlan.price}</div>
+            <div className="text-xl text-white/70">{currentPlan.period}</div>
+          </div>
+          
+          {currentPlan.yearlyPrice && (
+            <div className="text-lg text-white/80">
+              {currentPlan.yearlyPrice}
+            </div>
           )}
         </div>
+      </div>
 
-        <section className="features-section">
-          <h2>What's Included</h2>
-          <div className="features-grid">
+      {/* Features */}
+      <div className="max-w-4xl mx-auto px-6 py-16">
+        <div className="bg-white rounded-2xl shadow-xl p-10">
+          <h2 className="text-3xl font-bold text-gray-800 mb-8">
+            What's Included
+          </h2>
+
+          <div className="space-y-4">
             {currentPlan.features.map((feature, index) => (
-              <div key={index} className="feature-item-detail">
-                <Check size={20} />
-                <span>{feature}</span>
+              <div 
+                key={index}
+                className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
+              >
+                <div className="flex-shrink-0 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                  <Check size={20} className="text-white" />
+                </div>
+                <div className="text-lg text-gray-800">{feature}</div>
               </div>
             ))}
           </div>
-        </section>
+        </div>
 
-        <section className="benefits-section">
-          <h2>Member Benefits</h2>
-          <div className="benefits-grid">
-            {currentPlan.benefits.map((benefit, index) => (
-              <Card key={index} className="benefit-card">
-                <p>{benefit}</p>
-              </Card>
+        {/* CTA */}
+        <div className="mt-12 text-center">
+          <Button 
+            onClick={() => navigate('/')}
+            className={`bg-gradient-to-r ${currentPlan.color} hover:opacity-90 text-white px-12 py-6 text-xl rounded-full shadow-2xl`}
+            size="lg"
+          >
+            {plan === 'free' ? 'Start Free' : 'Choose This Plan'}
+          </Button>
+          
+          <p className="mt-6 text-gray-600">
+            No commitment • Cancel anytime • Money-back guarantee
+          </p>
+        </div>
+
+        {/* Compare Plans */}
+        <div className="mt-16 p-8 bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl border border-amber-200">
+          <h3 className="text-2xl font-bold text-gray-800 mb-4 text-center">
+            Not sure? Compare all plans
+          </h3>
+          <div className="flex justify-center gap-4 mt-6 flex-wrap">
+            {Object.keys(membershipData).map((key) => (
+              <Button
+                key={key}
+                onClick={() => navigate(`/membership/${key}`)}
+                variant={key === plan ? "default" : "outline"}
+                className={key === plan ? "pointer-events-none" : ""}
+              >
+                {membershipData[key].name}
+              </Button>
             ))}
           </div>
-        </section>
+        </div>
+      </div>
 
-        <section className="best-for-section">
-          <h2>Best For</h2>
-          <div className="best-for-list">
-            {currentPlan.bestFor.map((item, index) => (
-              <div key={index} className="best-for-item">
-                <div className="bullet" />
-                <p>{item}</p>
-              </div>
-            ))}
+      {/* Contact */}
+      <div className="bg-gray-900 text-white py-16">
+        <div className="max-w-4xl mx-auto px-6 text-center">
+          <h3 className="text-3xl font-bold mb-4">Questions about membership?</h3>
+          <p className="text-xl text-gray-400 mb-8">
+            Our team is here to help you choose the right plan
+          </p>
+          <div className="flex justify-center gap-8">
+            <a href="mailto:hello@mastersmeathaus.com" className="text-amber-500 hover:text-amber-400">
+              hello@mastersmeathaus.com
+            </a>
+            <a href="tel:8178072489" className="text-amber-500 hover:text-amber-400">
+              817-807-2489
+            </a>
           </div>
-        </section>
-
-        <section className="cta-section">
-          <Card className="cta-card">
-            <h3>Ready to join {currentPlan.name}?</h3>
-            <p>Start saving on premium meats today</p>
-            <div className="cta-buttons">
-              <Button className="cta-primary" onClick={() => window.location.href = 'https://mastersmeathaus.com'}>
-                Get Started
-              </Button>
-              <Button className="cta-secondary" variant="outline" onClick={() => navigate('/contact')}>
-                Contact Us
-              </Button>
-            </div>
-          </Card>
-        </section>
-
-        <section className="faq-section">
-          <h2>Common Questions</h2>
-          <div className="faq-grid">
-            <Card className="faq-card">
-              <h4>Can I cancel anytime?</h4>
-              <p>Yes, you can cancel your membership at any time. Cancellation takes effect at the end of your current billing period.</p>
-            </Card>
-            <Card className="faq-card">
-              <h4>What if I don't use it?</h4>
-              <p>Membership fees are non-refundable, but your benefits remain active until the end of your billing period even after cancellation.</p>
-            </Card>
-            <Card className="faq-card">
-              <h4>Can I switch plans?</h4>
-              <p>Yes, you can upgrade or downgrade your plan at any time. Changes take effect at your next billing cycle.</p>
-            </Card>
-            <Card className="faq-card">
-              <h4>How does billing work?</h4>
-              <p>Monthly plans bill every month. Yearly plans bill once per year with a 30% discount compared to monthly pricing.</p>
-            </Card>
-          </div>
-        </section>
-
-        <div className="policy-links">
-          <a href="/membership-terms">View Membership Terms</a>
-          <a href="/refund-policy">Refund Policy</a>
-          <a href="/contact">Contact Support</a>
         </div>
       </div>
     </div>

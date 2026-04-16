@@ -376,25 +376,56 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Delivery Section */}
-      <section className="delivery-section" id="delivery">
-        <div className="container">
-          <h2 className="section-title">Delivered <span style={{color: 'var(--gold)', fontStyle: 'italic'}}>fresh</span></h2>
-          <div className="delivery-steps">
-            <div className="delivery-step"><span className="step-icon">📦</span><span className="step-label">Order</span></div>
-            <span className="step-arrow">›</span>
-            <div className="delivery-step"><span className="step-icon">🧊</span><span className="step-label">Packed</span></div>
-            <span className="step-arrow">›</span>
-            <div className="delivery-step"><span className="step-icon">🌡️</span><span className="step-label">Cold-chain</span></div>
-            <span className="step-arrow">›</span>
-            <div className="delivery-step"><span className="step-icon">🚚</span><span className="step-label">Delivered</span></div>
+      {/* Delivery Section - MODERN DESIGN */}
+      <section className="py-20 bg-gradient-to-b from-gray-900 to-black" id="delivery">
+        <div className="container mx-auto px-6 max-w-6xl">
+          <div className="text-center mb-16">
+            <h2 className="text-5xl font-bold text-white mb-4">
+              Delivered <span style={{color: '#C8A96A', fontStyle: 'italic'}}>Fresh</span>
+            </h2>
+            <p className="text-xl text-gray-400">
+              Temperature-controlled from our facility to your door
+            </p>
           </div>
-          <p className="delivery-text">
-            Every order handled with temperature-controlled logistics to keep your cuts fresh from facility to front door.
-          </p>
-          <button className="text-btn" onClick={() => navigate('/delivery')} style={{color: 'rgba(255,255,255,0.85)'}}>
-            How delivery works →
-          </button>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+            {/* Step 1 */}
+            <div className="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-6 text-center hover:bg-white/10 transition-all duration-300">
+              <div className="text-6xl mb-4">📦</div>
+              <div className="text-xl font-bold text-white mb-2">Order</div>
+              <div className="text-sm text-gray-400">Carefully reviewed & packed</div>
+            </div>
+
+            {/* Step 2 */}
+            <div className="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-6 text-center hover:bg-white/10 transition-all duration-300">
+              <div className="text-6xl mb-4">🧊</div>
+              <div className="text-xl font-bold text-white mb-2">Packed</div>
+              <div className="text-sm text-gray-400">Premium insulated packaging</div>
+            </div>
+
+            {/* Step 3 */}
+            <div className="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-6 text-center hover:bg-white/10 transition-all duration-300">
+              <div className="text-6xl mb-4">🌡️</div>
+              <div className="text-xl font-bold text-white mb-2">Cold Chain</div>
+              <div className="text-sm text-gray-400">Temperature monitored</div>
+            </div>
+
+            {/* Step 4 */}
+            <div className="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-6 text-center hover:bg-white/10 transition-all duration-300">
+              <div className="text-6xl mb-4">🚚</div>
+              <div className="text-xl font-bold text-white mb-2">Delivered</div>
+              <div className="text-sm text-gray-400">Arrives fresh & safe</div>
+            </div>
+          </div>
+
+          <div className="flex justify-center">
+            <button 
+              onClick={() => navigate('/delivery')} 
+              className="bg-gradient-to-r from-amber-600 to-red-600 hover:from-amber-500 hover:to-red-500 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-2xl"
+            >
+              How Delivery Works →
+            </button>
+          </div>
         </div>
       </section>
 
