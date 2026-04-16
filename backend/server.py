@@ -110,6 +110,8 @@ class Product(BaseModel):
     cookingTemp: Optional[str] = None
     badge: Optional[str] = None
     weight_unit: Optional[str] = "oz"
+    availableForBBQ: Optional[bool] = False
+    pricePerLb: Optional[float] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class ProductCreate(BaseModel):
@@ -121,7 +123,9 @@ class ProductCreate(BaseModel):
     image: str
     cookingTemp: Optional[str] = None
     badge: Optional[str] = None
-    weight_unit: Optional[str] = "oz"  # oz or lbs
+    weight_unit: Optional[str] = "oz"
+    availableForBBQ: Optional[bool] = False
+    pricePerLb: Optional[float] = None  # oz or lbs
 
 class Membership(BaseModel):
     id: str = Field(default_factory=lambda: str(ObjectId()), alias="_id")
@@ -993,29 +997,6 @@ async def update_site_settings(settings: SiteSettings, current_user: dict = Depe
 # ─────────────────────────────────────────────────────────────────────────────
 
 class BBQPricing(BaseModel):
-    # Meat Cuts Library
-    beefCuts: List[dict] = [
-        {"name": "Ribeye", "pricePerLb": 18.0, "enabled": True, "description": "Well-marbled, rich flavor"},
-        {"name": "NY Strip", "pricePerLb": 16.0, "enabled": True, "description": "Tender and juicy"},
-        {"name": "Sirloin", "pricePerLb": 12.0, "enabled": True, "description": "Lean and flavorful"},
-        {"name": "Filet Mignon", "pricePerLb": 25.0, "enabled": True, "description": "Most tender cut"},
-        {"name": "T-Bone", "pricePerLb": 15.0, "enabled": True, "description": "Two cuts in one"}
-    ]
-    
-    chickenCuts: List[dict] = [
-        {"name": "Chicken Breast", "pricePerLb": 8.0, "enabled": True, "description": "Lean and versatile"},
-        {"name": "Chicken Thighs", "pricePerLb": 6.0, "enabled": True, "description": "Juicy and flavorful"},
-        {"name": "Chicken Wings", "pricePerLb": 7.0, "enabled": True, "description": "Perfect for grilling"},
-        {"name": "Drumsticks", "pricePerLb": 5.0, "enabled": True, "description": "Family favorite"}
-    ]
-    
-    sausageCuts: List[dict] = [
-        {"name": "Bratwurst", "pricePerLb": 9.0, "enabled": True, "description": "Classic German sausage"},
-        {"name": "Italian Sausage", "pricePerLb": 8.0, "enabled": True, "description": "Spicy and savory"},
-        {"name": "Chorizo", "pricePerLb": 10.0, "enabled": True, "description": "Smoky and bold"},
-        {"name": "Polish Kielbasa", "pricePerLb": 8.5, "enabled": True, "description": "Traditional smoked"}
-    ]
-    
     # Calculator Settings
     appetitePerPerson: float = 0.75
     enabled: bool = True
@@ -1037,25 +1018,6 @@ async def get_pricing():
     if not pricing:
         # Return default pricing if none exists
         default_pricing = {
-            "beefCuts": [
-                {"name": "Ribeye", "pricePerLb": 18.0, "enabled": True, "description": "Well-marbled, rich flavor"},
-                {"name": "NY Strip", "pricePerLb": 16.0, "enabled": True, "description": "Tender and juicy"},
-                {"name": "Sirloin", "pricePerLb": 12.0, "enabled": True, "description": "Lean and flavorful"},
-                {"name": "Filet Mignon", "pricePerLb": 25.0, "enabled": True, "description": "Most tender cut"},
-                {"name": "T-Bone", "pricePerLb": 15.0, "enabled": True, "description": "Two cuts in one"}
-            ],
-            "chickenCuts": [
-                {"name": "Chicken Breast", "pricePerLb": 8.0, "enabled": True, "description": "Lean and versatile"},
-                {"name": "Chicken Thighs", "pricePerLb": 6.0, "enabled": True, "description": "Juicy and flavorful"},
-                {"name": "Chicken Wings", "pricePerLb": 7.0, "enabled": True, "description": "Perfect for grilling"},
-                {"name": "Drumsticks", "pricePerLb": 5.0, "enabled": True, "description": "Family favorite"}
-            ],
-            "sausageCuts": [
-                {"name": "Bratwurst", "pricePerLb": 9.0, "enabled": True, "description": "Classic German sausage"},
-                {"name": "Italian Sausage", "pricePerLb": 8.0, "enabled": True, "description": "Spicy and savory"},
-                {"name": "Chorizo", "pricePerLb": 10.0, "enabled": True, "description": "Smoky and bold"},
-                {"name": "Polish Kielbasa", "pricePerLb": 8.5, "enabled": True, "description": "Traditional smoked"}
-            ],
             "aging": [
                 {"label": "21 Days (Standard)", "days": 21, "upcharge": 0},
                 {"label": "30 Days (Premium)", "days": 30, "upcharge": 25},

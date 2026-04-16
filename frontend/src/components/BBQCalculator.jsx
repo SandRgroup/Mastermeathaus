@@ -1,47 +1,53 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Users, Flame, Info } from 'lucide-react';
+import { Users, Flame } from 'lucide-react';
 import { toast } from 'sonner';
 
 const BBQCalculator = () => {
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
   const [people, setPeople] = useState(10);
-  const [selectedCuts, setSelectedCuts] = useState({});
+  const [selectedProducts, setSelectedProducts] = useState({});
   const [aging, setAging] = useState(0);
   const [pricing, setPricing] = useState(null);
+  const [products, setProducts] = useState([]);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(true);
   const [ordering, setOrdering] = useState(false);
 
   useEffect(() => {
-    fetchPricing();
+    fetchData();
   }, []);
 
-  const fetchPricing = async () => {
+  const fetchData = async () => {
     try {
-      const response = await axios.get(`${backendUrl}/api/pricing`);
-      setPricing(response.data);
+      const [pricingRes, productsRes] = await Promise.all([
+        axios.get(`${backendUrl}/api/pricing`),
+        axios.get(`${backendUrl}/api/products`)
+      ]);
       
-      // Auto-select first cut from each category
-      const initialSelection = {};
-      if (response.data.beefCuts?.length > 0 && response.data.beefCuts[0].enabled) {
-        initialSelection[`beef-0`] = true;
+      setPricing(pricingRes.data);
+      
+      // Filter products available for BBQ
+      const bbqProducts = productsRes.data.filter(p => p.availableForBBQ && p.pricePerLb);
+      setProducts(bbqProducts);
+      
+      // Auto-select first product
+      if (bbqProducts.length > 0) {
+        setSelectedProducts({ [bbqProducts[0]._id]: true });
       }
-      setSelectedCuts(initialSelection);
       
       setLoading(false);
     } catch (error) {
-      console.error('Failed to fetch pricing:', error);
-      toast.error('Failed to load pricing');
+      console.error('Failed to fetch data:', error);
+      toast.error('Failed to load calculator');
       setLoading(false);
     }
   };
 
-  const toggleCut = (category, index) => {
-    const key = `${category}-${index}`;
-    setSelectedCuts(prev => ({
+  const toggleProduct = (productId) => {
+    setSelectedProducts(prev => ({
       ...prev,
-      [key]: !prev[key]
+      [productId]: !prev[productId]
     }));
   };
 
@@ -49,33 +55,30 @@ const BBQCalculator = () => {
     if (!pricing) return;
 
     const totalMeat = people * pricing.appetitePerPerson;
-    const selectedCount = Object.values(selectedCuts).filter(Boolean).length;
+    const selectedIds = Object.keys(selectedProducts).filter(id => selectedProducts[id]);
     
-    if (selectedCount === 0) {
-      toast.error('Please select at least one cut');
+    if (selectedIds.length === 0) {
+      toast.error('Please select at least one product');
       return;
     }
 
-    const lbsPerCut = totalMeat / selectedCount;
+    const lbsPerProduct = totalMeat / selectedIds.length;
     const breakdown = [];
     let totalCost = 0;
 
-    // Calculate for each selected cut
-    ['beefCuts', 'chickenCuts', 'sausageCuts'].forEach(category => {
-      pricing[category]?.forEach((cut, index) => {
-        const key = `${category.replace('Cuts', '')}-${index}`;
-        if (selectedCuts[key] && cut.enabled) {
-          const cost = lbsPerCut * cut.pricePerLb;
-          totalCost += cost;
-          breakdown.push({
-            name: cut.name,
-            lbs: lbsPerCut.toFixed(1),
-            pricePerLb: cut.pricePerLb,
-            cost: cost.toFixed(2),
-            description: cut.description
-          });
-        }
-      });
+    selectedIds.forEach(productId => {
+      const product = products.find(p => p._id === productId);
+      if (product) {
+        const cost = lbsPerProduct * product.pricePerLb;
+        totalCost += cost;
+        breakdown.push({
+          name: product.name,
+          lbs: lbsPerProduct.toFixed(1),
+          pricePerLb: product.pricePerLb,
+          cost: cost.toFixed(2),
+          description: product.description
+        });
+      }
     });
 
     const agingOption = pricing.aging[aging];
@@ -99,11 +102,11 @@ const BBQCalculator = () => {
 
     setOrdering(true);
     try {
-      const cutsList = result.breakdown.map(c => c.name).join(', ');
+      const productList = result.breakdown.map(p => p.name).join(', ');
       const response = await axios.post(`${backendUrl}/api/bbq-checkout`, {
         totalPrice: parseFloat(result.totalPrice),
         people,
-        mode: `Custom Selection: ${cutsList}`,
+        mode: `BBQ Selection: ${productList}`,
         aging: result.agingLabel
       });
 
@@ -118,7 +121,7 @@ const BBQCalculator = () => {
   if (loading) {
     return (
       <div style={{ textAlign: 'center', padding: '2rem', color: 'rgba(255,255,255,0.6)' }}>
-        Loading calculator...
+        Loading BBQ Planner...
       </div>
     );
   }
@@ -126,92 +129,18 @@ const BBQCalculator = () => {
   if (!pricing || !pricing.enabled) {
     return (
       <div style={{ textAlign: 'center', padding: '2rem', color: 'rgba(255,255,255,0.6)' }}>
-        BBQ Calculator is currently unavailable
+        BBQ Planner is currently unavailable
       </div>
     );
   }
 
-  const renderCutSelection = (cuts, category) => {
-    const enabledCuts = cuts?.filter(c => c.enabled) || [];
-    if (enabledCuts.length === 0) return null;
-
-    const categoryName = category === 'beefCuts' ? '🥩 Steak Cuts' : 
-                        category === 'chickenCuts' ? '🍗 Chicken Cuts' : 
-                        '🌭 Sausage Types';
-
+  if (products.length === 0) {
     return (
-      <div style={{ marginBottom: '1.5rem' }}>
-        <h4 style={{
-          fontSize: '1rem',
-          fontWeight: '600',
-          color: '#C8A96A',
-          marginBottom: '0.75rem'
-        }}>
-          {categoryName}
-        </h4>
-        <div style={{ display: 'grid', gap: '0.5rem' }}>
-          {enabledCuts.map((cut, index) => {
-            const actualIndex = cuts.indexOf(cut);
-            const key = `${category.replace('Cuts', '')}-${actualIndex}`;
-            const isSelected = selectedCuts[key];
-            
-            return (
-              <label
-                key={key}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  padding: '0.75rem',
-                  background: isSelected ? '#1a1a1a' : '#0d0d0d',
-                  border: `1px solid ${isSelected ? '#C8A96A' : '#333'}`,
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s'
-                }}
-              >
-                <input
-                  type="checkbox"
-                  checked={isSelected || false}
-                  onChange={() => toggleCut(category.replace('Cuts', ''), actualIndex)}
-                  style={{
-                    marginRight: '0.75rem',
-                    width: '18px',
-                    height: '18px',
-                    cursor: 'pointer'
-                  }}
-                />
-                <div style={{ flex: 1 }}>
-                  <div style={{ 
-                    fontSize: '0.95rem', 
-                    fontWeight: '600',
-                    color: isSelected ? '#fff' : 'rgba(255,255,255,0.9)'
-                  }}>
-                    {cut.name}
-                  </div>
-                  {cut.description && (
-                    <div style={{
-                      fontSize: '0.75rem',
-                      color: 'rgba(255,255,255,0.5)',
-                      marginTop: '0.25rem'
-                    }}>
-                      {cut.description}
-                    </div>
-                  )}
-                </div>
-                <div style={{
-                  fontSize: '0.9rem',
-                  fontWeight: '700',
-                  color: '#C8A96A'
-                }}>
-                  ${cut.pricePerLb}/lb
-                </div>
-              </label>
-            );
-          })}
-        </div>
+      <div style={{ textAlign: 'center', padding: '2rem', color: 'rgba(255,255,255,0.6)' }}>
+        No products available for BBQ yet. Admin: Enable products in Products Manager.
       </div>
     );
-  };
+  }
 
   return (
     <div style={{
@@ -239,7 +168,7 @@ const BBQCalculator = () => {
           BBQ Planner
         </h2>
         <p style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.6)' }}>
-          Select your cuts and we'll calculate what you need
+          Select your meats and we'll calculate what you need
         </p>
       </div>
 
@@ -277,10 +206,75 @@ const BBQCalculator = () => {
         />
       </div>
 
-      {/* Cut Selection */}
-      {renderCutSelection(pricing.beefCuts, 'beefCuts')}
-      {renderCutSelection(pricing.chickenCuts, 'chickenCuts')}
-      {renderCutSelection(pricing.sausageCuts, 'sausageCuts')}
+      {/* Product Selection */}
+      <div style={{ marginBottom: '1.5rem' }}>
+        <h4 style={{
+          fontSize: '1rem',
+          fontWeight: '600',
+          color: '#C8A96A',
+          marginBottom: '0.75rem'
+        }}>
+          Select Your Meats
+        </h4>
+        <div style={{ display: 'grid', gap: '0.5rem' }}>
+          {products.map((product) => {
+            const isSelected = selectedProducts[product._id];
+            
+            return (
+              <label
+                key={product._id}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: '0.75rem',
+                  background: isSelected ? '#1a1a1a' : '#0d0d0d',
+                  border: `1px solid ${isSelected ? '#C8A96A' : '#333'}`,
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={isSelected || false}
+                  onChange={() => toggleProduct(product._id)}
+                  style={{
+                    marginRight: '0.75rem',
+                    width: '18px',
+                    height: '18px',
+                    cursor: 'pointer'
+                  }}
+                />
+                <div style={{ flex: 1 }}>
+                  <div style={{ 
+                    fontSize: '0.95rem', 
+                    fontWeight: '600',
+                    color: isSelected ? '#fff' : 'rgba(255,255,255,0.9)'
+                  }}>
+                    {product.name}
+                  </div>
+                  {product.description && (
+                    <div style={{
+                      fontSize: '0.75rem',
+                      color: 'rgba(255,255,255,0.5)',
+                      marginTop: '0.25rem'
+                    }}>
+                      {product.description}
+                    </div>
+                  )}
+                </div>
+                <div style={{
+                  fontSize: '0.9rem',
+                  fontWeight: '700',
+                  color: '#C8A96A'
+                }}>
+                  ${product.pricePerLb}/lb
+                </div>
+              </label>
+            );
+          })}
+        </div>
+      </div>
 
       {/* Aging Selection */}
       <div style={{ marginBottom: '1.5rem' }}>
