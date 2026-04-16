@@ -190,25 +190,13 @@ const LandingPage = () => {
       {/* Hero */}
       <section className="hero">
         <div className="hero-content">
-          <div style={{
-            position: 'relative',
-            maxWidth: '500px',
-            width: '100%',
-            marginBottom: '2rem'
-          }}>
-            <img 
-              src="/assets/logo-dark-bg.jpg" 
-              alt="Masters Meat Haus - Premium Butchery" 
-              className="hero-logo-image"
-              style={{
-                width: '100%', 
-                height: 'auto',
-                display: 'block',
-                mixBlendMode: 'lighten',
-                filter: 'brightness(5) contrast(10) grayscale(1)',
-                opacity: 0.95
-              }}
-            />
+          <div className="brand-logo hero-brand">
+            <div className="brand-logo-top">
+              <span className="brand-mmb">MMH</span>
+              <span className="brand-bar"></span>
+              <span className="brand-kanji">傑</span>
+            </div>
+            <div className="brand-sub">MASTERS MEAT HAUS®</div>
           </div>
           <h1 className="hero-title">Premium cuts. <span>No shortcuts.</span></h1>
           <p className="hero-subtitle">
