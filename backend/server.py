@@ -1004,12 +1004,15 @@ class BBQPricing(BaseModel):
     appetitePerPerson: float = 0.75
     enabled: bool = True
     # BBQ Modes with protein ratios
-    modes: dict = {
+    modes: Optional[dict] = {
         "mixed": {"label": "Mixed BBQ", "ratios": {"beef": 0.5, "chicken": 0.3, "sausage": 0.2}},
         "steak": {"label": "Steak Focus", "ratios": {"beef": 1.0, "chicken": 0.0, "sausage": 0.0}},
         "chicken": {"label": "Chicken Focus", "ratios": {"beef": 0.0, "chicken": 1.0, "sausage": 0.0}},
         "sausage": {"label": "Sausage Focus", "ratios": {"beef": 0.0, "chicken": 0.0, "sausage": 1.0}}
     }
+    
+    class Config:
+        extra = "allow"  # Allow additional fields from database
 
 @api_router.get("/pricing")
 async def get_pricing():
@@ -1036,8 +1039,21 @@ async def get_pricing():
             }
         }
         await db.bbq_pricing.insert_one(default_pricing.copy())
-        return default_pricing
-    return pricing
+        pricing = default_pricing
+    
+    # Ensure modes field exists
+    if "modes" not in pricing:
+        pricing["modes"] = {
+            "mixed": {"label": "Mixed BBQ", "ratios": {"beef": 0.5, "chicken": 0.3, "sausage": 0.2}},
+            "steak": {"label": "Steak Focus", "ratios": {"beef": 1.0, "chicken": 0.0, "sausage": 0.0}},
+            "chicken": {"label": "Chicken Focus", "ratios": {"beef": 0.0, "chicken": 1.0, "sausage": 0.0}},
+            "sausage": {"label": "Sausage Focus", "ratios": {"beef": 0.0, "chicken": 0.0, "sausage": 1.0}}
+        }
+    
+    logger.info(f"Pricing response has modes: {'modes' in pricing}")
+    # Return raw dict (bypass any Pydantic serialization)
+    from fastapi.responses import JSONResponse
+    return JSONResponse(content=dict(pricing))
 
 @api_router.put("/pricing")
 async def update_pricing(pricing: BBQPricing, current_user: dict = Depends(get_current_user)):
