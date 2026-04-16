@@ -267,55 +267,95 @@ const BBQCalculator = () => {
         }}>
           Select Your Meats
         </h4>
-        <select
-          multiple
-          size={6}
-          value={Object.keys(selectedProducts).filter(idx => selectedProducts[idx])}
-          onChange={(e) => {
-            const selectedOptions = Array.from(e.target.selectedOptions).map(opt => opt.value);
-            const newSelection = {};
-            selectedOptions.forEach(idx => {
-              newSelection[idx] = true;
-            });
-            setSelectedProducts(newSelection);
-          }}
-          style={{
-            width: '100%',
-            padding: '0.5rem',
-            background: '#0d0d0d',
-            border: '1px solid #333',
-            borderRadius: '8px',
-            color: '#fff',
-            fontSize: '0.95rem',
-            cursor: 'pointer',
-            outline: 'none'
-          }}
-        >
-          {(pricing.bbqProducts || []).map((product, index) => (
-            <option
-              key={index}
-              value={index}
-              style={{
-                padding: '0.75rem',
-                background: '#0d0d0d',
-                color: '#fff',
-                cursor: 'pointer'
-              }}
-            >
-              {product.category === 'steak' && '🥩'} 
-              {product.category === 'chicken' && '🍗'} 
-              {product.category === 'sausage' && '🌭'} 
-              {' '}{product.name} - {product.description}
-            </option>
-          ))}
-        </select>
+        <div style={{
+          background: '#0d0d0d',
+          border: '1px solid #333',
+          borderRadius: '8px',
+          padding: '0.75rem',
+          maxHeight: '320px',
+          overflowY: 'auto'
+        }}>
+          {(pricing.bbqProducts || []).map((product, index) => {
+            const isSelected = selectedProducts[index];
+            const categoryEmoji = {
+              'steak': '🥩',
+              'chicken': '🍗',
+              'sausage': '🌭'
+            }[product.category] || '🍖';
+
+            return (
+              <label
+                key={index}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: '0.75rem',
+                  marginBottom: '0.5rem',
+                  background: isSelected ? '#1a1a1a' : 'transparent',
+                  border: `1px solid ${isSelected ? '#C8A96A' : '#222'}`,
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  ':hover': {
+                    background: '#1a1a1a'
+                  }
+                }}
+                onMouseEnter={(e) => {
+                  if (!isSelected) e.currentTarget.style.background = '#1a1a1a';
+                }}
+                onMouseLeave={(e) => {
+                  if (!isSelected) e.currentTarget.style.background = 'transparent';
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={isSelected || false}
+                  onChange={() => {
+                    const newSelection = { ...selectedProducts };
+                    if (newSelection[index]) {
+                      delete newSelection[index];
+                    } else {
+                      newSelection[index] = true;
+                    }
+                    setSelectedProducts(newSelection);
+                  }}
+                  style={{
+                    width: '18px',
+                    height: '18px',
+                    marginRight: '0.75rem',
+                    cursor: 'pointer',
+                    accentColor: '#C8A96A'
+                  }}
+                />
+                <div style={{ flex: 1 }}>
+                  <div style={{
+                    fontSize: '0.95rem',
+                    fontWeight: '600',
+                    color: isSelected ? '#fff' : 'rgba(255,255,255,0.9)'
+                  }}>
+                    {categoryEmoji} {product.name}
+                  </div>
+                  {product.description && (
+                    <div style={{
+                      fontSize: '0.75rem',
+                      color: 'rgba(255,255,255,0.5)',
+                      marginTop: '0.25rem'
+                    }}>
+                      {product.description}
+                    </div>
+                  )}
+                </div>
+              </label>
+            );
+          })}
+        </div>
         <p style={{
           fontSize: '0.75rem',
           color: 'rgba(255,255,255,0.5)',
           marginTop: '0.5rem',
           fontStyle: 'italic'
         }}>
-          Hold Ctrl/Cmd to select multiple cuts
+          Click to select multiple cuts
         </p>
       </div>
 
