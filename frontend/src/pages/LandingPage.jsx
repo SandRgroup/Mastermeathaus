@@ -140,18 +140,14 @@ const LandingPage = () => {
           <div className="header-wrapper">
             <a href="/" className="header-logo-link">
               <img 
-                src="/assets/logo-text.jpg" 
+                src="/assets/logo-dark-bg.jpg" 
                 alt="Masters Meat Haus" 
                 className="header-logo-image"
                 style={{
-                  height: '55px', 
+                  height: '50px', 
                   width: 'auto', 
                   objectFit: 'contain',
-                  mixBlendMode: 'screen',
-                  filter: 'brightness(1.1) contrast(1.2)',
-                  borderRadius: '8px',
-                  padding: '4px 8px',
-                  background: 'rgba(255, 255, 255, 0.05)'
+                  filter: 'brightness(1.05)'
                 }}
               />
             </a>
@@ -192,27 +188,18 @@ const LandingPage = () => {
       {/* Hero */}
       <section className="hero">
         <div className="hero-content">
-          <div style={{
-            background: 'rgba(255, 255, 255, 0.95)',
-            borderRadius: '20px',
-            padding: '40px',
-            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
-            marginBottom: '2rem',
-            maxWidth: '500px',
-            backdropFilter: 'blur(10px)'
-          }}>
-            <img 
-              src="/assets/logo-full.jpg" 
-              alt="Masters Meat Haus - Premium Butchery" 
-              className="hero-logo-image"
-              style={{
-                width: '100%', 
-                height: 'auto',
-                display: 'block',
-                filter: 'brightness(1.05) contrast(1.1)'
-              }}
-            />
-          </div>
+          <img 
+            src="/assets/logo-dark-bg.jpg" 
+            alt="Masters Meat Haus - Premium Butchery" 
+            className="hero-logo-image"
+            style={{
+              maxWidth: '500px', 
+              width: '100%', 
+              height: 'auto',
+              marginBottom: '2rem',
+              filter: 'brightness(1.1) drop-shadow(0 10px 30px rgba(0, 0, 0, 0.5))'
+            }}
+          />
           <h1 className="hero-title">Premium cuts. <span>No shortcuts.</span></h1>
           <p className="hero-subtitle">
             Hand-selected USDA Prime and Wagyu steaks delivered to your door — vacuum-sealed, temperature-controlled, and always exceptional.
@@ -529,26 +516,18 @@ const LandingPage = () => {
         <div className="container">
           <div className="footer-top">
             <div className="footer-col">
-              <div style={{
-                background: 'rgba(255, 255, 255, 0.08)',
-                borderRadius: '16px',
-                padding: '24px',
-                marginBottom: '1rem',
-                border: '1px solid rgba(255, 255, 255, 0.1)'
-              }}>
-                <img 
-                  src="/assets/logo-full.jpg" 
-                  alt="Masters Meat Haus" 
-                  className="footer-logo-image"
-                  style={{
-                    maxWidth: '240px', 
-                    width: '100%', 
-                    height: 'auto',
-                    display: 'block',
-                    filter: 'brightness(1.1) contrast(1.15)'
-                  }}
-                />
-              </div>
+              <img 
+                src="/assets/logo-dark-bg.jpg" 
+                alt="Masters Meat Haus" 
+                className="footer-logo-image"
+                style={{
+                  maxWidth: '280px', 
+                  width: '100%', 
+                  height: 'auto',
+                  marginBottom: '1rem',
+                  filter: 'brightness(1.05)'
+                }}
+              />
               <p className="footer-tagline">Premium cuts. No shortcuts.</p>
             </div>
             <div className="footer-col">
