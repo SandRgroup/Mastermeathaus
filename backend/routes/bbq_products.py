@@ -12,7 +12,11 @@ router = APIRouter(prefix="/bbq-products", tags=["bbq-products"])
 @router.get("", response_model=List[BBQProduct])
 async def get_bbq_products():
     """Get all BBQ products"""
-    products = await db.bbq_products.find({}, {"_id": 0}).to_list(1000)
+    products = await db.bbq_products.find({}).to_list(1000)
+    # Convert ObjectId to string for each product
+    for product in products:
+        if '_id' in product:
+            product['_id'] = str(product['_id'])
     return products
 
 @router.post("", response_model=BBQProduct, dependencies=[Depends(get_current_user)])
