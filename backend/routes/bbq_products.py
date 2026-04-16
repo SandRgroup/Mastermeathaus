@@ -9,15 +9,31 @@ from database import db
 
 router = APIRouter(prefix="/bbq-products", tags=["bbq-products"])
 
-@router.get("", response_model=List[BBQProduct])
+@router.get("")
 async def get_bbq_products():
     """Get all BBQ products"""
-    products = await db.bbq_products.find({}).to_list(1000)
-    # Convert ObjectId to string for each product
-    for product in products:
-        if '_id' in product:
-            product['_id'] = str(product['_id'])
-    return products
+    print(f"=== BBQ PRODUCTS ENDPOINT CALLED ===")
+    print(f"Database object: {db}")
+    print(f"Database name: {db.name}")
+    
+    try:
+        products = await db.bbq_products.find({}).to_list(1000)
+        print(f"Found {len(products)} BBQ products in database")
+        
+        # Convert ObjectId to string and ensure proper format
+        result = []
+        for product in products:
+            if '_id' in product:
+                product.pop('_id')  # Remove MongoDB _id
+            result.append(product)
+        
+        print(f"Returning {len(result)} products to client")
+        return result
+    except Exception as e:
+        print(f"ERROR in BBQ products endpoint: {e}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("", response_model=BBQProduct, dependencies=[Depends(get_current_user)])
 async def create_bbq_product(product: BBQProductCreate):
