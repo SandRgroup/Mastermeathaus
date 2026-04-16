@@ -205,9 +205,8 @@ const LandingPage = () => {
                 height: 'auto',
                 display: 'block',
                 mixBlendMode: 'lighten',
-                filter: 'brightness(3) contrast(4) saturate(0)',
-                WebkitMaskImage: 'linear-gradient(to bottom, black 60%, transparent 100%)',
-                maskImage: 'linear-gradient(to bottom, black 60%, transparent 100%)'
+                filter: 'brightness(5) contrast(10) grayscale(1)',
+                opacity: 0.95
               }}
             />
           </div>
