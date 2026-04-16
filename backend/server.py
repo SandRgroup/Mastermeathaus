@@ -993,17 +993,30 @@ async def update_site_settings(settings: SiteSettings, current_user: dict = Depe
 # ─────────────────────────────────────────────────────────────────────────────
 
 class BBQPricing(BaseModel):
-    # Protein Pricing (per pound)
-    beefPricePerLb: float = 15.0
-    chickenPricePerLb: float = 8.0
-    sausagePricePerLb: float = 10.0
+    # Meat Cuts Library
+    beefCuts: List[dict] = [
+        {"name": "Ribeye", "pricePerLb": 18.0, "enabled": True, "description": "Well-marbled, rich flavor"},
+        {"name": "NY Strip", "pricePerLb": 16.0, "enabled": True, "description": "Tender and juicy"},
+        {"name": "Sirloin", "pricePerLb": 12.0, "enabled": True, "description": "Lean and flavorful"},
+        {"name": "Filet Mignon", "pricePerLb": 25.0, "enabled": True, "description": "Most tender cut"},
+        {"name": "T-Bone", "pricePerLb": 15.0, "enabled": True, "description": "Two cuts in one"}
+    ]
     
-    # Protein Availability
-    chickenEnabled: bool = True
-    sausageEnabled: bool = True
+    chickenCuts: List[dict] = [
+        {"name": "Chicken Breast", "pricePerLb": 8.0, "enabled": True, "description": "Lean and versatile"},
+        {"name": "Chicken Thighs", "pricePerLb": 6.0, "enabled": True, "description": "Juicy and flavorful"},
+        {"name": "Chicken Wings", "pricePerLb": 7.0, "enabled": True, "description": "Perfect for grilling"},
+        {"name": "Drumsticks", "pricePerLb": 5.0, "enabled": True, "description": "Family favorite"}
+    ]
+    
+    sausageCuts: List[dict] = [
+        {"name": "Bratwurst", "pricePerLb": 9.0, "enabled": True, "description": "Classic German sausage"},
+        {"name": "Italian Sausage", "pricePerLb": 8.0, "enabled": True, "description": "Spicy and savory"},
+        {"name": "Chorizo", "pricePerLb": 10.0, "enabled": True, "description": "Smoky and bold"},
+        {"name": "Polish Kielbasa", "pricePerLb": 8.5, "enabled": True, "description": "Traditional smoked"}
+    ]
     
     # Calculator Settings
-    pricePerBoxWeight: int = 5
     appetitePerPerson: float = 0.75
     enabled: bool = True
     
@@ -1013,14 +1026,6 @@ class BBQPricing(BaseModel):
         {"label": "30 Days (Premium)", "days": 30, "upcharge": 25},
         {"label": "45 Days (Ultra Aged)", "days": 45, "upcharge": 60}
     ]
-    
-    # BBQ Modes with protein ratios
-    modes: Optional[dict] = {
-        "mixed": {"label": "Mixed BBQ", "ratios": {"beef": 0.5, "chicken": 0.3, "sausage": 0.2}},
-        "steak": {"label": "Steak Focus", "ratios": {"beef": 1.0, "chicken": 0.0, "sausage": 0.0}},
-        "chicken": {"label": "Chicken Focus", "ratios": {"beef": 0.0, "chicken": 1.0, "sausage": 0.0}},
-        "sausage": {"label": "Sausage Focus", "ratios": {"beef": 0.0, "chicken": 0.0, "sausage": 1.0}}
-    }
     
     class Config:
         extra = "allow"
@@ -1032,37 +1037,35 @@ async def get_pricing():
     if not pricing:
         # Return default pricing if none exists
         default_pricing = {
-            "beefPricePerLb": 15.0,
-            "chickenPricePerLb": 8.0,
-            "sausagePricePerLb": 10.0,
-            "chickenEnabled": True,
-            "sausageEnabled": True,
+            "beefCuts": [
+                {"name": "Ribeye", "pricePerLb": 18.0, "enabled": True, "description": "Well-marbled, rich flavor"},
+                {"name": "NY Strip", "pricePerLb": 16.0, "enabled": True, "description": "Tender and juicy"},
+                {"name": "Sirloin", "pricePerLb": 12.0, "enabled": True, "description": "Lean and flavorful"},
+                {"name": "Filet Mignon", "pricePerLb": 25.0, "enabled": True, "description": "Most tender cut"},
+                {"name": "T-Bone", "pricePerLb": 15.0, "enabled": True, "description": "Two cuts in one"}
+            ],
+            "chickenCuts": [
+                {"name": "Chicken Breast", "pricePerLb": 8.0, "enabled": True, "description": "Lean and versatile"},
+                {"name": "Chicken Thighs", "pricePerLb": 6.0, "enabled": True, "description": "Juicy and flavorful"},
+                {"name": "Chicken Wings", "pricePerLb": 7.0, "enabled": True, "description": "Perfect for grilling"},
+                {"name": "Drumsticks", "pricePerLb": 5.0, "enabled": True, "description": "Family favorite"}
+            ],
+            "sausageCuts": [
+                {"name": "Bratwurst", "pricePerLb": 9.0, "enabled": True, "description": "Classic German sausage"},
+                {"name": "Italian Sausage", "pricePerLb": 8.0, "enabled": True, "description": "Spicy and savory"},
+                {"name": "Chorizo", "pricePerLb": 10.0, "enabled": True, "description": "Smoky and bold"},
+                {"name": "Polish Kielbasa", "pricePerLb": 8.5, "enabled": True, "description": "Traditional smoked"}
+            ],
             "aging": [
                 {"label": "21 Days (Standard)", "days": 21, "upcharge": 0},
                 {"label": "30 Days (Premium)", "days": 30, "upcharge": 25},
                 {"label": "45 Days (Ultra Aged)", "days": 45, "upcharge": 60}
             ],
-            "pricePerBoxWeight": 5,
             "appetitePerPerson": 0.75,
-            "enabled": True,
-            "modes": {
-                "mixed": {"label": "Mixed BBQ", "ratios": {"beef": 0.5, "chicken": 0.3, "sausage": 0.2}},
-                "steak": {"label": "Steak Focus", "ratios": {"beef": 1.0, "chicken": 0.0, "sausage": 0.0}},
-                "chicken": {"label": "Chicken Focus", "ratios": {"beef": 0.0, "chicken": 1.0, "sausage": 0.0}},
-                "sausage": {"label": "Sausage Focus", "ratios": {"beef": 0.0, "chicken": 0.0, "sausage": 1.0}}
-            }
+            "enabled": True
         }
         await db.bbq_pricing.insert_one(default_pricing.copy())
         pricing = default_pricing
-    
-    # Ensure modes field exists
-    if "modes" not in pricing:
-        pricing["modes"] = {
-            "mixed": {"label": "Mixed BBQ", "ratios": {"beef": 0.5, "chicken": 0.3, "sausage": 0.2}},
-            "steak": {"label": "Steak Focus", "ratios": {"beef": 1.0, "chicken": 0.0, "sausage": 0.0}},
-            "chicken": {"label": "Chicken Focus", "ratios": {"beef": 0.0, "chicken": 1.0, "sausage": 0.0}},
-            "sausage": {"label": "Sausage Focus", "ratios": {"beef": 0.0, "chicken": 0.0, "sausage": 1.0}}
-        }
     
     # Return raw dict
     from fastapi.responses import JSONResponse

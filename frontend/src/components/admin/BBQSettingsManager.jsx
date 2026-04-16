@@ -1,18 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'sonner';
-import { Settings, DollarSign, Calendar, Weight, Users, Power } from 'lucide-react';
+import { Settings, DollarSign, Calendar, Users, Power, Plus, Trash2 } from 'lucide-react';
 
 const BBQSettingsManager = () => {
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
   const [settings, setSettings] = useState({
-    basePrice: 149,
-    aging: [
-      { label: "21 Days (Standard)", days: 21, upcharge: 0 },
-      { label: "30 Days (Premium)", days: 30, upcharge: 25 },
-      { label: "45 Days (Ultra Aged)", days: 45, upcharge: 60 }
-    ],
-    pricePerBoxWeight: 5,
+    beefCuts: [],
+    chickenCuts: [],
+    sausageCuts: [],
+    aging: [],
     appetitePerPerson: 0.75,
     enabled: true
   });
@@ -51,6 +48,27 @@ const BBQSettingsManager = () => {
     }
   };
 
+  const updateCut = (category, index, field, value) => {
+    const newCuts = [...settings[category]];
+    newCuts[index] = { ...newCuts[index], [field]: value };
+    setSettings({ ...settings, [category]: newCuts });
+  };
+
+  const addCut = (category) => {
+    const newCuts = [...settings[category], {
+      name: "New Cut",
+      pricePerLb: 10.0,
+      enabled: true,
+      description: ""
+    }];
+    setSettings({ ...settings, [category]: newCuts });
+  };
+
+  const removeCut = (category, index) => {
+    const newCuts = settings[category].filter((_, i) => i !== index);
+    setSettings({ ...settings, [category]: newCuts });
+  };
+
   const updateAging = (index, field, value) => {
     const newAging = [...settings.aging];
     newAging[index] = { ...newAging[index], [field]: value };
@@ -66,6 +84,66 @@ const BBQSettingsManager = () => {
     const newAging = settings.aging.filter((_, i) => i !== index);
     setSettings({ ...settings, aging: newAging });
   };
+
+  const renderCutEditor = (category, title, emoji) => (
+    <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold text-gray-800">
+          {emoji} {title}
+        </h3>
+        <button
+          onClick={() => addCut(category)}
+          className="px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-md hover:bg-emerald-700 transition-colors flex items-center gap-2"
+        >
+          <Plus size={16} />
+          Add Cut
+        </button>
+      </div>
+      
+      <div className="space-y-3">
+        {settings[category]?.map((cut, index) => (
+          <div key={index} className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <input
+              type="checkbox"
+              checked={cut.enabled}
+              onChange={(e) => updateCut(category, index, 'enabled', e.target.checked)}
+              className="w-5 h-5 rounded border-gray-300 text-emerald-600"
+            />
+            <div className="flex-1 grid grid-cols-4 gap-3">
+              <input
+                type="text"
+                value={cut.name}
+                onChange={(e) => updateCut(category, index, 'name', e.target.value)}
+                placeholder="Cut name"
+                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              />
+              <input
+                type="number"
+                step="0.5"
+                value={cut.pricePerLb}
+                onChange={(e) => updateCut(category, index, 'pricePerLb', parseFloat(e.target.value) || 0)}
+                placeholder="Price/lb"
+                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              />
+              <input
+                type="text"
+                value={cut.description || ''}
+                onChange={(e) => updateCut(category, index, 'description', e.target.value)}
+                placeholder="Description (optional)"
+                className="col-span-2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              />
+            </div>
+            <button
+              onClick={() => removeCut(category, index)}
+              className="px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+            >
+              <Trash2 size={16} />
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 
   if (loading) {
     return (
@@ -84,7 +162,7 @@ const BBQSettingsManager = () => {
             <Settings className="w-6 h-6 text-gray-700" />
             <div>
               <h2 className="text-xl font-bold text-gray-800">BBQ Calculator Settings</h2>
-              <p className="text-sm text-gray-600">Manage pricing, aging options, and calculator configuration</p>
+              <p className="text-sm text-gray-600">Manage all meat cuts, pricing, and calculator options</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -104,101 +182,33 @@ const BBQSettingsManager = () => {
         </div>
       </div>
 
-      {/* Protein Pricing */}
-      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-          <DollarSign className="w-5 h-5 text-gray-600" />
-          Protein Pricing (per pound)
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              🥩 Beef ($/lb)
-            </label>
-            <input
-              type="number"
-              step="0.5"
-              value={settings.beefPricePerLb}
-              onChange={(e) => setSettings({ ...settings, beefPricePerLb: parseFloat(e.target.value) || 0 })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-            />
-          </div>
-          <div>
-            <label className="flex items-center justify-between text-sm font-medium text-gray-700 mb-2">
-              <span>🍗 Chicken ($/lb)</span>
-              <input
-                type="checkbox"
-                checked={settings.chickenEnabled}
-                onChange={(e) => setSettings({ ...settings, chickenEnabled: e.target.checked })}
-                className="w-4 h-4 rounded border-gray-300 text-emerald-600"
-              />
-            </label>
-            <input
-              type="number"
-              step="0.5"
-              value={settings.chickenPricePerLb}
-              onChange={(e) => setSettings({ ...settings, chickenPricePerLb: parseFloat(e.target.value) || 0 })}
-              disabled={!settings.chickenEnabled}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
-            />
-            <p className="text-xs text-gray-500 mt-1">Uncheck to hide from calculator</p>
-          </div>
-          <div>
-            <label className="flex items-center justify-between text-sm font-medium text-gray-700 mb-2">
-              <span>🌭 Sausage ($/lb)</span>
-              <input
-                type="checkbox"
-                checked={settings.sausageEnabled}
-                onChange={(e) => setSettings({ ...settings, sausageEnabled: e.target.checked })}
-                className="w-4 h-4 rounded border-gray-300 text-emerald-600"
-              />
-            </label>
-            <input
-              type="number"
-              step="0.5"
-              value={settings.sausagePricePerLb}
-              onChange={(e) => setSettings({ ...settings, sausagePricePerLb: parseFloat(e.target.value) || 0 })}
-              disabled={!settings.sausageEnabled}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
-            />
-            <p className="text-xs text-gray-500 mt-1">Uncheck to hide from calculator</p>
-          </div>
-        </div>
-      </div>
+      {/* Beef Cuts */}
+      {renderCutEditor('beefCuts', 'Steak Cuts', '🥩')}
+
+      {/* Chicken Cuts */}
+      {renderCutEditor('chickenCuts', 'Chicken Cuts', '🍗')}
+
+      {/* Sausage Cuts */}
+      {renderCutEditor('sausageCuts', 'Sausage Types', '🌭')}
 
       {/* Calculator Settings */}
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
         <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-          <Settings className="w-5 h-5 text-gray-600" />
+          <Users className="w-5 h-5 text-gray-600" />
           Calculator Settings
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
-              <Weight className="w-4 h-4" />
-              Box Weight (lbs)
-            </label>
-            <input
-              type="number"
-              step="0.1"
-              value={settings.pricePerBoxWeight}
-              onChange={(e) => setSettings({ ...settings, pricePerBoxWeight: parseFloat(e.target.value) || 0 })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
-              <Users className="w-4 h-4" />
-              Appetite per Person (lbs)
-            </label>
-            <input
-              type="number"
-              step="0.05"
-              value={settings.appetitePerPerson}
-              onChange={(e) => setSettings({ ...settings, appetitePerPerson: parseFloat(e.target.value) || 0 })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-            />
-          </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Appetite per Person (lbs)
+          </label>
+          <input
+            type="number"
+            step="0.05"
+            value={settings.appetitePerPerson}
+            onChange={(e) => setSettings({ ...settings, appetitePerPerson: parseFloat(e.target.value) || 0 })}
+            className="w-full md:w-64 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          />
+          <p className="text-xs text-gray-500 mt-1">Total meat needed = People × Appetite per person</p>
         </div>
       </div>
 
@@ -218,93 +228,41 @@ const BBQSettingsManager = () => {
         </div>
         
         <div className="space-y-4">
-          {settings.aging.map((option, index) => (
+          {settings.aging?.map((option, index) => (
             <div key={index} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
               <div className="flex-1 grid grid-cols-3 gap-3">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Label
-                  </label>
-                  <input
-                    type="text"
-                    value={option.label}
-                    onChange={(e) => updateAging(index, 'label', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                    placeholder="21 Days (Standard)"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Days
-                  </label>
-                  <input
-                    type="number"
-                    value={option.days}
-                    onChange={(e) => updateAging(index, 'days', parseInt(e.target.value) || 0)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                    placeholder="21"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Upcharge ($)
-                  </label>
-                  <input
-                    type="number"
-                    value={option.upcharge}
-                    onChange={(e) => updateAging(index, 'upcharge', parseInt(e.target.value) || 0)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                    placeholder="0"
-                  />
-                </div>
+                <input
+                  type="text"
+                  value={option.label}
+                  onChange={(e) => updateAging(index, 'label', e.target.value)}
+                  placeholder="Label"
+                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+                <input
+                  type="number"
+                  value={option.days}
+                  onChange={(e) => updateAging(index, 'days', parseInt(e.target.value) || 0)}
+                  placeholder="Days"
+                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+                <input
+                  type="number"
+                  value={option.upcharge}
+                  onChange={(e) => updateAging(index, 'upcharge', parseInt(e.target.value) || 0)}
+                  placeholder="Upcharge ($)"
+                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
               </div>
               {settings.aging.length > 1 && (
                 <button
                   onClick={() => removeAgingOption(index)}
-                  className="px-3 py-2 bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-700 transition-colors"
+                  className="px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
                 >
-                  Remove
+                  <Trash2 size={16} />
                 </button>
               )}
             </div>
           ))}
-        </div>
-      </div>
-
-      {/* Preview */}
-      <div className="bg-gradient-to-r from-emerald-50 to-blue-50 p-6 rounded-lg border border-emerald-200">
-        <h3 className="text-lg font-semibold text-gray-800 mb-3">Preview Calculation (20 people, Mixed BBQ)</h3>
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <div>
-            <p className="text-gray-600">Total meat: {(20 * settings.appetitePerPerson).toFixed(1)} lbs</p>
-            <p className="font-semibold text-gray-800">
-              🥩 Beef: {(20 * settings.appetitePerPerson * 0.5).toFixed(1)} lbs @ ${settings.beefPricePerLb}/lb = ${(20 * settings.appetitePerPerson * 0.5 * settings.beefPricePerLb).toFixed(2)}
-            </p>
-            {settings.chickenEnabled && (
-              <p className="font-semibold text-gray-800">
-                🍗 Chicken: {(20 * settings.appetitePerPerson * 0.3).toFixed(1)} lbs @ ${settings.chickenPricePerLb}/lb = ${(20 * settings.appetitePerPerson * 0.3 * settings.chickenPricePerLb).toFixed(2)}
-              </p>
-            )}
-            {settings.sausageEnabled && (
-              <p className="font-semibold text-gray-800">
-                🌭 Sausage: {(20 * settings.appetitePerPerson * 0.2).toFixed(1)} lbs @ ${settings.sausagePricePerLb}/lb = ${(20 * settings.appetitePerPerson * 0.2 * settings.sausagePricePerLb).toFixed(2)}
-              </p>
-            )}
-          </div>
-          <div>
-            <p className="text-gray-600">Price breakdown:</p>
-            {settings.aging.map((option, index) => {
-              const beef = 20 * settings.appetitePerPerson * 0.5 * settings.beefPricePerLb;
-              const chicken = settings.chickenEnabled ? 20 * settings.appetitePerPerson * 0.3 * settings.chickenPricePerLb : 0;
-              const sausage = settings.sausageEnabled ? 20 * settings.appetitePerPerson * 0.2 * settings.sausagePricePerLb : 0;
-              const total = beef + chicken + sausage + option.upcharge;
-              return (
-                <p key={index} className="font-semibold text-gray-800">
-                  {option.label}: ${total.toFixed(2)}
-                </p>
-              );
-            })}
-          </div>
         </div>
       </div>
 
@@ -315,7 +273,7 @@ const BBQSettingsManager = () => {
           disabled={saving}
           className="px-6 py-3 bg-emerald-600 text-white font-medium rounded-md hover:bg-emerald-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
         >
-          {saving ? 'Saving...' : 'Save BBQ Settings'}
+          {saving ? 'Saving...' : 'Save All Settings'}
         </button>
       </div>
     </div>

@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Users, Flame } from 'lucide-react';
+import { Users, Flame, Info } from 'lucide-react';
 import { toast } from 'sonner';
 
-const BBQCalculatorSimple = () => {
+const BBQCalculator = () => {
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
   const [people, setPeople] = useState(10);
-  const [mode, setMode] = useState('mixed');
+  const [selectedCuts, setSelectedCuts] = useState({});
   const [aging, setAging] = useState(0);
   const [pricing, setPricing] = useState(null);
   const [result, setResult] = useState(null);
@@ -21,6 +21,14 @@ const BBQCalculatorSimple = () => {
     try {
       const response = await axios.get(`${backendUrl}/api/pricing`);
       setPricing(response.data);
+      
+      // Auto-select first cut from each category
+      const initialSelection = {};
+      if (response.data.beefCuts?.length > 0 && response.data.beefCuts[0].enabled) {
+        initialSelection[`beef-0`] = true;
+      }
+      setSelectedCuts(initialSelection);
+      
       setLoading(false);
     } catch (error) {
       console.error('Failed to fetch pricing:', error);
@@ -29,33 +37,57 @@ const BBQCalculatorSimple = () => {
     }
   };
 
+  const toggleCut = (category, index) => {
+    const key = `${category}-${index}`;
+    setSelectedCuts(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
+  };
+
   const calculate = () => {
     if (!pricing) return;
 
     const totalMeat = people * pricing.appetitePerPerson;
-    const modeConfig = pricing.modes[mode];
-    const ratios = modeConfig.ratios;
+    const selectedCount = Object.values(selectedCuts).filter(Boolean).length;
+    
+    if (selectedCount === 0) {
+      toast.error('Please select at least one cut');
+      return;
+    }
 
-    const beefLbs = totalMeat * ratios.beef;
-    const chickenLbs = totalMeat * ratios.chicken;
-    const sausageLbs = totalMeat * ratios.sausage;
+    const lbsPerCut = totalMeat / selectedCount;
+    const breakdown = [];
+    let totalCost = 0;
 
-    // Calculate price using individual protein prices
-    const beefCost = beefLbs * pricing.beefPricePerLb;
-    const chickenCost = chickenLbs * (pricing.chickenPricePerLb || 0);
-    const sausageCost = sausageLbs * (pricing.sausagePricePerLb || 0);
+    // Calculate for each selected cut
+    ['beefCuts', 'chickenCuts', 'sausageCuts'].forEach(category => {
+      pricing[category]?.forEach((cut, index) => {
+        const key = `${category.replace('Cuts', '')}-${index}`;
+        if (selectedCuts[key] && cut.enabled) {
+          const cost = lbsPerCut * cut.pricePerLb;
+          totalCost += cost;
+          breakdown.push({
+            name: cut.name,
+            lbs: lbsPerCut.toFixed(1),
+            pricePerLb: cut.pricePerLb,
+            cost: cost.toFixed(2),
+            description: cut.description
+          });
+        }
+      });
+    });
 
     const agingOption = pricing.aging[aging];
-    const totalPrice = beefCost + chickenCost + sausageCost + agingOption.upcharge;
+    const finalTotal = totalCost + agingOption.upcharge;
 
     setResult({
       totalMeat: totalMeat.toFixed(1),
-      beef: beefLbs.toFixed(1),
-      chicken: chickenLbs.toFixed(1),
-      sausage: sausageLbs.toFixed(1),
-      totalPrice: totalPrice.toFixed(2),
+      breakdown,
+      subtotal: totalCost.toFixed(2),
       agingLabel: agingOption.label,
-      modeLabel: modeConfig.label
+      agingCost: agingOption.upcharge,
+      totalPrice: finalTotal.toFixed(2)
     });
   };
 
@@ -67,14 +99,14 @@ const BBQCalculatorSimple = () => {
 
     setOrdering(true);
     try {
+      const cutsList = result.breakdown.map(c => c.name).join(', ');
       const response = await axios.post(`${backendUrl}/api/bbq-checkout`, {
         totalPrice: parseFloat(result.totalPrice),
         people,
-        mode: result.modeLabel,
+        mode: `Custom Selection: ${cutsList}`,
         aging: result.agingLabel
       });
 
-      // Redirect to Stripe checkout
       window.location.href = response.data.url;
     } catch (error) {
       console.error('Checkout failed:', error);
@@ -99,9 +131,91 @@ const BBQCalculatorSimple = () => {
     );
   }
 
+  const renderCutSelection = (cuts, category) => {
+    const enabledCuts = cuts?.filter(c => c.enabled) || [];
+    if (enabledCuts.length === 0) return null;
+
+    const categoryName = category === 'beefCuts' ? '🥩 Steak Cuts' : 
+                        category === 'chickenCuts' ? '🍗 Chicken Cuts' : 
+                        '🌭 Sausage Types';
+
+    return (
+      <div style={{ marginBottom: '1.5rem' }}>
+        <h4 style={{
+          fontSize: '1rem',
+          fontWeight: '600',
+          color: '#C8A96A',
+          marginBottom: '0.75rem'
+        }}>
+          {categoryName}
+        </h4>
+        <div style={{ display: 'grid', gap: '0.5rem' }}>
+          {enabledCuts.map((cut, index) => {
+            const actualIndex = cuts.indexOf(cut);
+            const key = `${category.replace('Cuts', '')}-${actualIndex}`;
+            const isSelected = selectedCuts[key];
+            
+            return (
+              <label
+                key={key}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: '0.75rem',
+                  background: isSelected ? '#1a1a1a' : '#0d0d0d',
+                  border: `1px solid ${isSelected ? '#C8A96A' : '#333'}`,
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={isSelected || false}
+                  onChange={() => toggleCut(category.replace('Cuts', ''), actualIndex)}
+                  style={{
+                    marginRight: '0.75rem',
+                    width: '18px',
+                    height: '18px',
+                    cursor: 'pointer'
+                  }}
+                />
+                <div style={{ flex: 1 }}>
+                  <div style={{ 
+                    fontSize: '0.95rem', 
+                    fontWeight: '600',
+                    color: isSelected ? '#fff' : 'rgba(255,255,255,0.9)'
+                  }}>
+                    {cut.name}
+                  </div>
+                  {cut.description && (
+                    <div style={{
+                      fontSize: '0.75rem',
+                      color: 'rgba(255,255,255,0.5)',
+                      marginTop: '0.25rem'
+                    }}>
+                      {cut.description}
+                    </div>
+                  )}
+                </div>
+                <div style={{
+                  fontSize: '0.9rem',
+                  fontWeight: '700',
+                  color: '#C8A96A'
+                }}>
+                  ${cut.pricePerLb}/lb
+                </div>
+              </label>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div style={{
-      maxWidth: '580px',
+      maxWidth: '650px',
       margin: 'auto',
       padding: '30px',
       borderRadius: '16px',
@@ -125,24 +239,26 @@ const BBQCalculatorSimple = () => {
           BBQ Planner
         </h2>
         <p style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.6)' }}>
-          Calculate perfect portions for your BBQ
+          Select your cuts and we'll calculate what you need
         </p>
       </div>
 
-      {/* Inputs */}
+      {/* People Input */}
       <div style={{ marginBottom: '1.5rem' }}>
         <label style={{
-          display: 'block',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
           fontSize: '0.9rem',
           fontWeight: '600',
           color: 'rgba(255,255,255,0.8)',
-          marginBottom: '0.5rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem'
+          marginBottom: '0.5rem'
         }}>
-          <Users size={18} />
-          How many people? ({people})
+          <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Users size={18} />
+            How many people?
+          </span>
+          <span style={{ fontSize: '1.5rem', color: '#C8A96A' }}>{people}</span>
         </label>
         <input
           type="range"
@@ -161,36 +277,12 @@ const BBQCalculatorSimple = () => {
         />
       </div>
 
-      <div style={{ marginBottom: '1.5rem' }}>
-        <label style={{
-          display: 'block',
-          fontSize: '0.9rem',
-          fontWeight: '600',
-          color: 'rgba(255,255,255,0.8)',
-          marginBottom: '0.5rem'
-        }}>
-          BBQ Style
-        </label>
-        <select
-          value={mode}
-          onChange={(e) => setMode(e.target.value)}
-          style={{
-            width: '100%',
-            padding: '0.85rem',
-            fontSize: '1rem',
-            background: '#1a1a1a',
-            color: '#fff',
-            border: '1px solid #333',
-            borderRadius: '8px',
-            cursor: 'pointer'
-          }}
-        >
-          {Object.entries(pricing.modes).map(([key, config]) => (
-            <option key={key} value={key}>{config.label}</option>
-          ))}
-        </select>
-      </div>
+      {/* Cut Selection */}
+      {renderCutSelection(pricing.beefCuts, 'beefCuts')}
+      {renderCutSelection(pricing.chickenCuts, 'chickenCuts')}
+      {renderCutSelection(pricing.sausageCuts, 'sausageCuts')}
 
+      {/* Aging Selection */}
       <div style={{ marginBottom: '1.5rem' }}>
         <label style={{
           display: 'block',
@@ -263,46 +355,65 @@ const BBQCalculatorSimple = () => {
             marginBottom: '1rem',
             textAlign: 'center'
           }}>
-            Your Perfect BBQ Plan
+            Your BBQ Needs
           </h3>
 
           <div style={{
-            fontSize: '0.95rem',
-            lineHeight: '1.9',
-            color: 'rgba(255,255,255,0.85)',
-            marginBottom: '1rem'
+            fontSize: '0.85rem',
+            marginBottom: '1rem',
+            paddingBottom: '1rem',
+            borderBottom: '1px solid #333'
           }}>
-            🥩 Beef: <strong>{result.beef} lbs</strong><br />
-            {pricing.chickenEnabled && parseFloat(result.chicken) > 0 && (
-              <>🍗 Chicken: <strong>{result.chicken} lbs</strong><br /></>
-            )}
-            {pricing.sausageEnabled && parseFloat(result.sausage) > 0 && (
-              <>🌭 Sausage: <strong>{result.sausage} lbs</strong><br /></>
-            )}
-            <div style={{ height: '1px', background: '#333', margin: '0.75rem 0' }}></div>
-            📊 Total Meat: <strong style={{ color: '#C8A96A' }}>{result.totalMeat} lbs</strong><br />
-            🥩 Aging: <strong>{result.agingLabel}</strong>
+            {result.breakdown.map((item, index) => (
+              <div key={index} style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '0.5rem 0',
+                color: 'rgba(255,255,255,0.85)'
+              }}>
+                <div>
+                  <div style={{ fontWeight: '600', color: '#fff' }}>{item.name}</div>
+                  <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>
+                    {item.lbs} lbs × ${item.pricePerLb}/lb
+                  </div>
+                </div>
+                <div style={{ fontWeight: '700', color: '#C8A96A' }}>
+                  ${item.cost}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.7)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+              <span>Subtotal ({result.totalMeat} lbs):</span>
+              <span>${result.subtotal}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+              <span>{result.agingLabel}:</span>
+              <span>+${result.agingCost}</span>
+            </div>
           </div>
 
           <div style={{
             background: 'linear-gradient(135deg, #8B0000, #a00000)',
-            padding: '1.25rem',
+            padding: '1rem',
             borderRadius: '10px',
             textAlign: 'center'
           }}>
             <p style={{
-              fontSize: '1.5rem',
+              fontSize: '1.6rem',
               fontWeight: '700',
-              color: '#fff',
-              marginBottom: '0.25rem'
+              color: '#fff'
             }}>
               ${result.totalPrice}
             </p>
             <p style={{
-              fontSize: '0.85rem',
+              fontSize: '0.8rem',
               color: 'rgba(255,255,255,0.8)'
             }}>
-              Total Price
+              Total for {people} people
             </p>
           </div>
         </div>
@@ -351,4 +462,4 @@ const BBQCalculatorSimple = () => {
   );
 };
 
-export default BBQCalculatorSimple;
+export default BBQCalculator;
