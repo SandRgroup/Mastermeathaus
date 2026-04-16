@@ -85,65 +85,75 @@ const BBQSettingsManager = () => {
     setSettings({ ...settings, aging: newAging });
   };
 
-  const renderCutEditor = (category, title, emoji) => (
-    <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-800">
-          {emoji} {title}
-        </h3>
-        <button
-          onClick={() => addCut(category)}
-          className="px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-md hover:bg-emerald-700 transition-colors flex items-center gap-2"
-        >
-          <Plus size={16} />
-          Add Cut
-        </button>
-      </div>
-      
-      <div className="space-y-3">
-        {settings[category]?.map((cut, index) => (
-          <div key={index} className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
-            <input
-              type="checkbox"
-              checked={cut.enabled}
-              onChange={(e) => updateCut(category, index, 'enabled', e.target.checked)}
-              className="w-5 h-5 rounded border-gray-300 text-emerald-600"
-            />
-            <div className="flex-1 grid grid-cols-4 gap-3">
-              <input
-                type="text"
-                value={cut.name}
-                onChange={(e) => updateCut(category, index, 'name', e.target.value)}
-                placeholder="Cut name"
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              />
-              <input
-                type="number"
-                step="0.5"
-                value={cut.pricePerLb}
-                onChange={(e) => updateCut(category, index, 'pricePerLb', parseFloat(e.target.value) || 0)}
-                placeholder="Price/lb"
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              />
-              <input
-                type="text"
-                value={cut.description || ''}
-                onChange={(e) => updateCut(category, index, 'description', e.target.value)}
-                placeholder="Description (optional)"
-                className="col-span-2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              />
+  const renderCutEditor = (category, title, emoji) => {
+    const cuts = settings[category] || [];
+    
+    return (
+      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-800">
+            {emoji} {title}
+          </h3>
+          <button
+            onClick={() => addCut(category)}
+            className="px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-md hover:bg-emerald-700 transition-colors flex items-center gap-2"
+          >
+            <Plus size={16} />
+            Add Cut
+          </button>
+        </div>
+        
+        <div className="space-y-3">
+          {cuts.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              No cuts added yet. Click "Add Cut" to get started.
             </div>
-            <button
-              onClick={() => removeCut(category, index)}
-              className="px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-            >
-              <Trash2 size={16} />
-            </button>
-          </div>
-        ))}
+          ) : (
+            cuts.map((cut, index) => (
+              <div key={index} className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <input
+                  type="checkbox"
+                  checked={cut.enabled}
+                  onChange={(e) => updateCut(category, index, 'enabled', e.target.checked)}
+                  className="w-5 h-5 rounded border-gray-300 text-emerald-600"
+                />
+                <div className="flex-1 grid grid-cols-4 gap-3">
+                  <input
+                    type="text"
+                    value={cut.name}
+                    onChange={(e) => updateCut(category, index, 'name', e.target.value)}
+                    placeholder="Cut name"
+                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                  <input
+                    type="number"
+                    step="0.5"
+                    value={cut.pricePerLb}
+                    onChange={(e) => updateCut(category, index, 'pricePerLb', parseFloat(e.target.value) || 0)}
+                    placeholder="Price/lb"
+                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                  <input
+                    type="text"
+                    value={cut.description || ''}
+                    onChange={(e) => updateCut(category, index, 'description', e.target.value)}
+                    placeholder="Description (optional)"
+                    className="col-span-2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
+                <button
+                  onClick={() => removeCut(category, index)}
+                  className="px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            ))
+          )}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   if (loading) {
     return (
@@ -228,41 +238,47 @@ const BBQSettingsManager = () => {
         </div>
         
         <div className="space-y-4">
-          {settings.aging?.map((option, index) => (
-            <div key={index} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-              <div className="flex-1 grid grid-cols-3 gap-3">
-                <input
-                  type="text"
-                  value={option.label}
-                  onChange={(e) => updateAging(index, 'label', e.target.value)}
-                  placeholder="Label"
-                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                />
-                <input
-                  type="number"
-                  value={option.days}
-                  onChange={(e) => updateAging(index, 'days', parseInt(e.target.value) || 0)}
-                  placeholder="Days"
-                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                />
-                <input
-                  type="number"
-                  value={option.upcharge}
-                  onChange={(e) => updateAging(index, 'upcharge', parseInt(e.target.value) || 0)}
-                  placeholder="Upcharge ($)"
-                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                />
-              </div>
-              {settings.aging.length > 1 && (
-                <button
-                  onClick={() => removeAgingOption(index)}
-                  className="px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-                >
-                  <Trash2 size={16} />
-                </button>
-              )}
+          {(settings.aging || []).length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              No aging options added yet. Click "Add Option" to get started.
             </div>
-          ))}
+          ) : (
+            (settings.aging || []).map((option, index) => (
+              <div key={index} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <div className="flex-1 grid grid-cols-3 gap-3">
+                  <input
+                    type="text"
+                    value={option.label}
+                    onChange={(e) => updateAging(index, 'label', e.target.value)}
+                    placeholder="Label"
+                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                  <input
+                    type="number"
+                    value={option.days}
+                    onChange={(e) => updateAging(index, 'days', parseInt(e.target.value) || 0)}
+                    placeholder="Days"
+                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                  <input
+                    type="number"
+                    value={option.upcharge}
+                    onChange={(e) => updateAging(index, 'upcharge', parseInt(e.target.value) || 0)}
+                    placeholder="Upcharge ($)"
+                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
+                {settings.aging.length > 1 && (
+                  <button
+                    onClick={() => removeAgingOption(index)}
+                    className="px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                )}
+              </div>
+            ))
+          )}
         </div>
       </div>
 
