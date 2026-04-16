@@ -1099,6 +1099,16 @@ async def create_bbq_checkout(request: dict, req: Request):
 # Include router - MUST be after all routes are defined
 app.include_router(api_router)
 
+# Import BBQ and Package routes
+try:
+    from routes.bbq_products import router as bbq_products_router
+    from routes.packages import router as packages_router
+    api_router.include_router(bbq_products_router)
+    api_router.include_router(packages_router)
+    print("✅ BBQ Products and Packages routes loaded")
+except Exception as e:
+    print(f"⚠️ Could not load BBQ/Package routes: {e}")
+
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
