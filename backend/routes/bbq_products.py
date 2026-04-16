@@ -52,8 +52,8 @@ async def create_bbq_product(product: BBQProductCreate):
         "name": product_dict['name'],
         "description": product_dict.get('description', ''),
         "price": f"${product_dict['basePrice']:.2f}",  # Format as string
+        "weight": f"{product_dict.get('weight', 1.0)} lb",  # Add weight with unit
         "grade": product_dict.get('gradeLabel', 'PREMIUM'),
-        "weight": "1 lb",
         "image": "/api/placeholder/400/300",
         "category": product_dict.get('category', 'meat'),
         "featured": True,
@@ -90,6 +90,7 @@ async def update_bbq_product(product_id: str, product: BBQProductUpdate):
             "name": updated_bbq['name'],
             "description": updated_bbq.get('description', ''),
             "price": f"${updated_bbq['basePrice']:.2f}",  # Format as string
+            "weight": f"{updated_bbq.get('weight', 1.0)} lb",  # Add weight with unit
             "grade": updated_bbq.get('gradeLabel', 'PREMIUM'),
             "wagyuUpcharge": updated_bbq.get('wagyuUpcharge', 0),
             "grassFedUpcharge": updated_bbq.get('grassFedUpcharge', 0),

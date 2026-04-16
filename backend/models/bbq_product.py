@@ -9,6 +9,7 @@ class BBQProduct(BaseModel):
     name: str
     description: str
     basePrice: float  # Base price per lb
+    weight: float = 1.0  # Weight in pounds
     wagyuUpcharge: float = 0.0  # Additional $ for American Wagyu
     grassFedUpcharge: float = 0.0  # Additional $ for Grass Fed
     dryAgedUpcharge: float = 0.0  # Additional $ for Dry Aged
@@ -51,6 +52,7 @@ class BBQProductUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     basePrice: Optional[float] = None
+    weight: Optional[float] = None
     wagyuUpcharge: Optional[float] = None
     grassFedUpcharge: Optional[float] = None
     dryAgedUpcharge: Optional[float] = None

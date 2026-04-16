@@ -100,6 +100,7 @@ const UnifiedProductsManager = () => {
       name: product.name,
       description: product.description,
       basePrice: product.basePrice.toString(),
+      weight: (product.weight || 1.0).toString(),
       wagyuUpcharge: product.wagyuUpcharge.toString(),
       grassFedUpcharge: product.grassFedUpcharge.toString(),
       dryAgedUpcharge: product.dryAgedUpcharge.toString(),
@@ -140,6 +141,7 @@ const UnifiedProductsManager = () => {
       name: '',
       description: '',
       basePrice: '',
+      weight: '1.0',
       wagyuUpcharge: '0',
       grassFedUpcharge: '0',
       dryAgedUpcharge: '0',
@@ -186,16 +188,34 @@ const UnifiedProductsManager = () => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="basePrice">Base Price ($/lb) *</Label>
+                  <Label htmlFor="weight">Weight (lbs) *</Label>
                   <Input
-                    id="basePrice"
+                    id="weight"
                     type="number"
-                    step="0.01"
-                    value={formData.basePrice}
-                    onChange={(e) => setFormData({...formData, basePrice: e.target.value})}
+                    step="0.25"
+                    value={formData.weight}
+                    onChange={(e) => setFormData({...formData, weight: e.target.value})}
                     required
+                    placeholder="e.g., 1.0, 1.5, 2.0"
                   />
                 </div>
+              </div>
+
+              <div>
+                <Label htmlFor="basePrice">Price per Pound ($/lb) *</Label>
+                <Input
+                  id="basePrice"
+                  type="number"
+                  step="0.01"
+                  value={formData.basePrice}
+                  onChange={(e) => setFormData({...formData, basePrice: e.target.value})}
+                  required
+                />
+                {formData.basePrice && formData.weight && (
+                  <p className="text-sm text-gray-600 mt-1">
+                    Total: ${(parseFloat(formData.basePrice) * parseFloat(formData.weight)).toFixed(2)}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -332,10 +352,10 @@ const UnifiedProductsManager = () => {
                 <tr className="border-b">
                   <th className="text-left py-2 px-4">Name</th>
                   <th className="text-left py-2 px-4">Type</th>
-                  <th className="text-left py-2 px-4">Base Price</th>
+                  <th className="text-left py-2 px-4">Weight</th>
+                  <th className="text-left py-2 px-4">$/lb</th>
+                  <th className="text-left py-2 px-4">Total Price</th>
                   <th className="text-left py-2 px-4">Wagyu</th>
-                  <th className="text-left py-2 px-4">Grass Fed</th>
-                  <th className="text-left py-2 px-4">Dry Aged</th>
                   <th className="text-left py-2 px-4">Actions</th>
                 </tr>
               </thead>
@@ -347,10 +367,12 @@ const UnifiedProductsManager = () => {
                       <div className="text-sm text-gray-500">{product.gradeLabel}</div>
                     </td>
                     <td className="py-3 px-4 capitalize">{product.meatType}</td>
-                    <td className="py-3 px-4 font-semibold">${product.basePrice}</td>
+                    <td className="py-3 px-4 font-medium">{product.weight || 1.0} lb</td>
+                    <td className="py-3 px-4">${product.basePrice}</td>
+                    <td className="py-3 px-4 font-bold text-green-600">
+                      ${((product.basePrice || 0) * (product.weight || 1.0)).toFixed(2)}
+                    </td>
                     <td className="py-3 px-4">${product.wagyuUpcharge}</td>
-                    <td className="py-3 px-4">${product.grassFedUpcharge}</td>
-                    <td className="py-3 px-4">${product.dryAgedUpcharge}</td>
                     <td className="py-3 px-4">
                       <div className="flex gap-2">
                         <Button size="sm" variant="outline" onClick={() => handleEdit(product)}>
