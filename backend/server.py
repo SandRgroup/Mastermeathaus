@@ -713,10 +713,17 @@ async def stripe_webhook(request: Request):
         logger.error(f"Webhook error: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
 
-# CORS
-cors_origins = os.environ.get("CORS_ORIGINS", "*")
-if cors_origins == "*":
-    allow_origins = ["*"]
+# CORS - Fixed for credentials support
+cors_origins = os.environ.get("CORS_ORIGINS", "")
+if not cors_origins or cors_origins == "*":
+    # For credentials to work, we need specific origins, not wildcard
+    allow_origins = [
+        "http://localhost:3000",
+        "https://wagyu-vault.preview.emergentagent.com",
+        os.environ.get("FRONTEND_URL", "")
+    ]
+    # Remove empty strings
+    allow_origins = [origin for origin in allow_origins if origin]
 else:
     allow_origins = [origin.strip() for origin in cors_origins.split(",")]
 
