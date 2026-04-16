@@ -299,49 +299,75 @@ metadata:
 
 test_plan:
   current_focus:
+    - "Membership Pricing Display (JUST FIXED)"
+    - "New Professional Logo Branding (JUST IMPLEMENTED)"
     - "BBQ Calculator Component"
-    - "Landing Page BBQ Calculator Integration"
     - "Complete Frontend E2E Testing"
     - "Backend API Stability"
-    - "CRM System"
-    - "Site Settings Manager"
+    - "Auth System"
+    - "Stripe Checkout"
   stuck_tasks: []
   test_all: true
   test_priority: "high_first"
   test_credentials:
-    admin_email: "admin@mastermeatbox.com"
-    admin_password: "MMB@dmin2025!Secure"
+    admin_email: "admin@mastersmeathaus.com"
+    admin_password: "MMH@dmin2025!Secure"
   special_instructions: |
-    CRITICAL TESTING PRIORITIES:
-    1. NEW: BBQ Calculator - multi-step wizard functionality
-       - Step 1: People count slider (1-100)
-       - Step 2: Experience selection (standard/premium/casual)
-       - Step 3: Protein selection (beef/chicken/sausage)
-       - Step 4: Results calculation and box recommendation
-       - Final CTA: Redirect to /shop-boxes
+    CRITICAL TESTING PRIORITIES (Fork Agent Session - Dec 2025):
     
-    2. Landing Page Integration
-       - BBQ Calculator renders correctly
-       - Positioned above footer section
-       - Dark theme styling matches landing page
-       - All step transitions work smoothly
+    1. NEW FIXES TO TEST (Just Implemented):
+       A. Membership Pricing Fix:
+          - Landing page membership cards should show: Free ($0.00), Select ($4.99), Prime ($12.99), Premium ($19.99)
+          - Monthly/Yearly toggle working correctly
+          - Yearly prices: $0, $42, $109, $168
+          - Savings badges display on yearly view
+          - Individual membership detail pages show correct pricing
+       
+       B. Professional Logo Branding:
+          - Header: Text-only logo with professional styling
+          - Hero: Full logo (with bull head) in premium white card with shadow
+          - Footer: Full logo in semi-transparent dark card
+          - Login: Full logo in gradient card background
+          - All logos should be crisp and properly sized
     
-    3. Previous Massive Changes Need Validation:
-       - Complete landing page overhaul (LandingPage.jsx + CSS)
-       - New CRM system (CustomersManager.jsx)
-       - New Site Settings (SiteSettingsManager.jsx)
-       - Product Manager oz/lb weight selector
-       - Admin link removed from header
+    2. BBQ Calculator Full Flow:
+       - Multi-meat selection with checkboxes (14 products available)
+       - Lbs/Kg unit toggle functional
+       - User can edit total meat weight per person
+       - Portions divided correctly among selected meats
+       - Stripe checkout integration working
+       - Pricing calculations accurate
     
-    4. Backend Stability Check:
-       - All existing APIs still working after frontend changes
-       - CRM endpoints (/api/crm/customers)
-       - Site Settings endpoints (/api/settings)
-       - Products, Memberships, Discounts, Checkout
+    3. Admin CMS Full Suite:
+       - Login with admin@mastersmeathaus.com credentials
+       - Products Manager (with Grade dropdown)
+       - Memberships Manager
+       - BBQ Settings Manager (editable portions, pricing, labels)
+       - Menu Manager (complete rebuild - test CRUD)
+       - Site Settings Manager
+       - CRM System
     
-    IMPORTANT: Previous agent did MASSIVE frontend rewrite without running testing subagent.
-    This is the first comprehensive test since the major overhaul.
+    4. Auth & Security:
+       - Login flow working with new credentials
+       - JWT tokens properly set
+       - Protected routes enforcement
+       - Logout functionality
+    
+    5. E-commerce Flow:
+       - Product display with correct pricing
+       - Cart functionality (add/remove/update)
+       - Stripe checkout flow
+       - Membership selection and checkout
+    
+    6. Backend API Health:
+       - All CRUD endpoints responding
+       - MongoDB queries returning correct data
+       - No 500 errors or crashes
+    
+    CONTEXT: This is a forked session. Previous work included complete MMH rebranding, 
+    BBQ Planner overhaul, CMS expansion, and Auth fixes. This session fixed membership 
+    pricing parsing bug and implemented professional logo styling across all pages.
 
 agent_communication:
   - agent: "main"
-    message: "GRADE DROPDOWN & ZIP EXPORT COMPLETE. Fixed ProductsManager.jsx Grade field from plain text input to proper Select dropdown with 4 options (Prime, Wagyu X, A5 Wagyu, Grass fed). Created mastermeatbox_export.zip (1.3MB) excluding node_modules, venv, .git. Frontend lint passed. Ready for full regression testing of Grade dropdown + all existing features (BBQ Calculator, Stripe checkout, CMS, etc.). CRITICAL: Major changes (Stripe, BBQ Calculator, Product schema with grade field) were only screenshot-tested by previous agent, not regression tested via testing subagent."
+    message: "MEMBERSHIP PRICING FIX & PROFESSIONAL LOGO BRANDING COMPLETE. Fixed price parsing bug in LandingPage.jsx (was showing $0.00 due to $ symbol in database strings). Implemented new Masters Meat Haus logos with professional styling: Hero (white card with shadow), Footer (dark card), Header (blend mode), Login (gradient card). Updated test credentials to admin@mastersmeathaus.com. All changes screenshot-verified. Ready for comprehensive regression testing of entire application."
