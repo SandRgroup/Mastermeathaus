@@ -1009,6 +1009,162 @@ class TestMenuItems:
         print(f"SUCCESS: GET /menu-items returned {len(data)} items")
 
 
+class TestProductGradeField:
+    """Tests for Product Grade dropdown field - PRIORITY 1"""
+    
+    @pytest.fixture
+    def auth_session(self):
+        """Get authenticated session"""
+        session = requests.Session()
+        resp = session.post(f"{BASE_URL}/api/auth/login", json={
+            "email": "admin@mastermeatbox.com",
+            "password": "MMB@dmin2025!Secure"
+        })
+        if resp.status_code != 200:
+            pytest.skip("Authentication failed")
+        return session
+    
+    def test_create_product_with_prime_grade(self, auth_session):
+        """Test creating product with Prime grade"""
+        resp = auth_session.post(f"{BASE_URL}/api/products", json={
+            "name": "TEST_Prime_Steak",
+            "grade": "Prime",
+            "description": "USDA Prime grade steak",
+            "price": "$89.99",
+            "image": "https://example.com/prime.jpg"
+        })
+        assert resp.status_code == 200, f"Create failed: {resp.text}"
+        product = resp.json()
+        assert product["grade"] == "Prime", f"Grade mismatch: {product['grade']}"
+        print("SUCCESS: Created product with Prime grade")
+        
+        # Cleanup
+        auth_session.delete(f"{BASE_URL}/api/products/{product['_id']}")
+    
+    def test_create_product_with_wagyu_x_grade(self, auth_session):
+        """Test creating product with Wagyu X grade"""
+        resp = auth_session.post(f"{BASE_URL}/api/products", json={
+            "name": "TEST_WagyuX_Steak",
+            "grade": "Wagyu X",
+            "description": "Wagyu X grade steak",
+            "price": "$149.99",
+            "image": "https://example.com/wagyux.jpg"
+        })
+        assert resp.status_code == 200, f"Create failed: {resp.text}"
+        product = resp.json()
+        assert product["grade"] == "Wagyu X", f"Grade mismatch: {product['grade']}"
+        print("SUCCESS: Created product with Wagyu X grade")
+        
+        # Cleanup
+        auth_session.delete(f"{BASE_URL}/api/products/{product['_id']}")
+    
+    def test_create_product_with_a5_wagyu_grade(self, auth_session):
+        """Test creating product with A5 Wagyu grade"""
+        resp = auth_session.post(f"{BASE_URL}/api/products", json={
+            "name": "TEST_A5Wagyu_Steak",
+            "grade": "A5 Wagyu",
+            "description": "Japanese A5 Wagyu grade steak",
+            "price": "$299.99",
+            "image": "https://example.com/a5wagyu.jpg"
+        })
+        assert resp.status_code == 200, f"Create failed: {resp.text}"
+        product = resp.json()
+        assert product["grade"] == "A5 Wagyu", f"Grade mismatch: {product['grade']}"
+        print("SUCCESS: Created product with A5 Wagyu grade")
+        
+        # Cleanup
+        auth_session.delete(f"{BASE_URL}/api/products/{product['_id']}")
+    
+    def test_create_product_with_grass_fed_grade(self, auth_session):
+        """Test creating product with Grass fed grade"""
+        resp = auth_session.post(f"{BASE_URL}/api/products", json={
+            "name": "TEST_GrassFed_Steak",
+            "grade": "Grass fed",
+            "description": "Grass fed grade steak",
+            "price": "$69.99",
+            "image": "https://example.com/grassfed.jpg"
+        })
+        assert resp.status_code == 200, f"Create failed: {resp.text}"
+        product = resp.json()
+        assert product["grade"] == "Grass fed", f"Grade mismatch: {product['grade']}"
+        print("SUCCESS: Created product with Grass fed grade")
+        
+        # Cleanup
+        auth_session.delete(f"{BASE_URL}/api/products/{product['_id']}")
+    
+    def test_update_product_grade(self, auth_session):
+        """Test updating product grade from Prime to A5 Wagyu"""
+        # Create
+        create_resp = auth_session.post(f"{BASE_URL}/api/products", json={
+            "name": "TEST_Grade_Update",
+            "grade": "Prime",
+            "description": "Test grade update",
+            "price": "$99.99",
+            "image": "https://example.com/test.jpg"
+        })
+        assert create_resp.status_code == 200
+        product = create_resp.json()
+        product_id = product["_id"]
+        
+        # Update grade
+        update_resp = auth_session.put(f"{BASE_URL}/api/products/{product_id}", json={
+            "name": "TEST_Grade_Update",
+            "grade": "A5 Wagyu",
+            "description": "Test grade update",
+            "price": "$299.99",
+            "image": "https://example.com/test.jpg"
+        })
+        assert update_resp.status_code == 200
+        updated = update_resp.json()
+        assert updated["grade"] == "A5 Wagyu", f"Grade not updated: {updated['grade']}"
+        print("SUCCESS: Product grade updated from Prime to A5 Wagyu")
+        
+        # Cleanup
+        auth_session.delete(f"{BASE_URL}/api/products/{product_id}")
+
+
+class TestBBQCheckout:
+    """Tests for BBQ Calculator Stripe checkout - PRIORITY 2"""
+    
+    def test_bbq_checkout_creates_session(self):
+        """Test BBQ checkout creates Stripe session"""
+        resp = requests.post(f"{BASE_URL}/api/bbq-checkout", json={
+            "totalPrice": 150.00,
+            "people": 10,
+            "mode": "BBQ Selection: Ribeye, Filet Mignon",
+            "aging": "30 Days (Premium)"
+        })
+        assert resp.status_code == 200, f"BBQ checkout failed: {resp.text}"
+        data = resp.json()
+        assert "url" in data, "Missing checkout URL"
+        assert "sessionId" in data, "Missing session ID"
+        assert data["url"].startswith("https://checkout.stripe.com"), "Invalid Stripe URL"
+        print(f"SUCCESS: BBQ checkout created session {data['sessionId'][:20]}...")
+    
+    def test_bbq_checkout_with_different_aging(self):
+        """Test BBQ checkout with 45 Days aging"""
+        resp = requests.post(f"{BASE_URL}/api/bbq-checkout", json={
+            "totalPrice": 200.00,
+            "people": 15,
+            "mode": "BBQ Selection: Tomahawk, T-Bone",
+            "aging": "45 Days (Ultra Aged)"
+        })
+        assert resp.status_code == 200, f"BBQ checkout failed: {resp.text}"
+        data = resp.json()
+        assert "url" in data
+        print("SUCCESS: BBQ checkout with 45 Days aging works")
+    
+    def test_bbq_pricing_endpoint(self):
+        """Test BBQ pricing configuration endpoint"""
+        resp = requests.get(f"{BASE_URL}/api/pricing")
+        assert resp.status_code == 200, f"Pricing endpoint failed: {resp.text}"
+        data = resp.json()
+        assert "aging" in data, "Missing aging options"
+        assert "appetitePerPerson" in data, "Missing appetitePerPerson"
+        assert "enabled" in data, "Missing enabled flag"
+        print(f"SUCCESS: BBQ pricing returned with {len(data.get('aging', []))} aging options")
+
+
 # Cleanup function to remove test data
 def cleanup_test_data():
     """Remove all TEST_ prefixed data"""

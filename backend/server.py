@@ -1045,7 +1045,7 @@ async def update_pricing(pricing: BBQPricing, current_user: dict = Depends(get_c
     return {"success": True, "message": "BBQ pricing updated"}
 
 @api_router.post("/bbq-checkout")
-async def create_bbq_checkout(request: dict):
+async def create_bbq_checkout(request: dict, req: Request):
     """Create Stripe checkout session for BBQ order"""
     try:
         total_price = request.get("totalPrice", 0)
@@ -1053,28 +1053,26 @@ async def create_bbq_checkout(request: dict):
         mode = request.get("mode", "mixed")
         aging = request.get("aging", "21 Days (Standard)")
         
-        # Create Stripe checkout session
+        frontend_url = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
+        
+        # Create Stripe checkout session using same format as working checkout
         checkout_request = CheckoutSessionRequest(
-            line_items=[{
-                "price_data": {
-                    "currency": "usd",
-                    "product_data": {
-                        "name": f"MasterMeatBox BBQ Order - {mode.title()} ({people} people)",
-                        "description": f"Premium BBQ package with {aging} dry-aging"
-                    },
-                    "unit_amount": int(total_price * 100)
-                },
-                "quantity": 1
-            }],
-            mode="payment",
-            success_url=f"{os.environ.get('FRONTEND_URL', 'http://localhost:3000')}/success?session_id={{CHECKOUT_SESSION_ID}}",
-            cancel_url=f"{os.environ.get('FRONTEND_URL', 'http://localhost:3000')}/"
+            amount=round(total_price, 2),
+            currency="usd",
+            success_url=f"{frontend_url}/success?session_id={{CHECKOUT_SESSION_ID}}",
+            cancel_url=f"{frontend_url}/",
+            metadata={
+                "type": "bbq_order",
+                "people": str(people),
+                "mode": mode,
+                "aging": aging
+            }
         )
         
-        stripe_checkout = StripeCheckout(api_key=os.environ.get("STRIPE_SECRET_KEY"))
-        session = stripe_checkout.create_checkout_session(checkout_request)
+        stripe = get_stripe_checkout(req)
+        session = await stripe.create_checkout_session(checkout_request)
         
-        return {"url": session.url, "sessionId": session.id}
+        return {"url": session.url, "sessionId": session.session_id}
     except Exception as e:
         logger.error(f"BBQ checkout error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))

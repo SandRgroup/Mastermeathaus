@@ -171,12 +171,21 @@ const ProductsManager = () => {
                 </div>
                 <div className="form-group">
                   <Label htmlFor="grade">Grade *</Label>
-                  <Input
-                    id="grade"
-                    value={formData.grade}
-                    onChange={(e) => setFormData({ ...formData, grade: e.target.value })}
+                  <Select 
+                    value={formData.grade} 
+                    onValueChange={(value) => setFormData({ ...formData, grade: value })}
                     required
-                  />
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select grade" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Prime">Prime</SelectItem>
+                      <SelectItem value="Wagyu X">Wagyu X</SelectItem>
+                      <SelectItem value="A5 Wagyu">A5 Wagyu</SelectItem>
+                      <SelectItem value="Grass fed">Grass fed</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="form-group full-width">
                   <Label htmlFor="description">Description *</Label>
