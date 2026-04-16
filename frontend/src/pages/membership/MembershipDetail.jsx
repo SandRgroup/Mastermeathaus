@@ -151,7 +151,7 @@ const MembershipDetail = () => {
               <span className="period">/mo</span>
             </div>
             <div className="pricing-note">Billed monthly</div>
-            <Button className="select-plan-btn" onClick={() => window.location.href = 'https://mastermeatbox.com'}>
+            <Button className="select-plan-btn" onClick={() => window.location.href = 'https://mastersmeathaus.com'}>
               Choose Monthly
             </Button>
           </Card>
@@ -168,7 +168,7 @@ const MembershipDetail = () => {
               <div className="pricing-note">
                 ${((currentPlan.monthlyPrice * 12 - currentPlan.yearlyPrice) / 12).toFixed(0)}/mo savings
               </div>
-              <Button className="select-plan-btn highlight" onClick={() => window.location.href = 'https://mastermeatbox.com'}>
+              <Button className="select-plan-btn highlight" onClick={() => window.location.href = 'https://mastersmeathaus.com'}>
                 Choose Yearly
               </Button>
             </Card>
@@ -215,7 +215,7 @@ const MembershipDetail = () => {
             <h3>Ready to join {currentPlan.name}?</h3>
             <p>Start saving on premium meats today</p>
             <div className="cta-buttons">
-              <Button className="cta-primary" onClick={() => window.location.href = 'https://mastermeatbox.com'}>
+              <Button className="cta-primary" onClick={() => window.location.href = 'https://mastersmeathaus.com'}>
                 Get Started
               </Button>
               <Button className="cta-secondary" variant="outline" onClick={() => navigate('/contact')}>

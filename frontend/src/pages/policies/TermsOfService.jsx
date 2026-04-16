@@ -55,7 +55,7 @@ const TermsOfService = () => {
 
         <section className="contact-section">
           <h3>Contact Information</h3>
-          <p>📧 Email: <a href="mailto:hello@mastermeatbox.com">hello@mastermeatbox.com</a></p>
+          <p>📧 Email: <a href="mailto:hello@mastersmeathaus.com">hello@mastersmeathaus.com</a></p>
           <p>📱 Phone: <a href="tel:8178072489">817-807-2489</a></p>
           <p>🕒 Support Hours: Monday – Friday, 9 AM – 5 PM (CST)</p>
           <p className="contact-note">For order support, please include your order number and photos if applicable.</p>

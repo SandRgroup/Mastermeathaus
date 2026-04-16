@@ -23,7 +23,7 @@ const ContactPage = () => {
           <Card className="contact-card">
             <Mail size={32} />
             <h3>Email</h3>
-            <a href="mailto:hello@mastermeatbox.com">hello@mastermeatbox.com</a>
+            <a href="mailto:hello@mastersmeathaus.com">hello@mastersmeathaus.com</a>
           </Card>
 
           <Card className="contact-card">

@@ -141,11 +141,11 @@ const LandingPage = () => {
             <a href="/" className="header-logo-link">
               <div className="brand-logo header-brand">
                 <div className="brand-logo-top">
-                  <span className="brand-mmb">MMB</span>
+                  <span className="brand-mmb">MMH</span>
                   <span className="brand-bar"></span>
                   <span className="brand-kanji">傑</span>
                 </div>
-                <div className="brand-sub">MASTERMEATBOX®</div>
+                <div className="brand-sub">MASTERS MEAT HAUS®</div>
               </div>
             </a>
             <nav className="main-nav">
@@ -187,11 +187,11 @@ const LandingPage = () => {
         <div className="hero-content">
           <div className="brand-logo hero-brand">
             <div className="brand-logo-top">
-              <span className="brand-mmb">MMB</span>
+              <span className="brand-mmb">MMH</span>
               <span className="brand-bar"></span>
               <span className="brand-kanji">傑</span>
             </div>
-            <div className="brand-sub">MASTERMEATBOX®</div>
+            <div className="brand-sub">MASTERS MEAT HAUS®</div>
           </div>
           <h1 className="hero-title">Premium cuts. <span>No shortcuts.</span></h1>
           <p className="hero-subtitle">
@@ -480,11 +480,11 @@ const LandingPage = () => {
             <div className="footer-col">
               <div className="brand-logo footer-brand-logo">
                 <div className="brand-logo-top">
-                  <span className="brand-mmb">MMB</span>
+                  <span className="brand-mmb">MMH</span>
                   <span className="brand-bar"></span>
                   <span className="brand-kanji">傑</span>
                 </div>
-                <div className="brand-sub">MASTERMEATBOX®</div>
+                <div className="brand-sub">MASTERS MEAT HAUS®</div>
               </div>
               <p className="footer-tagline">Premium cuts. No shortcuts.</p>
             </div>
@@ -511,9 +511,9 @@ const LandingPage = () => {
             </div>
           </div>
           <div className="footer-bottom">
-            <p>&copy; 2026 MasterMeatBox®. All rights reserved.</p>
+            <p>&copy; 2026 Masters Meat Haus®. All rights reserved.</p>
             <div className="footer-contact">
-              <a href="mailto:hello@mastermeatbox.com">hello@mastermeatbox.com</a>
+              <a href="mailto:hello@mastersmeathaus.com">hello@mastersmeathaus.com</a>
               <span>|</span>
               <a href="tel:8178072489">817-807-2489</a>
             </div>

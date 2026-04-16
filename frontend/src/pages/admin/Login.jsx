@@ -36,7 +36,7 @@ const Login = () => {
         <div className="login-header">
           <img 
             src="https://customer-assets.emergentagent.com/job_wagyu-vault/artifacts/ebh2rfed_IMG_2421.PNG"
-            alt="Mastermeatbox"
+            alt="Masters Meat Haus"
             className="login-logo"
           />
           <h2>CMS Admin Login</h2>
@@ -50,7 +50,7 @@ const Login = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@mastermeatbox.com"
+              placeholder="admin@mastersmeathaus.com"
               required
             />
           </div>

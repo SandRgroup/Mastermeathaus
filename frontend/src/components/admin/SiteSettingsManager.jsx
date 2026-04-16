@@ -219,7 +219,7 @@ const SiteSettingsManager = () => {
                 type="email"
                 value={settings.footer_email || ''}
                 onChange={(e) => handleChange('footer_email', e.target.value)}
-                placeholder="hello@mastermeatbox.com"
+                placeholder="hello@mastersmeathaus.com"
               />
             </div>
             <div className="form-group">

@@ -88,7 +88,7 @@ const DeliveryWorks = () => {
         <section className="contact-section">
           <h2>📞 Need Help?</h2>
           <p>If you experience any issue with your delivery, contact our support team within 24 hours of receiving your order.</p>
-          <p>📧 Email: <a href="mailto:hello@mastermeatbox.com">hello@mastermeatbox.com</a></p>
+          <p>📧 Email: <a href="mailto:hello@mastersmeathaus.com">hello@mastersmeathaus.com</a></p>
           <p>📱 Phone: <a href="tel:8178072489">817-807-2489</a></p>
           <p>🕒 Support Hours: Monday – Friday, 9 AM – 5 PM (CST)</p>
           <p className="contact-note">We are here to ensure every order meets our quality standards.</p>
