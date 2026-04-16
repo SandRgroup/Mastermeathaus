@@ -49,13 +49,15 @@ const BBQSettingsManager = () => {
   };
 
   const updateCut = (category, index, field, value) => {
-    const newCuts = [...settings[category]];
+    const currentCuts = settings[category] || [];
+    const newCuts = [...currentCuts];
     newCuts[index] = { ...newCuts[index], [field]: value };
     setSettings({ ...settings, [category]: newCuts });
   };
 
   const addCut = (category) => {
-    const newCuts = [...settings[category], {
+    const currentCuts = settings[category] || [];
+    const newCuts = [...currentCuts, {
       name: "New Cut",
       pricePerLb: 10.0,
       enabled: true,
@@ -65,23 +67,27 @@ const BBQSettingsManager = () => {
   };
 
   const removeCut = (category, index) => {
-    const newCuts = settings[category].filter((_, i) => i !== index);
+    const currentCuts = settings[category] || [];
+    const newCuts = currentCuts.filter((_, i) => i !== index);
     setSettings({ ...settings, [category]: newCuts });
   };
 
   const updateAging = (index, field, value) => {
-    const newAging = [...settings.aging];
+    const currentAging = settings.aging || [];
+    const newAging = [...currentAging];
     newAging[index] = { ...newAging[index], [field]: value };
     setSettings({ ...settings, aging: newAging });
   };
 
   const addAgingOption = () => {
-    const newAging = [...settings.aging, { label: "New Aging Option", days: 0, upcharge: 0 }];
+    const currentAging = settings.aging || [];
+    const newAging = [...currentAging, { label: "New Aging Option", days: 0, upcharge: 0 }];
     setSettings({ ...settings, aging: newAging });
   };
 
   const removeAgingOption = (index) => {
-    const newAging = settings.aging.filter((_, i) => i !== index);
+    const currentAging = settings.aging || [];
+    const newAging = currentAging.filter((_, i) => i !== index);
     setSettings({ ...settings, aging: newAging });
   };
 
