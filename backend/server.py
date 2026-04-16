@@ -301,7 +301,7 @@ async def get_me(user: dict = Depends(get_current_user)):
 async def get_products():
     products = await db.products.find(
         {},
-        {"_id": 1, "name": 1, "grade": 1, "description": 1, "price": 1, "originalPrice": 1, "image": 1, "cookingTemp": 1, "badge": 1, "created_at": 1}
+        {"_id": 1, "name": 1, "grade": 1, "description": 1, "price": 1, "originalPrice": 1, "image": 1, "cookingTemp": 1, "badge": 1, "weight_unit": 1, "availableForBBQ": 1, "pricePerLb": 1, "created_at": 1}
     ).limit(100).to_list(100)
     return [Product(**{**p, "_id": str(p["_id"])}) for p in products]
 
