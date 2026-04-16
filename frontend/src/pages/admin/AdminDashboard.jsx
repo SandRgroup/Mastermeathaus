@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '../../components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import ProductsManager from '../../components/admin/ProductsManager';
+import UnifiedProductsManager from '../../components/admin/UnifiedProductsManager';
 import MembershipsManager from '../../components/admin/MembershipsManager';
 import DiscountsManager from '../../components/admin/DiscountsManager';
 import BoxesManager from '../../components/admin/BoxesManager';
@@ -76,7 +77,7 @@ const AdminDashboard = () => {
           </TabsList>
           
           <TabsContent value="products">
-            <ProductsManager />
+            <UnifiedProductsManager />
           </TabsContent>
           
           <TabsContent value="boxes">
