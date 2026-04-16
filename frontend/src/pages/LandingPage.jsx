@@ -140,16 +140,13 @@ const LandingPage = () => {
           <div className="header-wrapper">
             <a href="/" className="header-logo-link">
               <img 
-                src="/assets/logo-dark-bg.jpg" 
+                src="/assets/logo-transparent.png" 
                 alt="Masters Meat Haus" 
                 className="header-logo-image"
                 style={{
-                  height: '50px', 
+                  height: '55px', 
                   width: 'auto', 
-                  objectFit: 'contain',
-                  mixBlendMode: 'screen',
-                  filter: 'brightness(1.5) contrast(2) invert(0)',
-                  opacity: 0.95
+                  objectFit: 'contain'
                 }}
               />
             </a>
@@ -190,14 +187,18 @@ const LandingPage = () => {
       {/* Hero */}
       <section className="hero">
         <div className="hero-content">
-          <div className="brand-logo hero-brand">
-            <div className="brand-logo-top">
-              <span className="brand-mmb">MMH</span>
-              <span className="brand-bar"></span>
-              <span className="brand-kanji">傑</span>
-            </div>
-            <div className="brand-sub">MASTERS MEAT HAUS®</div>
-          </div>
+          <img 
+            src="/assets/logo-transparent.png" 
+            alt="Masters Meat Haus - Premium Butchery" 
+            className="hero-logo-image"
+            style={{
+              maxWidth: '450px', 
+              width: '100%', 
+              height: 'auto',
+              marginBottom: '2rem',
+              filter: 'drop-shadow(0 10px 30px rgba(0, 0, 0, 0.5))'
+            }}
+          />
           <h1 className="hero-title">Premium cuts. <span>No shortcuts.</span></h1>
           <p className="hero-subtitle">
             Hand-selected USDA Prime and Wagyu steaks delivered to your door — vacuum-sealed, temperature-controlled, and always exceptional.
@@ -515,17 +516,14 @@ const LandingPage = () => {
           <div className="footer-top">
             <div className="footer-col">
               <img 
-                src="/assets/logo-dark-bg.jpg" 
+                src="/assets/logo-transparent.png" 
                 alt="Masters Meat Haus" 
                 className="footer-logo-image"
                 style={{
-                  maxWidth: '280px', 
+                  maxWidth: '260px', 
                   width: '100%', 
                   height: 'auto',
-                  marginBottom: '1rem',
-                  mixBlendMode: 'screen',
-                  filter: 'brightness(1.5) contrast(2)',
-                  opacity: 0.95
+                  marginBottom: '1rem'
                 }}
               />
               <p className="footer-tagline">Premium cuts. No shortcuts.</p>
