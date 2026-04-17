@@ -18,10 +18,13 @@ async def get_packages():
 @router.post("", response_model=Package, dependencies=[Depends(get_current_user)])
 async def create_package(package: PackageCreate):
     """Create a new package"""
+    from uuid import uuid4
     package_dict = package.model_dump()
-    package_dict["id"] = package_dict.pop("_id", None) or str(db.packages.insert_one({}).inserted_id)
+    package_id = f"pkg_{uuid4().hex[:8]}"
+    package_dict["id"] = package_id
+    
     await db.packages.insert_one(package_dict)
-    created = await db.packages.find_one({"id": package_dict["id"]}, {"_id": 0})
+    created = await db.packages.find_one({"id": package_id}, {"_id": 0})
     return created
 
 @router.put("/{package_id}", response_model=Package, dependencies=[Depends(get_current_user)])

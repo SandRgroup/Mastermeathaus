@@ -28,23 +28,59 @@ export const CartProvider = ({ children }) => {
   }, [cart]);
 
   const addToCart = (product, weight, subscribe) => {
-    const price = parseFloat(product.price.replace('$', ''));
-    const weightOz = parseFloat(weight.replace('oz', ''));
+    let cartItem;
+    
+    // Handle packages and boxes (type-based items with fixed prices)
+    if (product.type === 'package' || product.type === 'box') {
+      const price = typeof product.price === 'string' 
+        ? parseFloat(product.price.replace('$', '')) 
+        : product.price;
+      
+      cartItem = {
+        product_id: product.id,
+        product_name: product.name,
+        price: price,
+        quantity: 1,
+        weight: product.type === 'package' ? 'package' : 'box',
+        subscribe: false,
+        image: product.image,
+        type: product.type
+      };
+      
+      const existingIndex = cart.findIndex(
+        item => item.product_id === product.id && item.type === product.type
+      );
+
+      if (existingIndex >= 0) {
+        const newCart = [...cart];
+        newCart[existingIndex].quantity += 1;
+        setCart(newCart);
+      } else {
+        setCart([...cart, cartItem]);
+      }
+      return;
+    }
+    
+    // Handle regular products with weight-based pricing
+    const price = typeof product.price === 'string' 
+      ? parseFloat(product.price.replace('$', '')) 
+      : product.price;
+    const weightOz = weight ? parseFloat(weight.replace('oz', '')) : 12;
     const pricePerOz = price / 12;
     const finalPrice = pricePerOz * weightOz;
 
-    const cartItem = {
-      product_id: product._id,
+    cartItem = {
+      product_id: product._id || product.id,
       product_name: product.name,
       price: finalPrice,
       quantity: 1,
-      weight: weight,
-      subscribe: subscribe,
+      weight: weight || '12oz',
+      subscribe: subscribe || false,
       image: product.image
     };
 
     const existingIndex = cart.findIndex(
-      item => item.product_id === product._id && item.weight === weight && item.subscribe === subscribe
+      item => item.product_id === (product._id || product.id) && item.weight === (weight || '12oz') && item.subscribe === (subscribe || false)
     );
 
     if (existingIndex >= 0) {
