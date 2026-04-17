@@ -7,6 +7,7 @@ import { useCart } from '../contexts/CartContext';
 import Cart from '../components/Cart';
 import PremiumBBQBuilder from '../components/PremiumBBQBuilder';
 import PackagesSection from '../components/PackagesSection';
+import BoxesSection from '../components/BoxesSection';
 import '../styles/LandingPage.css';
 
 const LandingPage = () => {
@@ -518,6 +519,11 @@ const LandingPage = () => {
 
 
       {/* Half/Quarter Cow Packages */}
+
+
+      {/* Steak Boxes */}
+      <BoxesSection />
+
       <PackagesSection />
 
       </section>
