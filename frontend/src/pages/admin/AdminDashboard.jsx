@@ -30,13 +30,33 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="admin-dashboard">
+    <div className="admin-container">
+      {/* Header */}
       <div className="admin-header">
-        <h1>Admin Dashboard</h1>
-        <Button onClick={handleLogout} variant="outline" className="logout-btn">
-          <LogOut size={18} />
-          Logout
-        </Button>
+        <div style={{ 
+          maxWidth: '1600px', 
+          margin: '0 auto',
+          padding: '1.5rem 2rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between'
+        }}>
+          <div>
+            <div className="admin-header-brand">
+              Masters Meat Haus
+            </div>
+            <div className="admin-header-subtitle">
+              Staff Operations Console
+            </div>
+          </div>
+          <Button 
+            onClick={handleLogout} 
+            className="logout-button"
+          >
+            <LogOut size={16} />
+            Sign Out
+          </Button>
+        </div>
       </div>
 
       <div className="admin-content">

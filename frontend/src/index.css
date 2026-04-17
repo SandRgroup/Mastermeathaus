@@ -1,6 +1,128 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    /* Base Shadcn UI mapping for dark theme */
+    --background: 24 11% 5%;
+    --foreground: 42 30% 94%;
+    --card: 24 11% 7%;
+    --card-foreground: 42 30% 94%;
+    --primary: 354 60% 26%;
+    --primary-foreground: 42 30% 94%;
+    --border: 36 39% 51% / 0.18;
+    --input: 36 39% 51% / 0.25;
+    --ring: 36 39% 51%;
+    --radius: 0px;
+  }
+
+  html, body {
+    margin: 0;
+    background: #0C0A09;
+    color: #F5F2E9;
+    font-family: 'Outfit', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  ::selection {
+    background: #6A1A21;
+    color: #F5F2E9;
+  }
+  
+  h1, h2, h3, h4, .font-serif {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+  }
+}
+
+/* Subtle grain/noise overlay */
+.haus-noise::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.06;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.9'/></svg>");
+}
+
+.haus-divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(181,137,80,0.55), transparent);
+}
+
+.haus-input {
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid rgba(181,137,80,0.3);
+  color: #F5F2E9;
+  padding: 0.75rem 0;
+  width: 100%;
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.05rem;
+  transition: border-color .25s ease;
+  outline: none;
+}
+.haus-input::placeholder {
+  color: #6b6258;
+}
+.haus-input:focus {
+  border-bottom-color: #B58950;
+}
+
+.haus-eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.32em;
+  font-size: 0.72rem;
+  color: #B58950;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.btn-haus-primary {
+  background: #6A1A21;
+  color: #F5F2E9;
+  padding: 1rem 2rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid #6A1A21;
+  transition: all .25s ease;
+  cursor: pointer;
+}
+.btn-haus-primary:hover:not(:disabled) {
+  background: #802129;
+  border-color: #802129;
+  transform: translateY(-1px);
+}
+.btn-haus-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-haus-secondary {
+  background: transparent;
+  color: #B58950;
+  padding: 1rem 2rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid #B58950;
+  transition: all .25s ease;
+  cursor: pointer;
+}
+.btn-haus-secondary:hover {
+  background: rgba(181,137,80,0.1);
+  color: #F5F2E9;
+}
 
 body {
     margin: 0;
