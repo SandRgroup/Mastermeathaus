@@ -147,7 +147,7 @@ const UnifiedProductsManager = () => {
       grassFedUpcharge: product.grassFedUpcharge.toString(),
       grassFedUpcharge_unit: product.grassFedUpcharge_unit || 'lb',
       dryAgedUpcharge: product.dryAgedUpcharge.toString(),
-      dryAgedUpcharge_unit: product.dryAgedUpcharge_unit || 'lb',
+      dryAgedDays: (product.dryAgedDays || 0).toString(),
       ranchOrigin: product.ranchOrigin,
       genetics: product.genetics,
       grainFinished: product.grainFinished,
@@ -192,7 +192,7 @@ const UnifiedProductsManager = () => {
       grassFedUpcharge: '0',
       grassFedUpcharge_unit: 'lb',
       dryAgedUpcharge: '0',
-      dryAgedUpcharge_unit: 'lb',
+      dryAgedDays: '0',
       ranchOrigin: 'Texas, USA',
       genetics: 'Premium genetics',
       grainFinished: '350+ Days',
@@ -366,37 +366,37 @@ const UnifiedProductsManager = () => {
                 </div>
               )}
 
-              <div className="grid grid-cols-3 gap-4">
-                <div className="col-span-2">
-                  <Label htmlFor="dryAgedUpcharge">Dry Aged Upcharge</Label>
-                  <Input
-                    id="dryAgedUpcharge"
-                    type="number"
-                    step="0.01"
-                    value={formData.dryAgedUpcharge}
-                    onChange={(e) => setFormData({...formData, dryAgedUpcharge: e.target.value})}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="dryAgedUpcharge_unit">Unit</Label>
-                  <Select value={formData.dryAgedUpcharge_unit} onValueChange={(value) => setFormData({...formData, dryAgedUpcharge_unit: value})}>
-                    <SelectTrigger id="dryAgedUpcharge_unit">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="lb">$/lb</SelectItem>
-                      <SelectItem value="oz">$/oz</SelectItem>
-                      <SelectItem value="kg">$/kg</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div>
+                <Label htmlFor="dryAgedUpcharge">Dry-Aged Fixed Price ($)</Label>
+                <Input
+                  id="dryAgedUpcharge"
+                  type="number"
+                  step="0.01"
+                  value={formData.dryAgedUpcharge}
+                  onChange={(e) => setFormData({...formData, dryAgedUpcharge: e.target.value})}
+                  placeholder="Fixed total price (e.g., 10.00)"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  💡 <strong>Fixed price</strong> (not per pound). Example: 21 days = +$6, 35 days = +$10, 45 days = +$15
+                </p>
+              </div>
+
+              <div>
+                <Label htmlFor="dryAgedDays">Dry-Aging Days</Label>
+                <Input
+                  id="dryAgedDays"
+                  type="number"
+                  value={formData.dryAgedDays}
+                  onChange={(e) => setFormData({...formData, dryAgedDays: e.target.value})}
+                  placeholder="0, 21, 35, 45, 60"
+                />
               </div>
 
               {formData.dryAgedUpcharge && parseFloat(formData.dryAgedUpcharge) > 0 && (
-                <div className="bg-amber-50 p-2 rounded text-sm">
-                  <span className="text-amber-900">
-                    ⏰ {formData.dryAgedUpcharge} {formData.dryAgedUpcharge_unit} {getConversions(formData.dryAgedUpcharge, formData.dryAgedUpcharge_unit)}
-                  </span>
+                <div className="bg-amber-50 p-3 rounded border border-amber-200">
+                  <p className="text-sm font-medium text-amber-900">
+                    ⏰ Dry-Aged {formData.dryAgedDays || 0} days: +${parseFloat(formData.dryAgedUpcharge).toFixed(2)} fixed price
+                  </p>
                 </div>
               )}
 
