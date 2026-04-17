@@ -4,6 +4,7 @@ import { Button } from '../../components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import ProductsManager from '../../components/admin/ProductsManager';
 import UnifiedProductsManager from '../../components/admin/UnifiedProductsManager';
+import PackagesManager from '../../components/admin/PackagesManager';
 import MembershipsManager from '../../components/admin/MembershipsManager';
 import DiscountsManager from '../../components/admin/DiscountsManager';
 import BoxesManager from '../../components/admin/BoxesManager';
@@ -46,6 +47,10 @@ const AdminDashboard = () => {
               <Box size={18} />
               Steak Boxes
             </TabsTrigger>
+            <TabsTrigger value="packages" className="tab-trigger">
+              <Package size={18} />
+              Cow Packages
+            </TabsTrigger>
             <TabsTrigger value="memberships" className="tab-trigger">
               <CreditCard size={18} />
               Memberships
@@ -82,6 +87,10 @@ const AdminDashboard = () => {
           
           <TabsContent value="boxes">
             <BoxesManager />
+          </TabsContent>
+          
+          <TabsContent value="packages">
+            <PackagesManager />
           </TabsContent>
           
           <TabsContent value="memberships">

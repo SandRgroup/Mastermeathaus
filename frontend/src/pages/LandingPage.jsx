@@ -6,6 +6,7 @@ import axios from 'axios';
 import { useCart } from '../contexts/CartContext';
 import Cart from '../components/Cart';
 import PremiumBBQBuilder from '../components/PremiumBBQBuilder';
+import PackagesSection from '../components/PackagesSection';
 import '../styles/LandingPage.css';
 
 const LandingPage = () => {
@@ -514,6 +515,11 @@ const LandingPage = () => {
             </p>
           </div>
         </div>
+
+
+      {/* Half/Quarter Cow Packages */}
+      <PackagesSection />
+
       </section>
 
       {/* Final CTA */}
