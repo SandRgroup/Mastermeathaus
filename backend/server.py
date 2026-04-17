@@ -24,6 +24,7 @@ from pathlib import Path
 # Import custom routes
 from routes.bbq_products import router as bbq_products_router
 from routes.packages import router as packages_router
+from routes.memberships import router as memberships_router
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
@@ -331,36 +332,36 @@ async def delete_product(product_id: str, user: dict = Depends(get_current_user)
     await db.products.delete_one({"_id": ObjectId(product_id)})
     return {"message": "Product deleted"}
 
-# Membership Routes
-@api_router.get("/memberships", response_model=List[Membership])
-async def get_memberships():
-    memberships = await db.memberships.find(
-        {},
-        {"_id": 1, "name": 1, "price": 1, "period": 1, "features": 1, "highlight": 1, "bestValue": 1, "created_at": 1}
-    ).limit(50).to_list(50)
-    return [Membership(**{**m, "_id": str(m["_id"])}) for m in memberships]
+# Membership Routes - MOVED TO routes/memberships.py
+# @api_router.get("/memberships", response_model=List[Membership])
+# async def get_memberships():
+#     memberships = await db.memberships.find(
+#         {},
+#         {"_id": 1, "name": 1, "price": 1, "period": 1, "features": 1, "highlight": 1, "bestValue": 1, "created_at": 1}
+#     ).limit(50).to_list(50)
+#     return [Membership(**{**m, "_id": str(m["_id"])}) for m in memberships]
 
-@api_router.post("/memberships", response_model=Membership)
-async def create_membership(membership: MembershipCreate, user: dict = Depends(get_current_user)):
-    membership_dict = membership.dict()
-    membership_dict["created_at"] = datetime.now(timezone.utc)
-    result = await db.memberships.insert_one(membership_dict)
-    membership_dict["_id"] = str(result.inserted_id)
-    return Membership(**membership_dict)
+# @api_router.post("/memberships", response_model=Membership)
+# async def create_membership(membership: MembershipCreate, user: dict = Depends(get_current_user)):
+#     membership_dict = membership.dict()
+#     membership_dict["created_at"] = datetime.now(timezone.utc)
+#     result = await db.memberships.insert_one(membership_dict)
+#     membership_dict["_id"] = str(result.inserted_id)
+#     return Membership(**membership_dict)
 
-@api_router.put("/memberships/{membership_id}", response_model=Membership)
-async def update_membership(membership_id: str, membership: MembershipCreate, user: dict = Depends(get_current_user)):
-    await db.memberships.update_one(
-        {"_id": ObjectId(membership_id)},
-        {"$set": membership.dict()}
-    )
-    updated = await db.memberships.find_one({"_id": ObjectId(membership_id)})
-    return Membership(**{**updated, "_id": str(updated["_id"])})
+# @api_router.put("/memberships/{membership_id}", response_model=Membership)
+# async def update_membership(membership_id: str, membership: MembershipCreate, user: dict = Depends(get_current_user)):
+#     await db.memberships.update_one(
+#         {"_id": ObjectId(membership_id)},
+#         {"$set": membership.dict()}
+#     )
+#     updated = await db.memberships.find_one({"_id": ObjectId(membership_id)})
+#     return Membership(**{**updated, "_id": str(updated["_id"])})
 
-@api_router.delete("/memberships/{membership_id}")
-async def delete_membership(membership_id: str, user: dict = Depends(get_current_user)):
-    await db.memberships.delete_one({"_id": ObjectId(membership_id)})
-    return {"message": "Membership deleted"}
+# @api_router.delete("/memberships/{membership_id}")
+# async def delete_membership(membership_id: str, user: dict = Depends(get_current_user)):
+#     await db.memberships.delete_one({"_id": ObjectId(membership_id)})
+#     return {"message": "Membership deleted"}
 
 # Discount Code Routes
 @api_router.get("/discount-codes", response_model=List[DiscountCode])
@@ -1105,6 +1106,7 @@ async def create_bbq_checkout(request: dict, req: Request):
 # Register all API routes
 api_router.include_router(bbq_products_router)
 api_router.include_router(packages_router)
+api_router.include_router(memberships_router)
 
 # Import boxes router
 from routes.boxes import router as boxes_router

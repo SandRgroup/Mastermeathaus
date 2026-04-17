@@ -361,24 +361,24 @@ const LandingPage = () => {
 
           <div className="membership-grid">
             {memberships.map((plan, index) => {
-              const monthlyPrice = parseFloat(plan.price?.replace('$', '')) || 0;
-              const yearlyPrice = parseFloat(plan.yearly_price?.replace('$', '')) || (monthlyPrice * 12 * 0.7);
+              const monthlyPrice = plan.monthly_price || 0;
+              const yearlyPrice = plan.yearly_price || 0;
               const displayPrice = billingPeriod === 'monthly' 
                 ? `$${monthlyPrice.toFixed(2)}` 
                 : `$${yearlyPrice.toFixed(0)}`;
               const displayPeriod = billingPeriod === 'monthly' ? '/mo' : '/yr';
               const savings = billingPeriod === 'yearly' && monthlyPrice > 0
-                ? `Save $${((monthlyPrice * 12 - yearlyPrice) / 12).toFixed(0)}/mo`
+                ? `Save $${((monthlyPrice * 12 - yearlyPrice) / 12).toFixed(2)}/mo`
                 : null;
 
               return (
                 <div 
                   key={plan._id || index} 
-                  className={`membership-card ${plan.name === 'Premium' ? 'highlight' : ''}`}
+                  className={`membership-card ${plan.highlight ? 'highlight' : ''}`}
                 >
-                  {plan.name === 'Premium' && <div className="best-value-badge">Best Value</div>}
+                  {plan.best_value && <div className="best-value-badge">Best Value</div>}
                   <div className="membership-header">
-                    <div className="membership-name">{plan.name}</div>
+                    <div className="membership-name">{plan.tier_name}</div>
                     <div className="membership-price">
                       <span className="m-price">{displayPrice}</span>
                       <span className="m-period">{displayPeriod}</span>
@@ -394,10 +394,10 @@ const LandingPage = () => {
                     ))}
                   </div>
                   <button 
-                    className={`membership-btn ${plan.name === 'Premium' ? 'highlight' : ''}`}
-                    onClick={() => navigate(`/membership/${plan.name.toLowerCase()}`)}
+                    className={`membership-btn ${plan.highlight ? 'highlight' : ''}`}
+                    onClick={() => navigate(`/membership/${plan.tier_name.toLowerCase().replace(/\s+/g, '-')}`)}
                   >
-                    Choose plan
+                    {plan.monthly_price === 0 ? 'Get Started' : 'Choose Plan'}
                   </button>
                 </div>
               );

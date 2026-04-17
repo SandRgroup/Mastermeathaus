@@ -4,14 +4,27 @@ from typing import List
 from models.membership import Membership, MembershipCreate, MembershipUpdate
 from utils.auth import get_current_user
 from database import db
+from bson import ObjectId
 
 router = APIRouter(prefix="/memberships", tags=["memberships"])
 
 @router.get("", response_model=List[Membership])
 async def get_memberships():
-    """Get all memberships"""
-    memberships = await db.memberships.find({}, {"_id": 0}).to_list(1000)
-    return memberships
+    """Get all memberships sorted by tier level"""
+    try:
+        memberships = await db.memberships.find({}).sort("tier_level", 1).to_list(10)
+        result = []
+        for m in memberships:
+            if "_id" in m:
+                m["_id"] = str(m["_id"])
+            # Ensure the model has an id field
+            if "id" not in m and "_id" in m:
+                m["id"] = m["_id"]
+            result.append(m)
+        return result
+    except Exception as e:
+        print(f"Error in get_memberships: {e}")
+        return []
 
 @router.post("", response_model=Membership, dependencies=[Depends(get_current_user)])
 async def create_membership(membership: MembershipCreate):
