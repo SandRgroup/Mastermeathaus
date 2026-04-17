@@ -92,7 +92,9 @@ const ProductsManager = () => {
       resetForm();
       fetchProducts();
     } catch (error) {
-      toast.error('Failed to save product');
+      console.error('Product save error:', error);
+      const errorMsg = error.response?.data?.detail || error.message || 'Failed to save product';
+      toast.error(errorMsg);
     }
   };
 
