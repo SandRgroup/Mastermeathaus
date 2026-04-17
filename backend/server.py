@@ -1105,6 +1105,11 @@ async def create_bbq_checkout(request: dict, req: Request):
 # Register all API routes
 api_router.include_router(bbq_products_router)
 api_router.include_router(packages_router)
+
+# Import boxes router
+from routes.boxes import router as boxes_router
+api_router.include_router(boxes_router)
+
 app.include_router(api_router)
 
 @app.on_event("shutdown")
