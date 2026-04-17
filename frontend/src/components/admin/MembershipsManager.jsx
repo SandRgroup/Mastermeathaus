@@ -124,18 +124,31 @@ const MembershipsManager = () => {
     setDialogOpen(true);
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Delete this membership?')) return;
+  const handleDelete = async (id, tierName) => {
+    const confirmed = window.confirm(
+      `⚠️ DELETE MEMBERSHIP TIER?\n\n` +
+      `Tier: ${tierName}\n` +
+      `This will permanently delete this membership tier.\n\n` +
+      `Are you sure you want to continue?`
+    );
+    
+    if (!confirmed) return;
+
     try {
       const response = await fetch(`${backendUrl}/api/memberships/${id}`, {
         method: 'DELETE',
         credentials: 'include'
       });
+      
       if (response.ok) {
-        toast.success('Membership deleted');
+        toast.success(`✓ Membership "${tierName}" deleted successfully`);
         fetchMemberships();
+      } else {
+        const error = await response.text();
+        toast.error(`Failed to delete: ${error}`);
       }
     } catch (error) {
+      console.error('Delete error:', error);
       toast.error('Failed to delete membership');
     }
   };
@@ -327,7 +340,12 @@ const MembershipsManager = () => {
                 <Edit className="w-3 h-3 mr-1" />
                 Edit
               </Button>
-              <Button size="sm" variant="destructive" onClick={() => handleDelete(membership.id)}>
+              <Button 
+                size="sm" 
+                variant="destructive" 
+                onClick={() => handleDelete(membership.id, membership.tier_name)}
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
                 <Trash2 className="w-3 h-3 mr-1" />
                 Delete
               </Button>

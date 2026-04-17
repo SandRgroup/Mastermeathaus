@@ -96,8 +96,15 @@ const PackagesManager = () => {
     setDialogOpen(true);
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Delete this package?')) return;
+  const handleDelete = async (id, packageName) => {
+    const confirmed = window.confirm(
+      `⚠️ DELETE PACKAGE?\n\n` +
+      `Package: ${packageName}\n` +
+      `This will permanently delete this package.\n\n` +
+      `Are you sure you want to continue?`
+    );
+    
+    if (!confirmed) return;
     
     try {
       const response = await fetch(`${backendUrl}/api/packages/${id}`, {
@@ -106,13 +113,14 @@ const PackagesManager = () => {
       });
 
       if (response.ok) {
-        toast.success('Package deleted!');
+        toast.success(`✓ Package "${packageName}" deleted successfully`);
         await fetchPackages();
       } else {
-        toast.error('Failed to delete package');
+        const error = await response.text();
+        toast.error(`Failed to delete: ${error}`);
       }
     } catch (error) {
-      console.error('Error deleting package:', error);
+      console.error('Delete error:', error);
       toast.error('Failed to delete package');
     }
   };
@@ -327,7 +335,12 @@ const PackagesManager = () => {
                     <Button size="sm" variant="outline" onClick={() => handleEdit(pkg)}>
                       <Edit className="w-4 h-4" />
                     </Button>
-                    <Button size="sm" variant="destructive" onClick={() => handleDelete(pkg.id)}>
+                    <Button 
+                      size="sm" 
+                      variant="destructive" 
+                      onClick={() => handleDelete(pkg.id, pkg.name)}
+                      className="bg-red-600 hover:bg-red-700 text-white"
+                    >
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>

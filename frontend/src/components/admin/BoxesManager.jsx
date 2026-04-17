@@ -122,8 +122,15 @@ const BoxesManager = () => {
     setDialogOpen(true);
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Delete this box?')) return;
+  const handleDelete = async (id, boxName) => {
+    const confirmed = window.confirm(
+      `⚠️ DELETE BOX?\n\n` +
+      `Box: ${boxName}\n` +
+      `This will permanently delete this box and all its items.\n\n` +
+      `Are you sure you want to continue?`
+    );
+    
+    if (!confirmed) return;
 
     try {
       const response = await fetch(`${backendUrl}/api/boxes/${id}`, {
@@ -132,13 +139,14 @@ const BoxesManager = () => {
       });
 
       if (response.ok) {
-        toast.success('Box deleted');
+        toast.success(`✓ Box "${boxName}" deleted successfully`);
         fetchBoxes();
       } else {
-        toast.error('Failed to delete box');
+        const error = await response.text();
+        toast.error(`Failed to delete: ${error}`);
       }
     } catch (error) {
-      console.error('Error deleting box:', error);
+      console.error('Delete error:', error);
       toast.error('Failed to delete box');
     }
   };
@@ -404,7 +412,12 @@ const BoxesManager = () => {
                 <Edit className="w-3 h-3 mr-1" />
                 Edit
               </Button>
-              <Button size="sm" variant="destructive" onClick={() => handleDelete(box.id)}>
+              <Button 
+                size="sm" 
+                variant="destructive" 
+                onClick={() => handleDelete(box.id, box.name)}
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
                 <Trash2 className="w-3 h-3 mr-1" />
                 Delete
               </Button>
