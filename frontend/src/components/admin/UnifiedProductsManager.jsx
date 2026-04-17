@@ -131,8 +131,11 @@ const UnifiedProductsManager = () => {
       weight: (product.weight || 1.0).toString(),
       weight_unit: product.weight_unit || 'lb',
       wagyuUpcharge: product.wagyuUpcharge.toString(),
+      wagyuUpcharge_unit: product.wagyuUpcharge_unit || 'lb',
       grassFedUpcharge: product.grassFedUpcharge.toString(),
+      grassFedUpcharge_unit: product.grassFedUpcharge_unit || 'lb',
       dryAgedUpcharge: product.dryAgedUpcharge.toString(),
+      dryAgedUpcharge_unit: product.dryAgedUpcharge_unit || 'lb',
       ranchOrigin: product.ranchOrigin,
       genetics: product.genetics,
       grainFinished: product.grainFinished,
@@ -173,8 +176,11 @@ const UnifiedProductsManager = () => {
       weight: '1.0',
       weight_unit: 'lb',
       wagyuUpcharge: '0',
+      wagyuUpcharge_unit: 'lb',
       grassFedUpcharge: '0',
+      grassFedUpcharge_unit: 'lb',
       dryAgedUpcharge: '0',
+      dryAgedUpcharge_unit: 'lb',
       ranchOrigin: 'Texas, USA',
       genetics: 'Premium genetics',
       grainFinished: '350+ Days',
@@ -281,8 +287,8 @@ const UnifiedProductsManager = () => {
               </div>
 
               <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <Label htmlFor="wagyuUpcharge">Wagyu Upcharge ($/lb)</Label>
+                <div className="col-span-2">
+                  <Label htmlFor="wagyuUpcharge">Wagyu Upcharge</Label>
                   <Input
                     id="wagyuUpcharge"
                     type="number"
@@ -292,7 +298,31 @@ const UnifiedProductsManager = () => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="grassFedUpcharge">Grass Fed Upcharge ($/lb)</Label>
+                  <Label htmlFor="wagyuUpcharge_unit">Unit</Label>
+                  <Select value={formData.wagyuUpcharge_unit} onValueChange={(value) => setFormData({...formData, wagyuUpcharge_unit: value})}>
+                    <SelectTrigger id="wagyuUpcharge_unit">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="lb">$/lb</SelectItem>
+                      <SelectItem value="oz">$/oz</SelectItem>
+                      <SelectItem value="kg">$/kg</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {formData.wagyuUpcharge && parseFloat(formData.wagyuUpcharge) > 0 && (
+                <div className="bg-purple-50 p-2 rounded text-sm">
+                  <span className="text-purple-900">
+                    💎 {formData.wagyuUpcharge} {formData.wagyuUpcharge_unit} {getConversions(formData.wagyuUpcharge, formData.wagyuUpcharge_unit)}
+                  </span>
+                </div>
+              )}
+
+              <div className="grid grid-cols-3 gap-4">
+                <div className="col-span-2">
+                  <Label htmlFor="grassFedUpcharge">Grass Fed Upcharge</Label>
                   <Input
                     id="grassFedUpcharge"
                     type="number"
@@ -302,7 +332,31 @@ const UnifiedProductsManager = () => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="dryAgedUpcharge">Dry Aged Upcharge ($/lb)</Label>
+                  <Label htmlFor="grassFedUpcharge_unit">Unit</Label>
+                  <Select value={formData.grassFedUpcharge_unit} onValueChange={(value) => setFormData({...formData, grassFedUpcharge_unit: value})}>
+                    <SelectTrigger id="grassFedUpcharge_unit">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="lb">$/lb</SelectItem>
+                      <SelectItem value="oz">$/oz</SelectItem>
+                      <SelectItem value="kg">$/kg</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {formData.grassFedUpcharge && parseFloat(formData.grassFedUpcharge) > 0 && (
+                <div className="bg-green-50 p-2 rounded text-sm">
+                  <span className="text-green-900">
+                    🌿 {formData.grassFedUpcharge} {formData.grassFedUpcharge_unit} {getConversions(formData.grassFedUpcharge, formData.grassFedUpcharge_unit)}
+                  </span>
+                </div>
+              )}
+
+              <div className="grid grid-cols-3 gap-4">
+                <div className="col-span-2">
+                  <Label htmlFor="dryAgedUpcharge">Dry Aged Upcharge</Label>
                   <Input
                     id="dryAgedUpcharge"
                     type="number"
@@ -311,7 +365,28 @@ const UnifiedProductsManager = () => {
                     onChange={(e) => setFormData({...formData, dryAgedUpcharge: e.target.value})}
                   />
                 </div>
+                <div>
+                  <Label htmlFor="dryAgedUpcharge_unit">Unit</Label>
+                  <Select value={formData.dryAgedUpcharge_unit} onValueChange={(value) => setFormData({...formData, dryAgedUpcharge_unit: value})}>
+                    <SelectTrigger id="dryAgedUpcharge_unit">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="lb">$/lb</SelectItem>
+                      <SelectItem value="oz">$/oz</SelectItem>
+                      <SelectItem value="kg">$/kg</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
+
+              {formData.dryAgedUpcharge && parseFloat(formData.dryAgedUpcharge) > 0 && (
+                <div className="bg-amber-50 p-2 rounded text-sm">
+                  <span className="text-amber-900">
+                    ⏰ {formData.dryAgedUpcharge} {formData.dryAgedUpcharge_unit} {getConversions(formData.dryAgedUpcharge, formData.dryAgedUpcharge_unit)}
+                  </span>
+                </div>
+              )}
 
               <div className="grid grid-cols-2 gap-4">
                 <div>

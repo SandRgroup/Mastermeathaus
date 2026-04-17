@@ -11,9 +11,12 @@ class BBQProduct(BaseModel):
     basePrice: float  # Base price per lb
     weight: float = 1.0  # Weight value
     weight_unit: str = "lb"  # Unit: oz, lb, or kg
-    wagyuUpcharge: float = 0.0  # Additional $ for American Wagyu
-    grassFedUpcharge: float = 0.0  # Additional $ for Grass Fed
-    dryAgedUpcharge: float = 0.0  # Additional $ for Dry Aged
+    wagyuUpcharge: float = 0.0  # Additional $ per unit
+    wagyuUpcharge_unit: str = "lb"  # Unit for wagyu upcharge
+    grassFedUpcharge: float = 0.0  # Additional $ per unit
+    grassFedUpcharge_unit: str = "lb"  # Unit for grass fed upcharge
+    dryAgedUpcharge: float = 0.0  # Additional $ per unit
+    dryAgedUpcharge_unit: str = "lb"  # Unit for dry aged upcharge
     
     # Product Information (CMS Editable)
     ranchOrigin: str = "Texas, USA"
@@ -37,9 +40,14 @@ class BBQProductCreate(BaseModel):
     name: str
     description: str
     basePrice: float
+    weight: float = 1.0
+    weight_unit: str = "lb"
     wagyuUpcharge: float = 0.0
+    wagyuUpcharge_unit: str = "lb"
     grassFedUpcharge: float = 0.0
+    grassFedUpcharge_unit: str = "lb"
     dryAgedUpcharge: float = 0.0
+    dryAgedUpcharge_unit: str = "lb"
     ranchOrigin: str = "Texas, USA"
     genetics: str = "Premium genetics"
     grainFinished: str = "350+ Days"
@@ -47,16 +55,20 @@ class BBQProductCreate(BaseModel):
     meatType: str = "beef"
     category: str = "steak"
     image_url: Optional[str] = None
-    defaultGrade: str = "prime"
+    defaultGrade: Optional[str] = None
 
 class BBQProductUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     basePrice: Optional[float] = None
     weight: Optional[float] = None
+    weight_unit: Optional[str] = None
     wagyuUpcharge: Optional[float] = None
+    wagyuUpcharge_unit: Optional[str] = None
     grassFedUpcharge: Optional[float] = None
+    grassFedUpcharge_unit: Optional[str] = None
     dryAgedUpcharge: Optional[float] = None
+    dryAgedUpcharge_unit: Optional[str] = None
     ranchOrigin: Optional[str] = None
     genetics: Optional[str] = None
     grainFinished: Optional[str] = None
