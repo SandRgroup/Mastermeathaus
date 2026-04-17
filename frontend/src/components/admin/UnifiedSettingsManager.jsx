@@ -4,7 +4,7 @@ import { Card } from '../ui/card';
 import { Button } from '../ui/button';
 import MediaLibraryManager from './MediaLibraryManager';
 import SiteImagesManager from './SiteImagesManager';
-import MenuCTAsManager from './MenuCTAsManager';
+import MenuManager from './MenuManager';
 import SiteSettingsManager from './SiteSettingsManager';
 
 const UnifiedSettingsManager = () => {
@@ -13,7 +13,7 @@ const UnifiedSettingsManager = () => {
   const tabs = [
     { id: 'media', label: 'Media Library', icon: Image, component: MediaLibraryManager },
     { id: 'site-images', label: 'Site Images', icon: Image, component: SiteImagesManager },
-    { id: 'menu', label: 'Menu & CTAs', icon: Menu, component: MenuCTAsManager },
+    { id: 'menu', label: 'Menu & CTAs', icon: Menu, component: MenuManager },
     { id: 'general', label: 'General Settings', icon: Sliders, component: SiteSettingsManager },
   ];
 
