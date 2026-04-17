@@ -553,7 +553,6 @@ const LandingPage = () => {
         borderTop: '1px solid #222'
       }}>
         <div className="container">
-          <PremiumBBQBuilder />
           <div style={{ 
             textAlign: 'center', 
             marginTop: '3rem',
