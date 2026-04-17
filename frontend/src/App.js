@@ -3,6 +3,9 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/admin/Login";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import CustomerLogin from "./pages/customer/CustomerLogin";
+import CustomerDashboard from "./pages/customer/CustomerDashboard";
+import CustomerProfile from "./pages/customer/CustomerProfile";
 import Checkout from "./pages/checkout/Checkout";
 import Success from "./pages/checkout/Success";
 import Cancel from "./pages/checkout/Cancel";
@@ -59,6 +62,8 @@ function App() {
               <Route path="/contact" element={<ContactPage />} />
               <Route path="/delivery" element={<DeliveryWorks />} />
               <Route path="/membership/:plan" element={<MembershipDetail />} />
+              
+              {/* Admin Routes */}
               <Route path="/admin/login" element={<Login />} />
               <Route
                 path="/admin"
@@ -68,6 +73,11 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+
+              {/* Customer Portal Routes */}
+              <Route path="/customer/login" element={<CustomerLogin />} />
+              <Route path="/portal" element={<CustomerDashboard />} />
+              <Route path="/portal/profile" element={<CustomerProfile />} />
             </Routes>
           </BrowserRouter>
           <Toaster position="bottom-right" />

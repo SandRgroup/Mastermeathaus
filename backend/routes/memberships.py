@@ -26,17 +26,17 @@ async def get_memberships():
         print(f"Error in get_memberships: {e}")
         return []
 
-@router.post("", response_model=Membership)
+@router.post("", response_model=Membership, dependencies=[Depends(get_current_user)])
 async def create_membership(membership: MembershipCreate):
-    """Create a new membership"""
+    """Create a new membership (requires authentication)"""
     membership_dict = membership.model_dump()
     result = await db.memberships.insert_one(membership_dict)
     created_membership = await db.memberships.find_one({"_id": result.inserted_id}, {"_id": 0})
     return created_membership
 
-@router.put("/{membership_id}", response_model=Membership)
+@router.put("/{membership_id}", response_model=Membership, dependencies=[Depends(get_current_user)])
 async def update_membership(membership_id: str, membership: MembershipUpdate):
-    """Update a membership"""
+    """Update a membership (requires authentication)"""
     update_data = {k: v for k, v in membership.model_dump().items() if v is not None}
     if not update_data:
         raise HTTPException(status_code=400, detail="No fields to update")
@@ -48,9 +48,9 @@ async def update_membership(membership_id: str, membership: MembershipUpdate):
     updated_membership = await db.memberships.find_one({"id": membership_id}, {"_id": 0})
     return updated_membership
 
-@router.delete("/{membership_id}")
+@router.delete("/{membership_id}", dependencies=[Depends(get_current_user)])
 async def delete_membership(membership_id: str):
-    """Delete a membership - No auth required for admin operations"""
+    """Delete a membership (requires authentication)"""
     try:
         result = await db.memberships.delete_one({"id": membership_id})
         if result.deleted_count == 0:

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShoppingCart, X } from 'lucide-react';
+import { ShoppingCart, X, User } from 'lucide-react';
 import { toast } from 'sonner';
 import axios from 'axios';
 import { useCart } from '../contexts/CartContext';
@@ -39,6 +39,13 @@ const LandingPage = () => {
   const [showAllProducts, setShowAllProducts] = useState(false);
   const { getItemCount, setIsOpen, addToCart } = useCart();
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
+  const [isCustomerLoggedIn, setIsCustomerLoggedIn] = useState(false);
+
+  useEffect(() => {
+    // Check if customer is logged in
+    const customerToken = localStorage.getItem('customerToken');
+    setIsCustomerLoggedIn(!!customerToken);
+  }, []);
 
   // Badge color mapping
   const getBadgeStyle = (badgeColor) => {
@@ -207,6 +214,25 @@ const LandingPage = () => {
               <a href="#membership" className="text-gray-300 hover:text-[#C8A96A] transition-colors text-sm uppercase tracking-wider">Membership</a>
               <a href="#features" className="text-gray-300 hover:text-[#C8A96A] transition-colors text-sm uppercase tracking-wider">Features</a>
               <a href="#reviews" className="text-gray-300 hover:text-[#C8A96A] transition-colors text-sm uppercase tracking-wider">Reviews</a>
+              
+              {/* Customer Account Link */}
+              {isCustomerLoggedIn ? (
+                <button 
+                  onClick={() => navigate('/portal')}
+                  className="flex items-center gap-2 text-gray-300 hover:text-[#C8A96A] transition-colors text-sm uppercase tracking-wider"
+                >
+                  <User size={16} />
+                  My Account
+                </button>
+              ) : (
+                <button 
+                  onClick={() => navigate('/customer/login')}
+                  className="text-gray-300 hover:text-[#C8A96A] transition-colors text-sm uppercase tracking-wider"
+                >
+                  Sign In
+                </button>
+              )}
+
               <button 
                 className="flex items-center gap-2 px-6 py-2 bg-red-900 text-white rounded-sm hover:bg-red-800 transition-colors" 
                 onClick={handleOpenCart}

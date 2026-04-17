@@ -49,6 +49,7 @@ const MembershipsManager = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const token = localStorage.getItem('token');
       const payload = {
         tier_name: formData.tier_name,
         tier_level: parseInt(formData.tier_level),
@@ -88,7 +89,10 @@ const MembershipsManager = () => {
 
       const response = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         credentials: 'include',
         body: JSON.stringify(payload)
       });
@@ -135,8 +139,12 @@ const MembershipsManager = () => {
     if (!confirmed) return;
 
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch(`${backendUrl}/api/memberships/${id}`, {
         method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
         credentials: 'include'
       });
       

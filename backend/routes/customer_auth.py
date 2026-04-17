@@ -1,17 +1,19 @@
-from fastapi import APIRouter, HTTPException, Response, Depends
+from fastapi import APIRouter, HTTPException, Response, Depends, Header
 from pydantic import BaseModel, EmailStr
 from typing import Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 from uuid import uuid4
 import bcrypt
 import jwt
+import os
 from database import db
 
 router = APIRouter(prefix="/customer", tags=["customer"])
 
-# JWT Secret (in production, use environment variable)
-JWT_SECRET = "your-secret-key-change-in-production"
+# JWT Configuration - Use environment variable or fallback
+JWT_SECRET = os.environ.get("CUSTOMER_JWT_SECRET", os.environ.get("JWT_SECRET", "customer-secret-change-in-production"))
 JWT_ALGORITHM = "HS256"
+CUSTOMER_TOKEN_EXPIRE_DAYS = 30
 
 class CustomerRegister(BaseModel):
     email: EmailStr
@@ -45,9 +47,36 @@ def create_token(customer_id: str, email: str) -> str:
     payload = {
         "customer_id": customer_id,
         "email": email,
-        "exp": datetime.utcnow() + timedelta(days=7)
+        "type": "customer",
+        "exp": datetime.now(timezone.utc) + timedelta(days=CUSTOMER_TOKEN_EXPIRE_DAYS)
     }
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+async def get_current_customer(authorization: Optional[str] = Header(None)) -> dict:
+    """Dependency to get current authenticated customer from Bearer token"""
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    
+    token = authorization[7:]  # Remove "Bearer " prefix
+    
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        if payload.get("type") != "customer":
+            raise HTTPException(status_code=401, detail="Invalid token type")
+        
+        customer_id = payload.get("customer_id")
+        if not customer_id:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        
+        customer = await db.customers.find_one({"id": customer_id}, {"_id": 0, "password": 0})
+        if not customer:
+            raise HTTPException(status_code=401, detail="Customer not found")
+        
+        return customer
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
 
 @router.post("/register")
 async def register(customer: CustomerRegister):
@@ -70,8 +99,8 @@ async def register(customer: CustomerRegister):
         "state": None,
         "zip_code": None,
         "membership_tier": 0,  # Free tier
-        "created_at": datetime.now().isoformat(),
-        "updated_at": datetime.now().isoformat()
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat()
     }
     
     await db.customers.insert_one(customer_data)
@@ -119,53 +148,39 @@ async def login(credentials: CustomerLogin):
     }
 
 @router.get("/profile")
-async def get_profile(token: str):
-    """Get customer profile"""
-    try:
-        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
-        customer_id = payload["customer_id"]
-    except:
-        raise HTTPException(status_code=401, detail="Invalid or expired token")
-    
-    customer = await db.customers.find_one({"id": customer_id}, {"_id": 0, "password": 0})
-    if not customer:
-        raise HTTPException(status_code=404, detail="Customer not found")
-    
+async def get_profile(current_customer: dict = Depends(get_current_customer)):
+    """Get customer profile (requires authentication via Bearer token)"""
     # Get membership details
     membership = await db.memberships.find_one(
-        {"tier_level": customer.get("membership_tier", 0)}, 
+        {"tier_level": current_customer.get("membership_tier", 0)}, 
         {"_id": 0}
     )
     
     return {
-        "customer": customer,
+        "customer": current_customer,
         "membership": membership
     }
 
 @router.put("/profile")
-async def update_profile(token: str, profile_data: dict):
-    """Update customer profile"""
-    try:
-        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
-        customer_id = payload["customer_id"]
-    except:
-        raise HTTPException(status_code=401, detail="Invalid or expired token")
-    
-    # Remove sensitive fields
+async def update_profile(profile_data: dict, current_customer: dict = Depends(get_current_customer)):
+    """Update customer profile (requires authentication via Bearer token)"""
+    # Remove sensitive/immutable fields
     profile_data.pop("password", None)
     profile_data.pop("email", None)
     profile_data.pop("id", None)
-    profile_data["updated_at"] = datetime.now().isoformat()
+    profile_data.pop("membership_tier", None)
+    profile_data.pop("created_at", None)
+    profile_data["updated_at"] = datetime.now(timezone.utc).isoformat()
     
     result = await db.customers.update_one(
-        {"id": customer_id},
+        {"id": current_customer["id"]},
         {"$set": profile_data}
     )
     
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Customer not found")
     
-    updated_customer = await db.customers.find_one({"id": customer_id}, {"_id": 0, "password": 0})
+    updated_customer = await db.customers.find_one({"id": current_customer["id"]}, {"_id": 0, "password": 0})
     return {"message": "Profile updated successfully", "customer": updated_customer}
 
 @router.post("/logout")
