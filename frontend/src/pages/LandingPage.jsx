@@ -25,9 +25,6 @@ import '../styles/LandingPage.css';
 const LandingPage = () => {
   const navigate = useNavigate();
   const { imageUrl: headerLogo } = useSiteImage('site_logo', '/assets/mmh-logo.png');
-
-const LandingPage = () => {
-  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [memberships, setMemberships] = useState([]);
   const [siteSettings, setSiteSettings] = useState(null);
