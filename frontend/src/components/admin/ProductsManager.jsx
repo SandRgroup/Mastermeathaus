@@ -39,26 +39,38 @@ const ProductsManager = () => {
     
     setUploading(true);
     try {
-      const token = localStorage.getItem('token');
       const formData = new FormData();
       formData.append('file', file);
 
+      // Use withCredentials: true to send httpOnly cookies for authentication
+      // The backend uses httpOnly cookies (access_token) for auth, not localStorage
       const response = await axios.post(
         `${backendUrl}/api/upload/image`,
         formData,
         {
           headers: {
-            'Content-Type': 'multipart/form-data',
-            'Authorization': `Bearer ${token}`
+            'Content-Type': 'multipart/form-data'
           },
           withCredentials: true
         }
       );
 
-      return response.data.url;
+      if (response.data && response.data.url) {
+        return response.data.url;
+      } else {
+        console.error('Invalid response:', response.data);
+        toast.error('Upload failed: Invalid server response');
+        return null;
+      }
     } catch (error) {
       console.error('Image upload failed:', error);
-      toast.error('Failed to upload image');
+      if (error.response?.status === 401) {
+        toast.error('Session expired. Please login again.');
+        // Optionally redirect to login
+        window.location.href = '/admin/login';
+      } else {
+        toast.error(`Upload failed: ${error.response?.data?.detail || error.message}`);
+      }
       return null;
     } finally {
       setUploading(false);
