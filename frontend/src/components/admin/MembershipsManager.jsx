@@ -73,7 +73,9 @@ const MembershipsManager = () => {
           delivery: {
             base_free_miles: 0,
             extended_free_miles: 0,
-            order_threshold: 0
+            order_threshold: 0,
+            local_discount_percent: null,
+            local_discount_max_miles: null
           }
         }
       };
@@ -98,6 +100,7 @@ const MembershipsManager = () => {
         fetchMemberships();
       } else {
         const error = await response.json();
+        console.error('Backend error:', error);
         toast.error(`Failed: ${error.detail || 'Unknown error'}`);
       }
     } catch (error) {
