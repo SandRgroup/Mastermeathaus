@@ -32,6 +32,7 @@ from routes.customer_auth import router as customer_auth_router
 from routes.stripe_subscriptions import router as stripe_subscriptions_router
 from routes.admin_crm import router as admin_crm_router
 from routes.media_library import router as media_library_router
+from routes.bbq_settings import router as bbq_settings_router
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
@@ -1215,6 +1216,7 @@ api_router.include_router(packages_router)
 api_router.include_router(memberships_router)
 api_router.include_router(bbq_plans_router)
 api_router.include_router(bbq_builder_settings_router)
+api_router.include_router(bbq_settings_router, prefix="/bbq-settings", tags=["bbq-settings"])
 api_router.include_router(site_images_router, prefix="/site-images", tags=["site-images"])
 api_router.include_router(customer_auth_router)
 api_router.include_router(stripe_subscriptions_router)

@@ -1,5 +1,15 @@
 # Testing Protocol and Workflow
 
+## Next Test Run: BBQ Planner Customization & CRM Settings
+**Features to Test:**
+1. ✅ **Per-Steak Grade Selection** - Each steak can have different beef quality grade (Prime, Wagyu, etc.)
+2. ✅ **Per-Steak Dry Aging** - Each steak can have different dry aging options (flat pricing, not per lb)
+3. ✅ **BBQ Event Portions CRM** - Admin can configure portion sizes per event type in Settings
+4. ✅ **Price Calculation** - Verify grade modifier (per lb) + dry aging (flat fee) calculate correctly
+5. ✅ **Checkout Payload** - Verify customizations are included in product names for checkout
+
+---
+
 ## Last Test Run: Iteration 9 - Customer Portal & Security Fix
 **Date:** April 17, 2026
 **Status:** ✅ ALL TESTS PASSED (17/17 backend, 100% frontend)

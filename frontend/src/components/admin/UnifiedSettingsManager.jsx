@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Settings as SettingsIcon, Image, Menu, Sliders } from 'lucide-react';
+import { Settings as SettingsIcon, Image, Menu, Sliders, Flame } from 'lucide-react';
 import { Card } from '../ui/card';
 import { Button } from '../ui/button';
 import MediaLibraryManager from './MediaLibraryManager';
 import SiteImagesManager from './SiteImagesManager';
 import MenuManager from './MenuManager';
 import SiteSettingsManager from './SiteSettingsManager';
+import BBQEventPortionsManager from './BBQEventPortionsManager';
 
 const UnifiedSettingsManager = () => {
   const [activeTab, setActiveTab] = useState('media');
@@ -14,6 +15,7 @@ const UnifiedSettingsManager = () => {
     { id: 'media', label: 'Media Library', icon: Image, component: MediaLibraryManager },
     { id: 'site-images', label: 'Site Images', icon: Image, component: SiteImagesManager },
     { id: 'menu', label: 'Menu & CTAs', icon: Menu, component: MenuManager },
+    { id: 'bbq-portions', label: 'BBQ Portions', icon: Flame, component: BBQEventPortionsManager },
     { id: 'general', label: 'General Settings', icon: Sliders, component: SiteSettingsManager },
   ];
 

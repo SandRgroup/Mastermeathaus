@@ -20,9 +20,9 @@ const BEEF_GRADES = [
 
 const DRY_AGING_OPTIONS = [
   { days: 0, label: 'Fresh', price: 0 },
-  { days: 21, label: '21 Days', price: 6 },
-  { days: 35, label: '35 Days', price: 10 },
-  { days: 45, label: '45 Days', price: 15 }
+  { days: 21, label: '21 Days', price: 6 },   // Flat $6 per steak
+  { days: 35, label: '35 Days', price: 10 },  // Flat $10 per steak
+  { days: 45, label: '45 Days', price: 15 }   // Flat $15 per steak
 ];
 
 const AIBBQCalculator = () => {
@@ -33,11 +33,10 @@ const AIBBQCalculator = () => {
   const [prompt, setPrompt] = useState('');
   const [parsedData, setParsedData] = useState(null);
   const [products, setProducts] = useState([]);
-  const [selectedProducts, setSelectedProducts] = useState({});
-  const [beefGrade, setBeefGrade] = useState('standard');
-  const [dryAgingDays, setDryAgingDays] = useState(0);
+  const [selectedProducts, setSelectedProducts] = useState({}); // { productId: { selected, quantity, grade, dryAgingDays } }
   const [mode, setMode] = useState('checkout'); // 'checkout' or 'quote'
   const [loading, setLoading] = useState(true);
+  const [eventTypePortions, setEventTypePortions] = useState(null); // Load from API
   
   // Lead form
   const [showLeadForm, setShowLeadForm] = useState(false);
@@ -68,14 +67,17 @@ const AIBBQCalculator = () => {
     else if (/family|dinner/i.test(text)) eventType = 'family';
     else if (/party|celebration/i.test(text)) eventType = 'party';
     
-    const portionMap = { luxury: 1.3, family: 1.1, party: 1.0, casual: 1.2 };
-    const portionPerPerson = portionMap[eventType] || 1.2;
+    const portionPerPerson = eventTypePortions ? (eventTypePortions[eventType] || 1.2) : 1.2;
     
     return {
       people,
       eventType: eventType.charAt(0).toUpperCase() + eventType.slice(1) + ' experience',
       portionPerPerson
     };
+  };
+
+  const isSteak = (product) => {
+    return product.name && product.name.toLowerCase().includes('steak');
   };
 
   const handlePromptChange = (text) => {
@@ -88,7 +90,7 @@ const AIBBQCalculator = () => {
 
   const toggleProduct = (productId) => {
     setSelectedProducts(prev => {
-      const current = prev[productId] || { selected: false, quantity: 1 };
+      const current = prev[productId] || { selected: false, quantity: 1, grade: 'standard', dryAgingDays: 0 };
       return {
         ...prev,
         [productId]: { ...current, selected: !current.selected }
@@ -103,18 +105,39 @@ const AIBBQCalculator = () => {
     }));
   };
 
-  const calculateProductPrice = (product, quantity = 1) => {
+  const updateGrade = (productId, grade) => {
+    setSelectedProducts(prev => ({
+      ...prev,
+      [productId]: { ...prev[productId], grade }
+    }));
+  };
+
+  const updateDryAging = (productId, days) => {
+    setSelectedProducts(prev => ({
+      ...prev,
+      [productId]: { ...prev[productId], dryAgingDays: days }
+    }));
+  };
+
+  const calculateProductPrice = (product, quantity = 1, grade = 'standard', dryAgingDays = 0) => {
     let basePrice = parseFloat(product.basePrice) || 0;
     
-    // Apply grade modifier
-    const grade = BEEF_GRADES.find(g => g.id === beefGrade);
-    if (grade) basePrice += grade.modifier;
+    // Apply grade modifier (per lb)
+    const gradeObj = BEEF_GRADES.find(g => g.id === grade);
+    if (gradeObj) basePrice += gradeObj.modifier;
     
-    // Apply dry aging
-    const aging = DRY_AGING_OPTIONS.find(a => a.days === dryAgingDays);
-    if (aging) basePrice += aging.price;
+    // Calculate base total
+    let total = basePrice * quantity;
     
-    return basePrice * quantity;
+    // Apply dry aging (flat fee per item, not per lb)
+    if (dryAgingDays > 0) {
+      const aging = DRY_AGING_OPTIONS.find(a => a.days === dryAgingDays);
+      if (aging) {
+        total += aging.price; // Flat fee, not multiplied by quantity
+      }
+    }
+    
+    return total;
   };
 
   const getTotalPrice = () => {
@@ -123,7 +146,7 @@ const AIBBQCalculator = () => {
       .reduce((sum, [productId, data]) => {
         const product = products.find(p => p.id === productId);
         if (!product) return sum;
-        return sum + calculateProductPrice(product, data.quantity);
+        return sum + calculateProductPrice(product, data.quantity, data.grade, data.dryAgingDays);
       }, 0);
   };
 
@@ -136,14 +159,23 @@ const AIBBQCalculator = () => {
       .filter(([_, data]) => data.selected)
       .map(([productId, data]) => {
         const product = products.find(p => p.id === productId);
-        const price = calculateProductPrice(product, 1);
+        const price = calculateProductPrice(product, 1, data.grade, data.dryAgingDays);
         
-        const gradeLabel = BEEF_GRADES.find(g => g.id === beefGrade)?.label || '';
-        const agingLabel = dryAgingDays > 0 ? `, ${dryAgingDays}d Aged` : '';
+        // Build product name with customizations
+        let customizations = [];
+        if (isSteak(product)) {
+          const gradeLabel = BEEF_GRADES.find(g => g.id === data.grade)?.label;
+          if (gradeLabel && data.grade !== 'standard') customizations.push(gradeLabel);
+          if (data.dryAgingDays > 0) customizations.push(`${data.dryAgingDays}d Aged`);
+        }
+        
+        const productName = customizations.length > 0 
+          ? `${product.name} (${customizations.join(', ')})`
+          : product.name;
         
         return {
           product_id: product.id,
-          product_name: `${product.name} (${gradeLabel}${agingLabel})`,
+          product_name: productName,
           price,
           quantity: data.quantity,
           weight: '1 lb',
@@ -186,9 +218,23 @@ const AIBBQCalculator = () => {
         .filter(([_, data]) => data.selected)
         .map(([productId, data]) => {
           const product = products.find(p => p.id === productId);
+          
+          let customizations = [];
+          if (isSteak(product)) {
+            const gradeLabel = BEEF_GRADES.find(g => g.id === data.grade)?.label;
+            if (gradeLabel && data.grade !== 'standard') customizations.push(gradeLabel);
+            if (data.dryAgingDays > 0) customizations.push(`${data.dryAgingDays}d Aged`);
+          }
+          
+          const productName = customizations.length > 0 
+            ? `${product.name} (${customizations.join(', ')})`
+            : product.name;
+          
           return {
-            product_name: product.name,
-            quantity: data.quantity
+            product_name: productName,
+            quantity: data.quantity,
+            grade: data.grade || 'standard',
+            dry_aging_days: data.dryAgingDays || 0
           };
         });
       
@@ -198,9 +244,7 @@ const AIBBQCalculator = () => {
         event_type: parsedData?.eventType || 'Custom order',
         portion_per_person: parsedData?.portionPerPerson || 1.2,
         selected_categories: ['mixed'],
-        selected_cuts: { mixed: selectedItems.map(i => i.product_name) },
-        beef_quality: beefGrade,
-        addons: `Dry Aging: ${dryAgingDays} days`,
+        selected_cuts: { mixed: selectedItems },
         total_lbs: getTotalPrice() / 25,
         total_price: getTotalPrice(),
         lead: {
@@ -455,107 +499,6 @@ const AIBBQCalculator = () => {
           )}
         </div>
 
-        {/* Grade & Dry Aging */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', marginBottom: '3rem' }}>
-          {/* Beef Grade */}
-          <div style={{
-            background: 'rgba(22,20,18,0.8)',
-            border: '1px solid rgba(200, 169, 106, 0.2)',
-            padding: '2rem'
-          }}>
-            <h4 style={{
-              fontFamily: 'Cormorant Garamond, serif',
-              fontSize: '1.5rem',
-              color: '#F5F1E8',
-              marginBottom: '1.5rem'
-            }}>
-              Beef Quality Grade
-            </h4>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
-              {BEEF_GRADES.map(grade => (
-                <button
-                  key={grade.id}
-                  onClick={() => setBeefGrade(grade.id)}
-                  style={{
-                    background: beefGrade === grade.id ? 'rgba(106,26,33,0.3)' : 'rgba(0,0,0,0.3)',
-                    border: `1px solid ${beefGrade === grade.id ? '#C8A96A' : 'rgba(200, 169, 106, 0.2)'}`,
-                    padding: '1rem',
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  <div style={{ 
-                    fontFamily: 'Cormorant Garamond, serif',
-                    fontSize: '1.25rem',
-                    color: '#F5F1E8',
-                    marginBottom: '0.5rem'
-                  }}>
-                    {grade.label}
-                  </div>
-                  <div style={{
-                    fontSize: '0.75rem',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.18em',
-                    color: '#C8A96A'
-                  }}>
-                    {grade.tag}
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Dry Aging */}
-          <div style={{
-            background: 'rgba(22,20,18,0.8)',
-            border: '1px solid rgba(200, 169, 106, 0.2)',
-            padding: '2rem'
-          }}>
-            <h4 style={{
-              fontFamily: 'Cormorant Garamond, serif',
-              fontSize: '1.5rem',
-              color: '#F5F1E8',
-              marginBottom: '1.5rem'
-            }}>
-              Dry Aging Options
-            </h4>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
-              {DRY_AGING_OPTIONS.map(option => (
-                <button
-                  key={option.days}
-                  onClick={() => setDryAgingDays(option.days)}
-                  style={{
-                    background: dryAgingDays === option.days ? 'rgba(106,26,33,0.3)' : 'rgba(0,0,0,0.3)',
-                    border: `1px solid ${dryAgingDays === option.days ? '#C8A96A' : 'rgba(200, 169, 106, 0.2)'}`,
-                    padding: '1rem',
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  <div style={{ 
-                    fontFamily: 'Cormorant Garamond, serif',
-                    fontSize: '1.25rem',
-                    color: '#F5F1E8',
-                    marginBottom: '0.5rem'
-                  }}>
-                    {option.label}
-                  </div>
-                  <div style={{
-                    fontSize: '0.75rem',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.18em',
-                    color: '#C8A96A'
-                  }}>
-                    {option.price > 0 ? `+$${option.price}/lb` : 'Included'}
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
         {/* Product Selection */}
         {loading ? (
           <div style={{ textAlign: 'center', padding: '3rem', color: '#A8A296' }}>
@@ -585,8 +528,9 @@ const AIBBQCalculator = () => {
                   gap: '1.5rem'
                 }}>
                   {productList.map(product => {
-                    const selection = selectedProducts[product.id] || { selected: false, quantity: 1 };
-                    const itemPrice = selection.selected ? calculateProductPrice(product, selection.quantity) : 0;
+                    const selection = selectedProducts[product.id] || { selected: false, quantity: 1, grade: 'standard', dryAgingDays: 0 };
+                    const itemPrice = selection.selected ? calculateProductPrice(product, selection.quantity, selection.grade, selection.dryAgingDays) : 0;
+                    const isSteakProduct = isSteak(product);
 
                     return (
                       <div
@@ -610,6 +554,17 @@ const AIBBQCalculator = () => {
                               marginBottom: '0.5rem'
                             }}>
                               {product.name}
+                              {isSteakProduct && (
+                                <span style={{
+                                  marginLeft: '0.5rem',
+                                  fontSize: '0.7rem',
+                                  color: '#C8A96A',
+                                  textTransform: 'uppercase',
+                                  letterSpacing: '0.1em'
+                                }}>
+                                  🥩 Customizable
+                                </span>
+                              )}
                             </h4>
                             <div style={{
                               fontSize: '0.8rem',
@@ -652,6 +607,95 @@ const AIBBQCalculator = () => {
                               borderTop: '1px solid rgba(200, 169, 106, 0.2)'
                             }}
                           >
+                            {/* Beef Grade Selector - Only for Steaks */}
+                            {isSteakProduct && (
+                              <div style={{ marginBottom: '1rem' }}>
+                                <label style={{
+                                  fontSize: '0.7rem',
+                                  textTransform: 'uppercase',
+                                  letterSpacing: '0.18em',
+                                  color: '#A8A296',
+                                  display: 'block',
+                                  marginBottom: '0.5rem'
+                                }}>
+                                  Beef Quality Grade
+                                </label>
+                                <select
+                                  value={selection.grade || 'standard'}
+                                  onChange={(e) => {
+                                    e.stopPropagation();
+                                    updateGrade(product.id, e.target.value);
+                                  }}
+                                  style={{
+                                    width: '100%',
+                                    background: 'rgba(0,0,0,0.5)',
+                                    border: '1px solid rgba(200, 169, 106, 0.3)',
+                                    color: '#F5F1E8',
+                                    padding: '0.75rem',
+                                    fontSize: '0.95rem',
+                                    fontFamily: 'Outfit, sans-serif',
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  {BEEF_GRADES.map(grade => (
+                                    <option key={grade.id} value={grade.id}>
+                                      {grade.label} {grade.tag !== 'Base Price' ? `(${grade.tag})` : ''}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+                            )}
+
+                            {/* Dry Aging Selector - Only for Steaks */}
+                            {isSteakProduct && (
+                              <div style={{ marginBottom: '1rem' }}>
+                                <label style={{
+                                  fontSize: '0.7rem',
+                                  textTransform: 'uppercase',
+                                  letterSpacing: '0.18em',
+                                  color: '#A8A296',
+                                  display: 'block',
+                                  marginBottom: '0.5rem'
+                                }}>
+                                  Dry Aging (Min 10lb)
+                                </label>
+                                <select
+                                  value={selection.dryAgingDays || 0}
+                                  onChange={(e) => {
+                                    e.stopPropagation();
+                                    updateDryAging(product.id, parseInt(e.target.value));
+                                  }}
+                                  style={{
+                                    width: '100%',
+                                    background: 'rgba(0,0,0,0.5)',
+                                    border: '1px solid rgba(200, 169, 106, 0.3)',
+                                    color: '#F5F1E8',
+                                    padding: '0.75rem',
+                                    fontSize: '0.95rem',
+                                    fontFamily: 'Outfit, sans-serif',
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  {DRY_AGING_OPTIONS.map(option => (
+                                    <option key={option.days} value={option.days}>
+                                      {option.label} {option.price > 0 ? `(+$${option.price})` : ''}
+                                    </option>
+                                  ))}
+                                </select>
+                                {selection.dryAgingDays > 0 && (
+                                  <div style={{
+                                    fontSize: '0.7rem',
+                                    color: '#C8A96A',
+                                    marginTop: '0.5rem',
+                                    fontStyle: 'italic'
+                                  }}>
+                                    ℹ️ Dry aging recommended for steaks 10lb+
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                            {/* Quantity Selector */}
                             <div style={{
                               display: 'flex',
                               justifyContent: 'space-between',
@@ -664,7 +708,7 @@ const AIBBQCalculator = () => {
                                 letterSpacing: '0.18em',
                                 color: '#A8A296'
                               }}>
-                                Quantity
+                                Quantity (lbs)
                               </span>
                               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                                 <button
@@ -711,6 +755,8 @@ const AIBBQCalculator = () => {
                                 </button>
                               </div>
                             </div>
+                            
+                            {/* Price Display */}
                             <div style={{ textAlign: 'right' }}>
                               <span style={{
                                 fontSize: '1.5rem',
