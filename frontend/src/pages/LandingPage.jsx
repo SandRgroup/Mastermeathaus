@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShoppingCart, X, Check } from 'lucide-react';
+import { ShoppingCart, X } from 'lucide-react';
 import { toast } from 'sonner';
 import axios from 'axios';
 import { useCart } from '../contexts/CartContext';
@@ -9,6 +9,16 @@ import AIBBQPlanner from '../components/AIBBQPlanner';
 import PackagesSection from '../components/PackagesSection';
 import BoxesSection from '../components/BoxesSection';
 import DryAgingSelector from '../components/DryAgingSelector';
+
+// New Cinematic Sections
+import HeroSection from '../components/sections/HeroSection';
+import BrandStorySection from '../components/sections/BrandStorySection';
+import FeaturesSection from '../components/sections/FeaturesSection';
+import SocialProofSection from '../components/sections/SocialProofSection';
+import CountdownSection from '../components/sections/CountdownSection';
+import FinalCTASection from '../components/sections/FinalCTASection';
+import FooterSection from '../components/sections/FooterSection';
+
 import '../styles/LandingPage.css';
 
 const LandingPage = () => {
@@ -174,94 +184,49 @@ const LandingPage = () => {
   const filteredProducts = getFilteredProducts();
   const displayedProducts = showAllProducts ? filteredProducts : filteredProducts.slice(0, 12);
 
-  const testimonials = [
-    { text: "Best quality I've found online. Consistent and reliable every single time.", author: "Michael R.", stars: 5 },
-    { text: "Simple ordering, premium cuts. Exactly what I needed for my family dinners.", author: "Sarah K.", stars: 5 },
-    { text: "The dry-aged ribeye is exceptional. Worth every penny and then some.", author: "James L.", stars: 5 }
-  ];
-
   return (
     <>
       {/* Scroll Progress */}
       <div className="scroll-progress" id="scrollProgress"></div>
 
-      {/* Promo Banner */}
-      <div className="promo-banner">
-        <span className="promo-banner-track">
-          15% off orders $299+ | 10% off orders $199+ | 5% off orders $99+ with code <span className="promo-code">PREMIUM</span>
-        </span>
-      </div>
-
       {/* Header */}
-      <header className="main-header">
-        <div className="container">
-          <div className="header-wrapper">
+      <header className="main-header fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-md border-b border-white/10">
+        <div className="container mx-auto px-6">
+          <div className="header-wrapper flex items-center justify-between py-4">
             <a href="/" className="header-logo-link">
-              <div className="brand-logo header-brand">
-                <div className="brand-logo-top">
-                  <span className="brand-mmb">MMH</span>
-                  <span className="brand-bar"></span>
-                  <span className="brand-kanji">傑</span>
-                </div>
-                <div className="brand-sub">MASTERS MEAT HAUS®</div>
-              </div>
+              <img 
+                src="/assets/mmh-logo.png" 
+                alt="Masters Meat Haus" 
+                className="h-10 opacity-90 hover:opacity-100 transition-opacity"
+              />
             </a>
-            <nav className="main-nav">
-              <a href="#products">Shop</a>
-              <a href="#membership">Membership</a>
-              <a href="#delivery">Delivery</a>
-              <a href="#testimonials">Reviews</a>
-              <button className="cart-btn" onClick={handleOpenCart}>
+            <nav className="main-nav flex items-center gap-8">
+              <a href="#products" className="text-gray-300 hover:text-[#C8A96A] transition-colors text-sm uppercase tracking-wider">Shop</a>
+              <a href="#membership" className="text-gray-300 hover:text-[#C8A96A] transition-colors text-sm uppercase tracking-wider">Membership</a>
+              <a href="#features" className="text-gray-300 hover:text-[#C8A96A] transition-colors text-sm uppercase tracking-wider">Features</a>
+              <a href="#reviews" className="text-gray-300 hover:text-[#C8A96A] transition-colors text-sm uppercase tracking-wider">Reviews</a>
+              <button 
+                className="flex items-center gap-2 px-6 py-2 bg-red-900 text-white rounded-sm hover:bg-red-800 transition-colors" 
+                onClick={handleOpenCart}
+              >
                 <ShoppingCart size={18} />
-                Cart <span className="cart-count">{getItemCount()}</span>
+                <span>Cart</span>
+                {getItemCount() > 0 && (
+                  <span className="px-2 py-0.5 bg-[#C8A96A] text-black text-xs font-bold rounded-full">
+                    {getItemCount()}
+                  </span>
+                )}
               </button>
             </nav>
           </div>
         </div>
       </header>
 
-      {/* Trust Bar */}
-      <div className="trust-bar">
-        <div className="container">
-          <div className="trust-items">
-            {siteSettings?.trust_items?.map((item, index) => (
-              <div key={index} className="trust-item">
-                <span className="trust-icon">{renderIcon(item)}</span> {item.text}
-              </div>
-            )) || (
-              <>
-                <div className="trust-item"><span className="trust-icon">🔒</span> Secure Stripe Checkout</div>
-                <div className="trust-item"><span className="trust-icon">🧊</span> Temperature-Controlled Shipping</div>
-                <div className="trust-item"><span className="trust-icon">⭐</span> USDA Prime &amp; Wagyu Quality</div>
-                <div className="trust-item"><span className="trust-icon">🚚</span> Free Shipping Over $150</div>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
+      {/* Hero Section */}
+      <HeroSection />
 
-      {/* Hero */}
-      <section className="hero">
-        <div className="hero-content">
-          <div className="brand-logo hero-brand">
-            <div className="brand-logo-top">
-              <span className="brand-mmb">MMH</span>
-              <span className="brand-bar"></span>
-              <span className="brand-kanji">傑</span>
-            </div>
-            <div className="brand-sub">MASTERS MEAT HAUS®</div>
-          </div>
-          <h1 className="hero-title">Premium cuts. <span>No shortcuts.</span></h1>
-          <p className="hero-subtitle">
-            Hand-selected USDA Prime and Wagyu steaks delivered to your door — vacuum-sealed, temperature-controlled, and always exceptional.
-          </p>
-          <div className="hero-ctas">
-            <a href="#products" className="primary-btn">Shop Now</a>
-            <a href="#membership" className="secondary-btn">View Plans</a>
-          </div>
-          <p className="hero-note">Free shipping over $150 · Secure checkout via Stripe</p>
-        </div>
-      </section>
+      {/* Brand Story Section */}
+      <BrandStorySection />
 
       {/* Products Section */}
       <section className="featured-cuts" id="products">
@@ -384,22 +349,15 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Why Section */}
-      <section className="why-section">
-        <div className="container">
-          <span className="eyebrow" style={{color: 'var(--gold)'}}>Why Choose Us</span>
-          <h2 className="section-title">Quality you can <span style={{color: 'var(--gold)', fontStyle: 'italic'}}>trust</span></h2>
-          <p className="why-body">
-            We focus on sourcing and delivering premium cuts without overcomplicating the process. No unnecessary options — just high-quality meat done right.
-          </p>
-          <div className="highlights-grid">
-            <div className="highlight-item"><span className="check-icon">✓</span><span>USDA Prime &amp; Wagyu quality</span></div>
-            <div className="highlight-item"><span className="check-icon">✓</span><span>Carefully hand-selected cuts</span></div>
-            <div className="highlight-item"><span className="check-icon">✓</span><span>Consistent, reliable sourcing</span></div>
-            <div className="highlight-item"><span className="check-icon">✓</span><span>Temperature-controlled delivery</span></div>
-          </div>
-        </div>
-      </section>
+      {/* Features Section (replaces Why Section) */}
+      <div id="features">
+        <FeaturesSection />
+      </div>
+
+      {/* Social Proof / Testimonials */}
+      <div id="reviews">
+        <SocialProofSection />
+      </div>
 
       {/* Membership Section */}
       <section className="membership-section" id="membership">
@@ -474,79 +432,10 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Delivery Section - MODERN DESIGN */}
-      <section className="py-20 bg-gradient-to-b from-gray-900 to-black" id="delivery">
-        <div className="container mx-auto px-6 max-w-6xl">
-          <div className="text-center mb-16">
-            <h2 className="text-5xl font-bold text-white mb-4">
-              Delivered <span style={{color: '#C8A96A', fontStyle: 'italic'}}>Fresh</span>
-            </h2>
-            <p className="text-xl text-gray-400">
-              Temperature-controlled from our facility to your door
-            </p>
-          </div>
+      {/* Countdown Section */}
+      <CountdownSection />
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-            {/* Step 1 */}
-            <div className="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-6 text-center hover:bg-white/10 transition-all duration-300">
-              <div className="text-6xl mb-4">📦</div>
-              <div className="text-xl font-bold text-white mb-2">Order</div>
-              <div className="text-sm text-gray-400">Carefully reviewed & packed</div>
-            </div>
-
-            {/* Step 2 */}
-            <div className="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-6 text-center hover:bg-white/10 transition-all duration-300">
-              <div className="text-6xl mb-4">🧊</div>
-              <div className="text-xl font-bold text-white mb-2">Packed</div>
-              <div className="text-sm text-gray-400">Premium insulated packaging</div>
-            </div>
-
-            {/* Step 3 */}
-            <div className="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-6 text-center hover:bg-white/10 transition-all duration-300">
-              <div className="text-6xl mb-4">🌡️</div>
-              <div className="text-xl font-bold text-white mb-2">Cold Chain</div>
-              <div className="text-sm text-gray-400">Temperature monitored</div>
-            </div>
-
-            {/* Step 4 */}
-            <div className="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-6 text-center hover:bg-white/10 transition-all duration-300">
-              <div className="text-6xl mb-4">🚚</div>
-              <div className="text-xl font-bold text-white mb-2">Delivered</div>
-              <div className="text-sm text-gray-400">Arrives fresh & safe</div>
-            </div>
-          </div>
-
-          <div className="flex justify-center">
-            <button 
-              onClick={() => navigate('/delivery')} 
-              className="bg-gradient-to-r from-amber-600 to-red-600 hover:from-amber-500 hover:to-red-500 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-2xl"
-            >
-              How Delivery Works →
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section className="testimonials-section" id="testimonials">
-        <div className="container">
-          <div className="section-header">
-            <span className="eyebrow">Reviews</span>
-            <h2 className="section-title">Customers <span>trust the quality</span></h2>
-          </div>
-          <div className="testimonials-grid">
-            {testimonials.map((testimonial, index) => (
-              <div key={index} className="testimonial-card">
-                <div className="stars">{'★'.repeat(testimonial.stars)}</div>
-                <p className="testimonial-text">{testimonial.text}</p>
-                <p className="testimonial-author">— {testimonial.author}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Premium BBQ Builder */}
+      {/* Premium BBQ Builder / Boxes / Packages */}
       <section style={{
         background: '#0e0e0e',
         padding: '5rem 0',
@@ -584,78 +473,19 @@ const LandingPage = () => {
           </div>
         </div>
 
-
-      {/* Half/Quarter Cow Packages */}
-
-
-      {/* Steak Boxes */}
-      <BoxesSection />
-
-      <PackagesSection />
-
+        {/* Boxes & Packages */}
+        <BoxesSection />
+        <PackagesSection />
       </section>
 
       {/* AI BBQ Calculator */}
       <AIBBQPlanner />
 
       {/* Final CTA */}
-      <section className="final-cta">
-        <div className="container">
-          <h2 className="final-title">Better cuts start here</h2>
-          <button className="final-btn" onClick={() => document.getElementById('products').scrollIntoView({behavior: 'smooth'})}>
-            Shop MasterMeatBox
-          </button>
-          <p className="final-subtext">Premium cuts. Simple process. Secure checkout.</p>
-        </div>
-      </section>
+      <FinalCTASection />
 
       {/* Footer */}
-      <footer className="footer">
-        <div className="container">
-          <div className="footer-top">
-            <div className="footer-col">
-              <div className="brand-logo footer-brand-logo">
-                <div className="brand-logo-top">
-                  <span className="brand-mmb">MMH</span>
-                  <span className="brand-bar"></span>
-                  <span className="brand-kanji">傑</span>
-                </div>
-                <div className="brand-sub">MASTERS MEAT HAUS®</div>
-              </div>
-              <p className="footer-tagline">Premium cuts. No shortcuts.</p>
-            </div>
-            <div className="footer-col">
-              <h4>Shop</h4>
-              <a href="/shop-boxes">Shop Boxes</a>
-              <a href="/build-your-box">Build Your Box</a>
-              <a href="/membership/select">Membership Plans</a>
-            </div>
-            <div className="footer-col">
-              <h4>Company</h4>
-              <a href="/about">About Us</a>
-              <a href="/faq">FAQ</a>
-              <a href="/contact">Contact</a>
-              <a href="/admin">Admin</a>
-            </div>
-            <div className="footer-col">
-              <h4>Legal</h4>
-              <a href="/shipping-policy">Shipping Policy</a>
-              <a href="/refund-policy">Refund Policy</a>
-              <a href="/privacy-policy">Privacy Policy</a>
-              <a href="/terms-of-service">Terms of Service</a>
-              <a href="/membership-terms">Membership Terms</a>
-            </div>
-          </div>
-          <div className="footer-bottom">
-            <p>&copy; 2026 Masters Meat Haus®. All rights reserved.</p>
-            <div className="footer-contact">
-              <a href="mailto:hello@mastersmeathaus.com">hello@mastersmeathaus.com</a>
-              <span>|</span>
-              <a href="tel:8178072489">817-807-2489</a>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <FooterSection />
 
       {/* Quick View Modal */}
       {quickViewProduct && (
