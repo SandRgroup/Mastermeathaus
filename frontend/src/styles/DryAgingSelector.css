@@ -1,0 +1,160 @@
+.dry-aging-modal {
+  max-width: 700px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-subtitle {
+  color: #666;
+  font-size: 0.95rem;
+  margin-top: 0.5rem;
+}
+
+.dry-aging-tiers {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 1.5rem 0;
+}
+
+.dry-aging-tier {
+  position: relative;
+  padding: 1.25rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.dry-aging-tier:hover {
+  border-color: #C8A96A;
+  box-shadow: 0 4px 12px rgba(200, 169, 106, 0.15);
+  transform: translateY(-2px);
+}
+
+.dry-aging-tier.selected {
+  border-color: #C8A96A;
+  background: linear-gradient(135deg, #fffaf0 0%, #fff8e7 100%);
+  box-shadow: 0 4px 16px rgba(200, 169, 106, 0.25);
+}
+
+.dry-aging-tier.popular {
+  border-color: #C8A96A;
+  border-width: 3px;
+}
+
+.dry-aging-tier.contact-only {
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+}
+
+.popular-badge,
+.exclusive-badge {
+  position: absolute;
+  top: -12px;
+  right: 1rem;
+  background: #C8A96A;
+  color: #000;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.exclusive-badge {
+  background: linear-gradient(135deg, #8B0000, #DC143C);
+  color: white;
+}
+
+.tier-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.tier-name {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #2b2b2b;
+}
+
+.tier-price {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.upcharge {
+  color: #8B0000;
+}
+
+.no-upcharge {
+  color: #059669;
+  font-size: 0.9rem;
+}
+
+.contact-price {
+  color: #666;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.tier-description {
+  color: #666;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-top: 0.5rem;
+}
+
+.tier-total {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+  color: #2b2b2b;
+  font-size: 1rem;
+}
+
+.tier-total strong {
+  color: #8B0000;
+  font-size: 1.2rem;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid #e5e7eb;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .dry-aging-modal {
+    max-width: 95vw;
+  }
+
+  .tier-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .tier-name {
+    font-size: 1rem;
+  }
+
+  .tier-price {
+    font-size: 1.1rem;
+  }
+
+  .modal-footer {
+    flex-direction: column;
+  }
+
+  .modal-footer button {
+    width: 100%;
+  }
+}

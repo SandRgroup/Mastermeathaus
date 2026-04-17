@@ -8,6 +8,7 @@ import Cart from '../components/Cart';
 import PremiumBBQBuilder from '../components/PremiumBBQBuilder';
 import PackagesSection from '../components/PackagesSection';
 import BoxesSection from '../components/BoxesSection';
+import DryAgingSelector from '../components/DryAgingSelector';
 import '../styles/LandingPage.css';
 
 const LandingPage = () => {
@@ -21,6 +22,8 @@ const LandingPage = () => {
   const [quickViewProduct, setQuickViewProduct] = useState(null);
   const [quickViewQty, setQuickViewQty] = useState(1);
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const [dryAgingModalOpen, setDryAgingModalOpen] = useState(false);
+  const [selectedProductForAging, setSelectedProductForAging] = useState(null);
   const { getItemCount, setIsOpen, addToCart } = useCart();
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
@@ -140,6 +143,33 @@ const LandingPage = () => {
     if (activeFilter === 'a5_wagyu') return products.filter(p => p.category === 'a5_wagyu');
     if (activeFilter === 'sale') return products.filter(p => p.category === 'sale');
     return products;
+  };
+
+  const handleDryAgingSelect = (product) => {
+    setSelectedProductForAging(product);
+    setDryAgingModalOpen(true);
+  };
+
+  const handleDryAgingConfirm = (tier) => {
+    if (!selectedProductForAging) return;
+    
+    const basePrice = parseFloat(selectedProductForAging.price.replace('$', ''));
+    const finalPrice = tier.upcharge ? basePrice + tier.upcharge : basePrice;
+    
+    const productWithAging = {
+      ...selectedProductForAging,
+      price: finalPrice,
+      dryAgingTier: tier.name,
+      dryAgingDays: tier.days,
+      product_name: `${selectedProductForAging.name}${tier.days > 0 ? ` (${tier.name})` : ''}`
+    };
+    
+    addToCart(productWithAging, 1);
+    toast.success(`Added ${productWithAging.product_name} to cart!`);
+    setDryAgingModalOpen(false);
+    setSelectedProductForAging(null);
+  };
+
   };
 
   const filteredProducts = getFilteredProducts();
@@ -321,6 +351,9 @@ const LandingPage = () => {
                   <div className="product-btns">
                     <button className="order-btn" onClick={() => handleAddToCart(product)}>
                       Order
+                    </button>
+                    <button className="dry-aging-btn" onClick={() => handleDryAgingSelect(product)}>
+                      + Dry-Aged
                     </button>
                     <button className="info-btn" onClick={() => openQuickView(product)}>
                       Info
@@ -657,6 +690,19 @@ const LandingPage = () => {
       )}
 
       <Cart />
+
+      {/* Dry Aging Selector Modal */}
+      {selectedProductForAging && (
+        <DryAgingSelector
+          product={selectedProductForAging}
+          isOpen={dryAgingModalOpen}
+          onClose={() => {
+            setDryAgingModalOpen(false);
+            setSelectedProductForAging(null);
+          }}
+          onSelect={handleDryAgingConfirm}
+        />
+      )}
     </>
   );
 };

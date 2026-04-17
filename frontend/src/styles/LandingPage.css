@@ -524,7 +524,8 @@
 
 .product-btns {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0;
   border-top: 1px solid #1e1e1e;
 }
 
@@ -558,6 +559,33 @@
   font-size: 1rem;
   font-weight: 600;
   border: none;
+
+.dry-aging-btn {
+  flex: 1;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border: 1px solid #8B0000;
+  background: linear-gradient(135deg, #8B0000, #DC143C);
+  color: white;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.dry-aging-btn:hover {
+  background: linear-gradient(135deg, #DC143C, #FF6347);
+  border-color: #DC143C;
+  box-shadow: 0 4px 16px rgba(220, 20, 60, 0.4);
+  transform: translateY(-1px);
+}
+
   cursor: pointer;
   text-decoration: none;
   transition: all 0.3s;
