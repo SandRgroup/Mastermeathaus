@@ -31,6 +31,8 @@ const LandingPage = () => {
       platinum: { background: 'linear-gradient(135deg, #E5E4E2, #C0C0C0)', color: '#000' },
       red: { background: 'linear-gradient(135deg, #DC143C, #8B0000)', color: '#fff' },
       green: { background: 'linear-gradient(135deg, #32CD32, #228B22)', color: '#fff' },
+      blue: { background: 'linear-gradient(135deg, #4169E1, #000080)', color: '#fff' },
+      purple: { background: 'linear-gradient(135deg, #9370DB, #4B0082)', color: '#fff' },
       bronze: { background: 'linear-gradient(135deg, #CD7F32, #8B4513)', color: '#fff' }
     };
     return colors[badgeColor] || colors.gold;
@@ -131,9 +133,12 @@ const LandingPage = () => {
 
   const getFilteredProducts = () => {
     if (activeFilter === 'all') return products;
-    if (activeFilter === 'prime') return products.filter(p => p.grade?.toLowerCase().includes('prime'));
-    if (activeFilter === 'wagyu') return products.filter(p => p.grade?.toLowerCase().includes('wagyu'));
-    if (activeFilter === 'sale') return products.filter(p => p.badge?.toLowerCase() === 'sale');
+    if (activeFilter === 'certified_angus') return products.filter(p => p.category === 'certified_angus');
+    if (activeFilter === 'usda_prime') return products.filter(p => p.category === 'usda_prime');
+    if (activeFilter === 'grass_fed') return products.filter(p => p.category === 'grass_fed');
+    if (activeFilter === 'american_wagyu') return products.filter(p => p.category === 'american_wagyu');
+    if (activeFilter === 'a5_wagyu') return products.filter(p => p.category === 'a5_wagyu');
+    if (activeFilter === 'sale') return products.filter(p => p.category === 'sale');
     return products;
   };
 
@@ -242,29 +247,47 @@ const LandingPage = () => {
             <span className="filter-label">Filter:</span>
             <button 
               className={`filter-btn ${activeFilter === 'all' ? 'active' : ''}`}
-              onClick={() => filterProducts('all')}
+              onClick={() => setActiveFilter('all')}
             >
               All Cuts
             </button>
             <button 
-              className={`filter-btn ${activeFilter === 'prime' ? 'active' : ''}`}
-              onClick={() => filterProducts('prime')}
+              className={`filter-btn ${activeFilter === 'certified_angus' ? 'active' : ''}`}
+              onClick={() => setActiveFilter('certified_angus')}
+            >
+              Certified Angus
+            </button>
+            <button 
+              className={`filter-btn ${activeFilter === 'usda_prime' ? 'active' : ''}`}
+              onClick={() => setActiveFilter('usda_prime')}
             >
               USDA Prime
             </button>
             <button 
-              className={`filter-btn ${activeFilter === 'wagyu' ? 'active' : ''}`}
-              onClick={() => filterProducts('wagyu')}
+              className={`filter-btn ${activeFilter === 'grass_fed' ? 'active' : ''}`}
+              onClick={() => setActiveFilter('grass_fed')}
             >
-              Wagyu
+              Grass Fed
+            </button>
+            <button 
+              className={`filter-btn ${activeFilter === 'american_wagyu' ? 'active' : ''}`}
+              onClick={() => setActiveFilter('american_wagyu')}
+            >
+              American Wagyu
+            </button>
+            <button 
+              className={`filter-btn ${activeFilter === 'a5_wagyu' ? 'active' : ''}`}
+              onClick={() => setActiveFilter('a5_wagyu')}
+            >
+              A5 Wagyu
             </button>
             <button 
               className={`filter-btn ${activeFilter === 'sale' ? 'active' : ''}`}
-              onClick={() => filterProducts('sale')}
+              onClick={() => setActiveFilter('sale')}
             >
-              On Sale
+              Sale
             </button>
-            <span className="product-count">{filteredProducts.length} cuts</span>
+            <span className="product-count">{filteredProducts.length} items</span>
           </div>
 
           {loading ? (
