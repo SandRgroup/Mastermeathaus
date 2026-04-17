@@ -170,8 +170,6 @@ const LandingPage = () => {
     setSelectedProductForAging(null);
   };
 
-  };
-
   const filteredProducts = getFilteredProducts();
 
   const testimonials = [
