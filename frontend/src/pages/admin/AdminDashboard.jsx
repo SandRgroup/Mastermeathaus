@@ -15,7 +15,8 @@ import SiteSettingsManager from '../../components/admin/SiteSettingsManager';
 import BBQSettingsManager from '../../components/admin/BBQSettingsManager';
 import BBQProductsManager from '../../components/admin/BBQProductsManager';
 import BbqPlansManager from '../../components/admin/BbqPlansManager';
-import { LogOut, Package, CreditCard, Tag, Box, Menu, Users, Settings, Flame, Beef, Sparkles, LayoutDashboard } from 'lucide-react';
+import UnifiedBBQBuilderSettings from '../../components/admin/UnifiedBBQBuilderSettings';
+import { LogOut, Package, CreditCard, Tag, Box, Menu, Users, Settings, Flame, Beef, Sparkles, LayoutDashboard, Sliders } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import '../../styles/Admin.css';
 
@@ -77,6 +78,10 @@ const AdminDashboard = () => {
               <Menu size={18} />
               Menu/CTAs
             </TabsTrigger>
+            <TabsTrigger value="bbq-builder" className="tab-trigger">
+              <Sliders size={18} />
+              BBQ Builder
+            </TabsTrigger>
             <TabsTrigger value="settings" className="tab-trigger">
               <Settings size={18} />
               Website
@@ -125,6 +130,10 @@ const AdminDashboard = () => {
           
           <TabsContent value="menu">
             <MenuManager />
+          </TabsContent>
+          
+          <TabsContent value="bbq-builder">
+            <UnifiedBBQBuilderSettings />
           </TabsContent>
           
           <TabsContent value="customers">

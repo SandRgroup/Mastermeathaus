@@ -5,11 +5,10 @@ import { toast } from 'sonner';
 import axios from 'axios';
 import { useCart } from '../contexts/CartContext';
 import Cart from '../components/Cart';
-import PremiumBBQBuilder from '../components/PremiumBBQBuilder';
+import UnifiedBBQBuilder from '../components/UnifiedBBQBuilder';
 import PackagesSection from '../components/PackagesSection';
 import BoxesSection from '../components/BoxesSection';
 import DryAgingSelector from '../components/DryAgingSelector';
-import AIBBQPlanner from '../components/AIBBQPlanner';
 import '../styles/LandingPage.css';
 
 const LandingPage = () => {
@@ -583,8 +582,8 @@ const LandingPage = () => {
 
       </section>
 
-      {/* AI BBQ Planner */}
-      <AIBBQPlanner />
+      {/* Unified BBQ Builder */}
+      <UnifiedBBQBuilder />
 
       {/* Final CTA */}
       <section className="final-cta">

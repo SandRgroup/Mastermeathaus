@@ -26,6 +26,7 @@ from routes.bbq_products import router as bbq_products_router
 from routes.packages import router as packages_router
 from routes.memberships import router as memberships_router
 from routes.bbq_plans import router as bbq_plans_router
+from routes.bbq_builder_settings import router as bbq_builder_settings_router
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
@@ -1208,6 +1209,7 @@ api_router.include_router(bbq_products_router)
 api_router.include_router(packages_router)
 api_router.include_router(memberships_router)
 api_router.include_router(bbq_plans_router)
+api_router.include_router(bbq_builder_settings_router)
 
 # Import boxes router
 from routes.boxes import router as boxes_router
