@@ -4,9 +4,7 @@ import { Card } from '../ui/card';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
-import { Plus, Edit, Trash2 } from 'lucide-react';
+import { Plus, Save, X, Edit, Trash2, Image as ImageIcon } from 'lucide-react';
 import { getProducts, createProduct, updateProduct, deleteProduct } from '../../api/cms';
 import { toast } from 'sonner';
 import axios from 'axios';
@@ -14,22 +12,11 @@ import axios from 'axios';
 const ProductsManager = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [editing, setEditing] = useState(null);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    grade: '',
-    description: '',
-    price: '',
-    originalPrice: '',
-    image: '',
-    cookingTemp: '',
-    badge: '',
-    badgeColor: 'gold',
-    weight_unit: 'oz'
-  });
+  const [editingId, setEditingId] = useState(null);
+  const [editForm, setEditForm] = useState({});
   const [imageFile, setImageFile] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   useEffect(() => {
     fetchProducts();
@@ -51,369 +38,300 @@ const ProductsManager = () => {
     
     setUploading(true);
     try {
+      const token = localStorage.getItem('token');
       const formData = new FormData();
       formData.append('file', file);
-      
-      const backendUrl = process.env.REACT_APP_BACKEND_URL;
-      const { data } = await axios.post(
+
+      const response = await axios.post(
         `${backendUrl}/api/upload/image`,
         formData,
-        { 
-          headers: { 'Content-Type': 'multipart/form-data' },
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'Authorization': `Bearer ${token}`
+          },
           withCredentials: true
         }
       );
-      
-      return data.url;
+
+      return response.data.url;
     } catch (error) {
-      toast.error('Image upload failed');
+      console.error('Image upload failed:', error);
+      toast.error('Failed to upload image');
       return null;
     } finally {
       setUploading(false);
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const startEdit = (product) => {
+    setEditingId(product.id || product._id);
+    setEditForm({
+      name: product.name || '',
+      grade: product.grade || '',
+      description: product.description || '',
+      price: product.price || '',
+      image: product.image || ''
+    });
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditForm({});
+    setImageFile(null);
+  };
+
+  const saveEdit = async (productId) => {
     try {
-      const payload = { ...formData };
-      
-      // Upload image file if one was selected
+      let payload = { ...editForm };
+
+      // Upload image if file selected
       if (imageFile) {
+        toast.info('Uploading image...');
         const uploadedUrl = await handleImageUpload(imageFile);
         if (uploadedUrl) {
           payload.image = uploadedUrl;
-        } else {
-          toast.error('Image upload failed. Please try again.');
-          return;
+          toast.success('Image uploaded!');
         }
       }
-      
-      if (!payload.originalPrice) delete payload.originalPrice;
-      if (!payload.cookingTemp) delete payload.cookingTemp;
-      if (!payload.badge) delete payload.badge;
 
-      if (editing) {
-        await updateProduct(editing.id || editing._id, payload);
-        toast.success('Product updated');
-      } else {
-        await createProduct(payload);
-        toast.success('Product created');
-      }
-      setDialogOpen(false);
-      resetForm();
+      await updateProduct(productId, payload);
+      toast.success('✓ Product updated successfully!');
+      
+      setEditingId(null);
+      setEditForm({});
+      setImageFile(null);
       fetchProducts();
     } catch (error) {
-      console.error('Product save error:', error);
-      const errorMsg = error.response?.data?.detail || error.message || 'Failed to save product';
-      toast.error(errorMsg);
+      console.error('Save error:', error);
+      toast.error(error.response?.data?.detail || 'Failed to save product');
     }
   };
 
-  const handleEdit = (product) => {
-    setEditing(product);
-    setFormData({
-      name: product.name,
-      grade: product.grade,
-      description: product.description,
-      price: product.price,
-      originalPrice: product.originalPrice || '',
-      image: product.image,
-      cookingTemp: product.cookingTemp || '',
-      badge: product.badge || '',
-      badgeColor: product.badgeColor || 'gold',
-      weight_unit: product.weight_unit || 'oz'
-    });
-    setDialogOpen(true);
-  };
+  const handleDelete = async (productId, productName) => {
+    if (!window.confirm(`⚠️ Delete "${productName}"?\n\nThis cannot be undone.`)) {
+      return;
+    }
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Delete this product?')) return;
     try {
-      await deleteProduct(id);
-      toast.success('Product deleted');
+      await deleteProduct(productId);
+      toast.success(`✓ "${productName}" deleted`);
       fetchProducts();
     } catch (error) {
       toast.error('Failed to delete product');
     }
   };
 
-  const resetForm = () => {
-    setEditing(null);
-    setImageFile(null);
-    setFormData({
-      name: '',
-      grade: '',
-      description: '',
-      price: '',
-      originalPrice: '',
-      image: '',
-      cookingTemp: '',
-      badge: '',
-      badgeColor: 'gold',
-      weight_unit: 'oz'
-    });
-  };
-
-  if (loading) return <div className="loading">Loading products...</div>;
+  if (loading) {
+    return (
+      <div className="p-6">
+        <div className="text-white text-center py-12">Loading products...</div>
+      </div>
+    );
+  }
 
   return (
-    <div className="manager-container">
-      <div className="manager-header">
-        <h2>Products ({products.length})</h2>
-        <Dialog open={dialogOpen} onOpenChange={(open) => {
-          setDialogOpen(open);
-          if (!open) resetForm();
-        }}>
-          <DialogTrigger asChild>
-            <Button className="add-btn">
-              <Plus size={18} />
-              Add Product
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="dialog-content">
-            <DialogHeader>
-              <DialogTitle>{editing ? 'Edit Product' : 'Add Product'}</DialogTitle>
-            </DialogHeader>
-            
-            {uploading && (
-              <div className="bg-blue-500/10 border border-blue-500/30 rounded p-3 mb-4">
-                <p className="text-blue-400 text-sm flex items-center gap-2">
-                  <span className="animate-spin">⏳</span>
-                  Uploading image...
-                </p>
-              </div>
-            )}
-            
-            <form onSubmit={handleSubmit} className="product-form">
-              <div className="form-grid">
-                <div className="form-group">
-                  <Label htmlFor="name">Name *</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <Label htmlFor="grade">Grade *</Label>
-                  <Select 
-                    value={formData.grade} 
-                    onValueChange={(value) => setFormData({ ...formData, grade: value })}
-                    required
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select grade" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Prime">Prime</SelectItem>
-                      <SelectItem value="Wagyu X">Wagyu X</SelectItem>
-                      <SelectItem value="A5 Wagyu">A5 Wagyu</SelectItem>
-                      <SelectItem value="Grass fed">Grass fed</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="form-group full-width">
-                  <Label htmlFor="description">Description *</Label>
-                  <Textarea
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <Label htmlFor="price">Price *</Label>
-                  <Input
-                    id="price"
-                    value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                    placeholder="$45.00"
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <Label htmlFor="originalPrice">Original Price</Label>
-                  <Input
-                    id="originalPrice"
-                    value={formData.originalPrice}
-                    onChange={(e) => setFormData({ ...formData, originalPrice: e.target.value })}
-                    placeholder="$55.00"
-                  />
-                </div>
-                <div className="form-group full-width">
-                  <Label htmlFor="image">Product Image</Label>
-                  <div className="space-y-3">
-                    {/* Image URL Input */}
-                    <div>
-                      <Label className="text-sm text-gray-400 mb-1">Option 1: Image URL</Label>
-                      <Input
-                        id="image"
-                        value={formData.image}
-                        onChange={(e) => {
-                          setFormData({ ...formData, image: e.target.value });
-                          setImageFile(null); // Clear file if URL is being used
+    <div className="products-manager p-6">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+          Products Manager
+        </h2>
+        <p className="text-sm text-gray-400">
+          Click Edit to change product details inline
+        </p>
+      </div>
+
+      {/* Products Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {products.map((product) => {
+          const isEditing = editingId === (product.id || product._id);
+          const productId = product.id || product._id;
+
+          return (
+            <Card
+              key={productId}
+              data-testid={`product-card-${productId}`}
+              className={`
+                bg-white/5 border-white/10 p-4 transition-all
+                ${isEditing ? 'ring-2 ring-[#C8A96A] shadow-lg shadow-[#C8A96A]/20' : ''}
+              `}
+            >
+              {/* Product Image */}
+              <div className="relative mb-3">
+                {isEditing ? (
+                  <div className="space-y-2">
+                    <div className="aspect-square bg-black/40 rounded overflow-hidden border border-white/20">
+                      <img
+                        src={editForm.image || product.image || 'https://via.placeholder.com/300?text=No+Image'}
+                        alt={editForm.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.src = 'https://via.placeholder.com/300?text=No+Image';
                         }}
-                        placeholder="https://example.com/image.jpg"
-                        disabled={!!imageFile}
                       />
                     </div>
                     
-                    {/* OR Separator */}
-                    <div className="flex items-center gap-3">
-                      <div className="flex-1 border-t border-gray-600"></div>
-                      <span className="text-sm text-gray-400">OR</span>
-                      <div className="flex-1 border-t border-gray-600"></div>
-                    </div>
+                    {/* Image URL Input */}
+                    <Input
+                      value={editForm.image}
+                      onChange={(e) => setEditForm({ ...editForm, image: e.target.value })}
+                      placeholder="Image URL"
+                      className="bg-black/40 border-white/20 text-white text-xs h-8"
+                    />
                     
-                    {/* File Upload */}
-                    <div>
-                      <Label className="text-sm text-gray-400 mb-1">Option 2: Upload File</Label>
-                      <Input
+                    {/* OR File Upload */}
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-gray-500">OR</span>
+                      <input
                         type="file"
                         accept="image/*"
                         onChange={(e) => {
                           setImageFile(e.target.files[0]);
-                          setFormData({ ...formData, image: '' }); // Clear URL if file is being used
+                          setEditForm({ ...editForm, image: '' });
                         }}
-                        className="cursor-pointer"
+                        className="text-xs text-gray-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:bg-[#C8A96A] file:text-black file:cursor-pointer"
                       />
-                      {imageFile && (
-                        <div className="mt-3 p-3 bg-white/5 border border-white/10 rounded">
-                          <div className="flex items-start gap-3">
-                            <img 
-                              src={URL.createObjectURL(imageFile)} 
-                              alt="Preview" 
-                              className="w-24 h-24 object-cover rounded"
-                            />
-                            <div className="flex-1">
-                              <p className="text-sm text-white font-medium">{imageFile.name}</p>
-                              <p className="text-xs text-gray-400 mt-1">
-                                {(imageFile.size / 1024).toFixed(1)} KB
-                              </p>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setImageFile(null)}
-                                className="mt-2 text-red-400 hover:text-red-300"
-                              >
-                                Remove
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      )}
                     </div>
                     
-                    {/* Current Image Preview (when editing) */}
-                    {editing && formData.image && !imageFile && (
-                      <div className="mt-3 p-3 bg-white/5 border border-white/10 rounded">
-                        <Label className="text-sm text-gray-400 mb-2">Current Image</Label>
-                        <img 
-                          src={formData.image} 
-                          alt="Current" 
-                          className="w-32 h-32 object-cover rounded mt-2"
-                          onError={(e) => {
-                            e.target.src = 'https://via.placeholder.com/300x300?text=No+Image';
-                          }}
-                        />
-                      </div>
+                    {imageFile && (
+                      <p className="text-xs text-green-400">
+                        ✓ {imageFile.name} ready to upload
+                      </p>
                     )}
                   </div>
-                </div>
-                <div className="form-group">
-                  <Label htmlFor="cookingTemp">Cooking Temp</Label>
-                  <Input
-                    id="cookingTemp"
-                    value={formData.cookingTemp}
-                    onChange={(e) => setFormData({ ...formData, cookingTemp: e.target.value })}
-                    placeholder="Medium-Rare (130-135°F)"
-                  />
-                </div>
-                <div className="form-group">
-                  <Label htmlFor="badge">Badge</Label>
-                  <Input
-                    id="badge"
-                    value={formData.badge}
-                    onChange={(e) => setFormData({ ...formData, badge: e.target.value })}
-                    placeholder="Best Seller"
-                  />
-                </div>
-                <div className="form-group">
-                  <Label htmlFor="badgeColor">Badge Color</Label>
-                  <Select
-                    value={formData.badgeColor}
-                    onValueChange={(value) => setFormData({ ...formData, badgeColor: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select badge color" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="gold">🟡 Gold</SelectItem>
-                      <SelectItem value="platinum">⚪ Platinum</SelectItem>
-                      <SelectItem value="red">🔴 Red</SelectItem>
-                      <SelectItem value="green">🟢 Green</SelectItem>
-                      <SelectItem value="bronze">🟤 Bronze</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="form-group">
-                  <Label htmlFor="weight_unit">Weight Unit *</Label>
-                  <Select 
-                    value={formData.weight_unit} 
-                    onValueChange={(value) => setFormData({ ...formData, weight_unit: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select unit" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="oz">Ounces (oz)</SelectItem>
-                      <SelectItem value="lb">Pounds (lb)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                ) : (
+                  <div className="aspect-square bg-black/40 rounded overflow-hidden">
+                    <img
+                      src={product.image || 'https://via.placeholder.com/300?text=No+Image'}
+                      alt={product.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.src = 'https://via.placeholder.com/300?text=No+Image';
+                      }}
+                    />
+                  </div>
+                )}
               </div>
-              <div className="form-actions">
-                <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={uploading}>
-                  {uploading ? 'Uploading...' : (editing ? 'Update' : 'Create')}
-                </Button>
+
+              {/* Product Badge */}
+              <div className="mb-2">
+                {isEditing ? (
+                  <Input
+                    value={editForm.grade}
+                    onChange={(e) => setEditForm({ ...editForm, grade: e.target.value })}
+                    placeholder="Grade (e.g., CERTIFIED ANGUS BEEF)"
+                    className="bg-black/40 border-white/20 text-[#C8A96A] text-xs h-7"
+                  />
+                ) : (
+                  <span className="text-xs text-[#C8A96A] uppercase tracking-wider">
+                    {product.grade}
+                  </span>
+                )}
               </div>
-            </form>
-          </DialogContent>
-        </Dialog>
+
+              {/* Product Name */}
+              <div className="mb-2">
+                {isEditing ? (
+                  <Input
+                    value={editForm.name}
+                    onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                    placeholder="Product Name"
+                    className="bg-black/40 border-white/20 text-white font-semibold h-9"
+                  />
+                ) : (
+                  <h3 className="text-white font-semibold text-lg">{product.name}</h3>
+                )}
+              </div>
+
+              {/* Description */}
+              <div className="mb-3">
+                {isEditing ? (
+                  <Textarea
+                    value={editForm.description}
+                    onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                    placeholder="Description"
+                    className="bg-black/40 border-white/20 text-gray-300 text-sm min-h-[60px]"
+                    rows={3}
+                  />
+                ) : (
+                  <p className="text-gray-400 text-sm line-clamp-2">
+                    {product.description}
+                  </p>
+                )}
+              </div>
+
+              {/* Price */}
+              <div className="mb-4">
+                {isEditing ? (
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={editForm.price}
+                    onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
+                    placeholder="Price"
+                    className="bg-black/40 border-white/20 text-white font-bold h-9"
+                  />
+                ) : (
+                  <p className="text-white font-bold text-xl">
+                    ${parseFloat(product.price).toFixed(2)}
+                  </p>
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-2">
+                {isEditing ? (
+                  <>
+                    <Button
+                      onClick={() => saveEdit(productId)}
+                      disabled={uploading}
+                      data-testid={`product-save-btn-${productId}`}
+                      className="flex-1 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white h-9"
+                    >
+                      <Save className="w-4 h-4 mr-1" />
+                      {uploading ? 'Uploading...' : 'Save'}
+                    </Button>
+                    <Button
+                      onClick={cancelEdit}
+                      variant="ghost"
+                      data-testid={`product-cancel-btn-${productId}`}
+                      className="text-gray-400 hover:text-white hover:bg-white/10 h-9"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      onClick={() => startEdit(product)}
+                      variant="ghost"
+                      data-testid={`product-edit-btn-${productId}`}
+                      className="flex-1 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 h-9"
+                    >
+                      <Edit className="w-4 h-4 mr-1" />
+                      Edit
+                    </Button>
+                    <Button
+                      onClick={() => handleDelete(productId, product.name)}
+                      variant="ghost"
+                      data-testid={`product-delete-btn-${productId}`}
+                      className="text-red-400 hover:text-red-300 hover:bg-red-500/10 h-9"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </>
+                )}
+              </div>
+            </Card>
+          );
+        })}
       </div>
 
-      <div className="products-grid">
-        {products.map((product) => (
-          <Card key={product.id || product._id} className="product-item">
-            <img src={product.image} alt={product.name} className="product-img" />
-            <div className="product-details">
-              <div className="product-grade">{product.grade}</div>
-              <h3>{product.name}</h3>
-              <p>{product.description}</p>
-              <div className="product-price-row">
-                {product.originalPrice && <span className="original">{product.originalPrice}</span>}
-                <span className="price">{product.price}</span>
-              </div>
-              <div className="product-actions">
-                <Button size="sm" variant="outline" onClick={() => handleEdit(product)}>
-                  <Edit size={16} />
-                  Edit
-                </Button>
-                <Button size="sm" variant="destructive" onClick={() => handleDelete(product.id || product._id)}>
-                  <Trash2 size={16} />
-                  Delete
-                </Button>
-              </div>
-            </div>
-          </Card>
-        ))}
-      </div>
+      {products.length === 0 && (
+        <div className="text-center py-12 text-gray-400">
+          <p>No products yet. Add your first product!</p>
+        </div>
+      )}
     </div>
   );
 };
