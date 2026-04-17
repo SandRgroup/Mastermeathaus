@@ -1108,7 +1108,7 @@ api_router.include_router(packages_router)
 
 # Import boxes router
 from routes.boxes import router as boxes_router
-api_router.include_router(boxes_router)
+api_router.include_router(boxes_router, prefix="/boxes", tags=["boxes"])
 
 app.include_router(api_router)
 

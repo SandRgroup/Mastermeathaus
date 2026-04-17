@@ -1,17 +1,18 @@
 """Steak Boxes routes"""
 from fastapi import APIRouter, HTTPException, Depends
 from typing import List
-from ..models.box import Box, BoxCreate, BoxUpdate
-from ..database import get_database
+import sys
+import os
+
+# Add parent directory to path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from models.box import Box, BoxCreate, BoxUpdate
+from database import get_database
+from server import get_current_user
 
 router = APIRouter()
 db = get_database()
-
-# Import auth dependency
-import sys
-import os
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-from server import get_current_user
 
 @router.get("", response_model=List[Box])
 async def get_boxes():
