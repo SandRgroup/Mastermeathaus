@@ -5,7 +5,8 @@ import { toast } from 'sonner';
 import axios from 'axios';
 import { useCart } from '../contexts/CartContext';
 import Cart from '../components/Cart';
-import UnifiedBBQBuilder from '../components/UnifiedBBQBuilder';
+import PremiumBBQBuilder from '../components/PremiumBBQBuilder';
+import AIBBQPlanner from '../components/AIBBQPlanner';
 import PackagesSection from '../components/PackagesSection';
 import BoxesSection from '../components/BoxesSection';
 import DryAgingSelector from '../components/DryAgingSelector';
@@ -582,8 +583,9 @@ const LandingPage = () => {
 
       </section>
 
-      {/* Unified BBQ Builder */}
-      <UnifiedBBQBuilder />
+      {/* Premium BBQ Builder & AI Planner */}
+      <PremiumBBQBuilder />
+      <AIBBQPlanner />
 
       {/* Final CTA */}
       <section className="final-cta">

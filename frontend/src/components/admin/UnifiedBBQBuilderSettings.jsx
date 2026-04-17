@@ -3,7 +3,6 @@ import { Card } from '../ui/card';
 import { Label } from '../ui/label';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { toast } from 'sonner';
 import axios from 'axios';
 import { Settings, Save, Eye, EyeOff, ShoppingCart, FileText } from 'lucide-react';
@@ -54,12 +53,12 @@ const UnifiedBBQBuilderSettings = () => {
   };
 
   if (loading) {
-    return <div className=\"text-center py-8\">Loading settings...</div>;
+    return <div style={{ textAlign: 'center', padding: '2rem' }}>Loading settings...</div>;
   }
 
   return (
-    <div className=\"bbq-builder-settings\" style={{ padding: '2rem' }}>
-      <div className=\"manager-header\" style={{ marginBottom: '2rem' }}>
+    <div style={{ padding: '2rem' }}>
+      <div style={{ marginBottom: '2rem' }}>
         <h2 style={{ 
           display: 'flex', 
           alignItems: 'center', 
@@ -217,35 +216,28 @@ const UnifiedBBQBuilderSettings = () => {
           
           <div style={{ display: 'grid', gap: '1rem' }}>
             <div>
-              <Label htmlFor=\"title\" style={{ display: 'block', marginBottom: '0.5rem' }}>
+              <Label htmlFor="title" style={{ display: 'block', marginBottom: '0.5rem' }}>
                 Section Title
               </Label>
               <Input
-                id=\"title\"
+                id="title"
                 value={settings.title}
                 onChange={(e) => setSettings({ ...settings, title: e.target.value })}
-                placeholder=\"Premium BBQ Builder\"
+                placeholder="Premium BBQ Builder"
               />
             </div>
 
             <div>
-              <Label htmlFor=\"subtitle\" style={{ display: 'block', marginBottom: '0.5rem' }}>
+              <Label htmlFor="subtitle" style={{ display: 'block', marginBottom: '0.5rem' }}>
                 Section Subtitle
               </Label>
               <Input
-                id=\"subtitle\"
+                id="subtitle"
                 value={settings.subtitle}
                 onChange={(e) => setSettings({ ...settings, subtitle: e.target.value })}
-                placeholder=\"Build your perfect BBQ. Every cut, every grade.\"
+                placeholder="Build your perfect BBQ. Every cut, every grade."
               />
             </div>
-          </div>
-        </Card>
-
-        {/* Preview Info */}
-        <Card style={{ padding: '1.5rem', background: '#f9fafb', border: '1px solid #e5e7eb' }}>
-          <div style={{ fontSize: '0.85rem', color: '#6b7280' }}>
-            <strong>Preview:</strong> Visit your landing page to see the BBQ Builder in action. Changes take effect immediately after saving.
           </div>
         </Card>
 
