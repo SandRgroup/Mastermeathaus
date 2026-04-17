@@ -1,9 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
+import useSiteImage from '../../hooks/useSiteImage';
 
 const BrandStorySection = () => {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef(null);
+  const { imageUrl: brandStoryImage } = useSiteImage(
+    'brand_story_image',
+    'https://images.unsplash.com/photo-1740487093184-e8d5b7859e67?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Njd8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjBidXRjaGVyJTIwbWVhdCUyMGN1dHRpbmclMjBhcnRpc2FufGVufDB8fHx8MTc3NjQwMzU0OXww&ixlib=rb-4.1.0&q=85'
+  );
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -42,7 +47,7 @@ const BrandStorySection = () => {
           >
             <div className="relative overflow-hidden rounded-sm">
               <img 
-                src="https://images.unsplash.com/photo-1740487093184-e8d5b7859e67?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Njd8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjBidXRjaGVyJTIwbWVhdCUyMGN1dHRpbmclMjBhcnRpc2FufGVufDB8fHx8MTc3NjQwMzU0OXww&ixlib=rb-4.1.0&q=85" 
+                src={brandStoryImage}
                 alt="Master Butcher" 
                 className="w-full h-[600px] object-cover"
               />

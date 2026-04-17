@@ -1,7 +1,10 @@
 import React from 'react';
 import { Mail, Phone, MapPin } from 'lucide-react';
+import useSiteImage from '../../hooks/useSiteImage';
 
 const FooterSection = () => {
+  const { imageUrl: footerLogo } = useSiteImage('site_logo', '/assets/mmh-logo.png');
+
   return (
     <footer className="relative bg-black border-t border-gray-900">
       <div className="container mx-auto px-6 py-16 max-w-7xl">
@@ -10,7 +13,7 @@ const FooterSection = () => {
           {/* Brand Column */}
           <div className="lg:col-span-1">
             <img 
-              src="/assets/mmh-logo.png" 
+              src={footerLogo}
               alt="Masters Meat Haus" 
               className="w-48 mb-6 opacity-90"
             />

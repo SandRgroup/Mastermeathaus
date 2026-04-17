@@ -9,6 +9,7 @@ import AIBBQPlanner from '../components/AIBBQPlanner';
 import PackagesSection from '../components/PackagesSection';
 import BoxesSection from '../components/BoxesSection';
 import DryAgingSelector from '../components/DryAgingSelector';
+import useSiteImage from '../hooks/useSiteImage';
 
 // New Cinematic Sections
 import HeroSection from '../components/sections/HeroSection';
@@ -20,6 +21,10 @@ import FinalCTASection from '../components/sections/FinalCTASection';
 import FooterSection from '../components/sections/FooterSection';
 
 import '../styles/LandingPage.css';
+
+const LandingPage = () => {
+  const navigate = useNavigate();
+  const { imageUrl: headerLogo } = useSiteImage('site_logo', '/assets/mmh-logo.png');
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -195,7 +200,7 @@ const LandingPage = () => {
           <div className="header-wrapper flex items-center justify-between py-4">
             <a href="/" className="header-logo-link">
               <img 
-                src="/assets/mmh-logo.png" 
+                src={headerLogo}
                 alt="Masters Meat Haus" 
                 className="h-10 opacity-90 hover:opacity-100 transition-opacity"
               />

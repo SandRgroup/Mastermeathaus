@@ -1,8 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import useSiteImage from '../../hooks/useSiteImage';
 
 const HeroSection = () => {
   const [scrollY, setScrollY] = useState(0);
+  const { imageUrl: heroBackground } = useSiteImage(
+    'hero_background',
+    'https://images.unsplash.com/photo-1556269923-e4ef51d69638?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxOTJ8MHwxfHNlYXJjaHwxfHxwcmVtaXVtJTIwcmliZXllJTIwc3RlYWslMjBkYXJrJTIwbW9vZHl8ZW58MHx8fHwxNzc2NDAzNTQ5fDA&ixlib=rb-4.1.0&q=85'
+  );
+  const { imageUrl: logoImage } = useSiteImage('site_logo', '/assets/mmh-logo.png');
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
@@ -41,7 +47,7 @@ const HeroSection = () => {
         >
           {/* Logo */}
           <motion.img 
-            src="/assets/mmh-logo.png" 
+            src={logoImage}
             alt="Masters Meat Haus" 
             className="w-[500px] max-w-[90vw] mx-auto mb-12 drop-shadow-2xl"
             initial={{ opacity: 0, scale: 0.9 }}
