@@ -9,6 +9,7 @@ import PremiumBBQBuilder from '../components/PremiumBBQBuilder';
 import PackagesSection from '../components/PackagesSection';
 import BoxesSection from '../components/BoxesSection';
 import DryAgingSelector from '../components/DryAgingSelector';
+import AIBBQPlanner from '../components/AIBBQPlanner';
 import '../styles/LandingPage.css';
 
 const LandingPage = () => {
@@ -581,6 +582,9 @@ const LandingPage = () => {
       <PackagesSection />
 
       </section>
+
+      {/* AI BBQ Planner */}
+      <AIBBQPlanner />
 
       {/* Final CTA */}
       <section className="final-cta">
