@@ -6,7 +6,6 @@ import axios from 'axios';
 import { useCart } from '../contexts/CartContext';
 import Cart from '../components/Cart';
 import PremiumBBQBuilder from '../components/PremiumBBQBuilder';
-import AIBBQPlanner from '../components/AIBBQPlanner';
 import PackagesSection from '../components/PackagesSection';
 import BoxesSection from '../components/BoxesSection';
 import DryAgingSelector from '../components/DryAgingSelector';
@@ -25,6 +24,7 @@ const LandingPage = () => {
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [dryAgingModalOpen, setDryAgingModalOpen] = useState(false);
   const [selectedProductForAging, setSelectedProductForAging] = useState(null);
+  const [showAllProducts, setShowAllProducts] = useState(false);
   const { getItemCount, setIsOpen, addToCart } = useCart();
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
@@ -172,6 +172,7 @@ const LandingPage = () => {
   };
 
   const filteredProducts = getFilteredProducts();
+  const displayedProducts = showAllProducts ? filteredProducts : filteredProducts.slice(0, 12);
 
   const testimonials = [
     { text: "Best quality I've found online. Consistent and reliable every single time.", author: "Michael R.", stars: 5 },
@@ -322,8 +323,9 @@ const LandingPage = () => {
           {loading ? (
             <div className="loading">Loading products...</div>
           ) : (
-            <div className="products-grid">
-              {filteredProducts.map((product) => (
+            <>
+              <div className="products-grid">
+                {displayedProducts.map((product) => (
                 <div key={product._id} className="product-card">
                   <div className="product-image">
                     {product.badge && (
@@ -334,7 +336,14 @@ const LandingPage = () => {
                         {product.badge}
                       </div>
                     )}
-                    <img src={product.image} alt={product.name} loading="lazy" />
+                    <img 
+                      src={product.image || 'https://via.placeholder.com/400x300/1a1a1a/C8A96A?text=Masters+Meat+Haus'} 
+                      alt={product.name} 
+                      loading="lazy"
+                      onError={(e) => {
+                        e.target.src = 'https://via.placeholder.com/400x300/1a1a1a/C8A96A?text=Masters+Meat+Haus';
+                      }}
+                    />
                   </div>
                   <div className="product-info">
                     <div className="product-grade">{product.grade}</div>
@@ -361,13 +370,17 @@ const LandingPage = () => {
                 </div>
               ))}
             </div>
+            
+            {!showAllProducts && filteredProducts.length > 12 && (
+              <div className="section-cta">
+                <button className="text-btn" onClick={() => setShowAllProducts(true)}>
+                  View all cuts ({filteredProducts.length - 12} more) →
+                </button>
+              </div>
+            )}
+            </>
           )}
 
-          <div className="section-cta">
-            <button className="text-btn" onClick={() => navigate('/shop-boxes')}>
-              View all cuts →
-            </button>
-          </div>
         </div>
       </section>
 
@@ -583,9 +596,8 @@ const LandingPage = () => {
 
       </section>
 
-      {/* Premium BBQ Builder & AI Planner */}
+      {/* Premium BBQ Builder */}
       <PremiumBBQBuilder />
-      <AIBBQPlanner />
 
       {/* Final CTA */}
       <section className="final-cta">
