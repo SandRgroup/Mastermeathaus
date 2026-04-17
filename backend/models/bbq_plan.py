@@ -7,6 +7,12 @@ class LeadInfo(BaseModel):
     email: EmailStr
     zip_code: str
 
+class StaffMessage(BaseModel):
+    id: str
+    text: str
+    author: str
+    created_at: str
+
 class BBQPlanCreate(BaseModel):
     prompt: str
     people: int
@@ -19,6 +25,10 @@ class BBQPlanCreate(BaseModel):
     total_lbs: float
     total_price: float
     lead: LeadInfo
+
+class BBQPlanUpdate(BaseModel):
+    status: Optional[str] = None
+    staff_note: Optional[str] = None
 
 class BBQPlanResponse(BaseModel):
     id: str
@@ -33,7 +43,10 @@ class BBQPlanResponse(BaseModel):
     total_lbs: float
     total_price: float
     lead: LeadInfo
+    status: Optional[str] = "new"
+    staff_messages: Optional[List[StaffMessage]] = []
     created_at: str
+    updated_at: Optional[str] = None
     
     class Config:
         from_attributes = True
