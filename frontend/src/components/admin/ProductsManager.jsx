@@ -77,6 +77,18 @@ const ProductsManager = () => {
     e.preventDefault();
     try {
       const payload = { ...formData };
+      
+      // Upload image file if one was selected
+      if (imageFile) {
+        const uploadedUrl = await handleImageUpload(imageFile);
+        if (uploadedUrl) {
+          payload.image = uploadedUrl;
+        } else {
+          toast.error('Image upload failed. Please try again.');
+          return;
+        }
+      }
+      
       if (!payload.originalPrice) delete payload.originalPrice;
       if (!payload.cookingTemp) delete payload.cookingTemp;
       if (!payload.badge) delete payload.badge;
