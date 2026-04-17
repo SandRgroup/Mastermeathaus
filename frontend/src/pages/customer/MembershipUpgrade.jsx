@@ -64,29 +64,23 @@ const MembershipUpgrade = () => {
     try {
       const token = localStorage.getItem('customerToken');
       
-      // Create/upgrade subscription
+      // Create Stripe Checkout Session
       const response = await axios.post(
-        `${backendUrl}/api/stripe/create-subscription`,
+        `${backendUrl}/api/stripe/create-checkout-session`,
         { tier_level: tierLevel },
         {
           headers: { Authorization: `Bearer ${token}` }
         }
       );
 
-      const { client_secret, subscription_id } = response.data;
+      const { url } = response.data;
       
-      toast.success('Subscription created! Redirecting to payment...');
-      
-      // TODO: Integrate Stripe Payment Element here
-      // For now, just show success
-      setTimeout(() => {
-        navigate('/portal');
-      }, 2000);
+      // Redirect to Stripe Checkout
+      window.location.href = url;
       
     } catch (error) {
-      console.error('Upgrade error:', error);
-      toast.error(error.response?.data?.detail || 'Failed to upgrade membership');
-    } finally {
+      console.error('Checkout error:', error);
+      toast.error(error.response?.data?.detail || 'Failed to start checkout');
       setUpgrading(false);
     }
   };

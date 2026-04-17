@@ -16,38 +16,37 @@ router = APIRouter(prefix="/stripe", tags=["stripe-subscriptions"])
 stripe.api_key = os.environ.get("STRIPE_API_KEY")
 WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
 
+# Your domain for success/cancel URLs
+DOMAIN = os.environ.get("FRONTEND_URL", "http://localhost:3000")
+
 # Membership tier pricing (monthly)
 MEMBERSHIP_PRICES = {
     0: {"name": "Free", "price": 0, "stripe_price_id": None},
-    1: {"name": "Select", "price": 4.99, "stripe_price_id": "price_select_monthly"},
-    2: {"name": "Prime", "price": 12.99, "stripe_price_id": "price_prime_monthly"},
-    3: {"name": "Premium", "price": 19.99, "stripe_price_id": "price_premium_monthly"}
+    1: {"name": "Select", "price": 4.99, "stripe_price_id": "price_1QsLvr8Bh5mbNofJVfb9KYP3"},
+    2: {"name": "Prime", "price": 12.99, "stripe_price_id": "price_1QsLw18Bh5mbNofJuDIJGF4k"},
+    3: {"name": "Premium", "price": 19.99, "stripe_price_id": "price_1QsLw58Bh5mbNofJ2rh4eKUY"}
 }
 
-class UpgradeMembershipRequest(BaseModel):
+class CheckoutSessionRequest(BaseModel):
     tier_level: int  # 1, 2, or 3
 
-class CreateSubscriptionResponse(BaseModel):
-    client_secret: str
-    subscription_id: str
-
-@router.post("/create-subscription")
-async def create_subscription(
-    upgrade_request: UpgradeMembershipRequest,
+@router.post("/create-checkout-session")
+async def create_checkout_session(
+    checkout_request: CheckoutSessionRequest,
     authorization: Optional[str] = Header(None)
 ):
     """
-    Create a new Stripe subscription for a customer
-    Called when customer upgrades from Free tier or changes tier
+    Create Stripe Checkout Session for membership purchase
+    Redirects to Stripe's hosted checkout page
     """
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Not authenticated")
     
-    # Get customer from token (reuse customer_auth logic)
+    # Get customer from token
     from routes.customer_auth import get_current_customer
     customer = await get_current_customer(authorization)
     
-    tier_level = upgrade_request.tier_level
+    tier_level = checkout_request.tier_level
     if tier_level not in [1, 2, 3]:
         raise HTTPException(status_code=400, detail="Invalid tier level")
     
@@ -72,31 +71,31 @@ async def create_subscription(
                 {"$set": {"stripe_customer_id": stripe_customer_id}}
             )
         
-        # Create subscription
-        subscription = stripe.Subscription.create(
+        # Create Checkout Session
+        checkout_session = stripe.checkout.Session.create(
             customer=stripe_customer_id,
-            items=[{"price": tier_info["stripe_price_id"]}],
-            payment_behavior="default_incomplete",
-            expand=["latest_invoice.payment_intent"],
+            line_items=[{
+                'price': tier_info["stripe_price_id"],
+                'quantity': 1,
+            }],
+            mode='subscription',
+            success_url=f"{DOMAIN}/portal?session_id={{CHECKOUT_SESSION_ID}}",
+            cancel_url=f"{DOMAIN}/portal/upgrade?canceled=true",
             metadata={
                 "customer_id": customer["id"],
                 "tier_level": tier_level
+            },
+            subscription_data={
+                "metadata": {
+                    "customer_id": customer["id"],
+                    "tier_level": tier_level
+                }
             }
         )
         
-        # Update customer with subscription info
-        await db.customers.update_one(
-            {"id": customer["id"]},
-            {"$set": {
-                "stripe_subscription_id": subscription.id,
-                "subscription_status": subscription.status,
-                "updated_at": datetime.now(timezone.utc).isoformat()
-            }}
-        )
-        
         return {
-            "client_secret": subscription.latest_invoice.payment_intent.client_secret,
-            "subscription_id": subscription.id
+            "url": checkout_session.url,
+            "session_id": checkout_session.id
         }
         
     except stripe.error.StripeError as e:
@@ -104,7 +103,7 @@ async def create_subscription(
 
 @router.post("/upgrade-subscription")
 async def upgrade_subscription(
-    upgrade_request: UpgradeMembershipRequest,
+    upgrade_request: CheckoutSessionRequest,
     authorization: Optional[str] = Header(None)
 ):
     """
@@ -191,7 +190,7 @@ async def cancel_subscription(authorization: Optional[str] = Header(None)):
 async def stripe_webhook(request: Request):
     """
     Handle Stripe webhook events
-    Events: customer.subscription.updated, invoice.payment_succeeded, etc.
+    Events: checkout.session.completed, customer.subscription.updated, invoice.payment_succeeded, etc.
     """
     payload = await request.body()
     sig_header = request.headers.get("stripe-signature")
@@ -202,51 +201,75 @@ async def stripe_webhook(request: Request):
                 payload, sig_header, WEBHOOK_SECRET
             )
         else:
-            event = stripe.Event.construct_from(
-                payload.decode("utf-8"), stripe.api_key
-            )
+            import json
+            event = json.loads(payload.decode("utf-8"))
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid payload")
     except stripe.error.SignatureVerificationError:
         raise HTTPException(status_code=400, detail="Invalid signature")
     
     # Handle different event types
-    if event.type == "customer.subscription.updated":
-        subscription = event.data.object
-        customer_id = subscription.metadata.get("customer_id")
-        tier_level = int(subscription.metadata.get("tier_level", 0))
+    if event['type'] == "checkout.session.completed":
+        session = event['data']['object']
+        customer_id = session['metadata'].get("customer_id")
+        tier_level = int(session['metadata'].get("tier_level", 0))
+        
+        if customer_id and session.get('subscription'):
+            # Update customer with subscription info
+            await db.customers.update_one(
+                {"id": customer_id},
+                {"$set": {
+                    "membership_tier": tier_level,
+                    "stripe_subscription_id": session['subscription'],
+                    "subscription_status": "active",
+                    "updated_at": datetime.now(timezone.utc).isoformat()
+                }}
+            )
+            
+            print(f"✓ Checkout completed - Customer {customer_id} upgraded to tier {tier_level}")
+    
+    elif event['type'] == "customer.subscription.updated":
+        subscription = event['data']['object']
+        customer_id = subscription['metadata'].get("customer_id")
+        tier_level = int(subscription['metadata'].get("tier_level", 0))
         
         if customer_id:
             await db.customers.update_one(
                 {"id": customer_id},
                 {"$set": {
                     "membership_tier": tier_level,
-                    "subscription_status": subscription.status,
+                    "subscription_status": subscription['status'],
                     "updated_at": datetime.now(timezone.utc).isoformat()
                 }}
             )
             
-            # TODO: Send email notification
             print(f"✓ Customer {customer_id} subscription updated to tier {tier_level}")
     
-    elif event.type == "invoice.payment_succeeded":
-        invoice = event.data.object
-        customer_id = invoice.subscription_metadata.get("customer_id") if invoice.subscription_metadata else None
+    elif event['type'] == "invoice.payment_succeeded":
+        invoice = event['data']['object']
+        subscription_id = invoice.get('subscription')
         
-        if customer_id:
-            await db.customers.update_one(
-                {"id": customer_id},
-                {"$set": {
-                    "last_payment_date": datetime.now(timezone.utc).isoformat(),
-                    "subscription_status": "active"
-                }}
+        if subscription_id:
+            # Find customer by subscription ID
+            customer = await db.customers.find_one(
+                {"stripe_subscription_id": subscription_id},
+                {"_id": 0}
             )
             
-            print(f"✓ Payment succeeded for customer {customer_id}")
+            if customer:
+                await db.customers.update_one(
+                    {"id": customer["id"]},
+                    {"$set": {
+                        "last_payment_date": datetime.now(timezone.utc).isoformat(),
+                        "subscription_status": "active"
+                    }}
+                )
+                
+                print(f"✓ Payment succeeded for customer {customer['id']}")
     
-    elif event.type == "customer.subscription.deleted":
-        subscription = event.data.object
-        customer_id = subscription.metadata.get("customer_id")
+    elif event['type'] == "customer.subscription.deleted":
+        subscription = event['data']['object']
+        customer_id = subscription['metadata'].get("customer_id")
         
         if customer_id:
             # Downgrade to Free tier
