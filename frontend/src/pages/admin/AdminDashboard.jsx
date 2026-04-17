@@ -37,6 +37,7 @@ const AdminDashboard = () => {
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'content', label: 'Site Content', icon: FileText },
+    { id: 'products', label: 'Products', icon: Package },
     { id: 'bundles', label: 'Bundles', icon: Package },
     { id: 'boxes', label: 'Steak Boxes', icon: Box },
     { id: 'packages', label: 'Cow Packages', icon: Package },
@@ -56,6 +57,8 @@ const AdminDashboard = () => {
         return <UnifiedCRMDashboard />;
       case 'content':
         return <SiteSettingsManager />;
+      case 'products':
+        return <ProductsManager />;
       case 'bundles':
         return <UnifiedProductsManager />;
       case 'boxes':

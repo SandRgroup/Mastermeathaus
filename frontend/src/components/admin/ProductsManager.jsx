@@ -94,7 +94,7 @@ const ProductsManager = () => {
       if (!payload.badge) delete payload.badge;
 
       if (editing) {
-        await updateProduct(editing._id, payload);
+        await updateProduct(editing.id || editing._id, payload);
         toast.success('Product updated');
       } else {
         await createProduct(payload);
@@ -390,7 +390,7 @@ const ProductsManager = () => {
 
       <div className="products-grid">
         {products.map((product) => (
-          <Card key={product._id} className="product-item">
+          <Card key={product.id || product._id} className="product-item">
             <img src={product.image} alt={product.name} className="product-img" />
             <div className="product-details">
               <div className="product-grade">{product.grade}</div>
@@ -405,7 +405,7 @@ const ProductsManager = () => {
                   <Edit size={16} />
                   Edit
                 </Button>
-                <Button size="sm" variant="destructive" onClick={() => handleDelete(product._id)}>
+                <Button size="sm" variant="destructive" onClick={() => handleDelete(product.id || product._id)}>
                   <Trash2 size={16} />
                   Delete
                 </Button>
