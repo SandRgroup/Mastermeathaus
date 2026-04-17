@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, FileText, Package, ClipboardList, Sparkles, 
   Users, UserCog, ScrollText, LogOut, Flame, Box, Tag, Menu as MenuIcon,
-  CreditCard, Sliders
+  CreditCard, Sliders, Image as ImageIconLucide
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import ProductsManager from '../../components/admin/ProductsManager';
@@ -20,6 +20,7 @@ import BBQSettingsManager from '../../components/admin/BBQSettingsManager';
 import BBQProductsManager from '../../components/admin/BBQProductsManager';
 import BbqPlansManager from '../../components/admin/BbqPlansManager';
 import UnifiedBBQBuilderSettings from '../../components/admin/UnifiedBBQBuilderSettings';
+import SiteImagesManager from '../../components/admin/SiteImagesManager';
 import '../../styles/Admin.css';
 
 const AdminDashboard = () => {
@@ -45,6 +46,7 @@ const AdminDashboard = () => {
     { id: 'discounts', label: 'Discounts', icon: Tag },
     { id: 'menu', label: 'Menu/CTAs', icon: MenuIcon },
     { id: 'bbq-builder', label: 'BBQ Builder', icon: Sliders },
+    { id: 'site-images', label: 'Site Images', icon: ImageIconLucide },
     { id: 'settings', label: 'Settings', icon: UserCog },
   ];
 
@@ -72,6 +74,8 @@ const AdminDashboard = () => {
         return <MenuManager />;
       case 'bbq-builder':
         return <UnifiedBBQBuilderSettings />;
+      case 'site-images':
+        return <SiteImagesManager />;
       case 'settings':
         return <SiteSettingsManager />;
       default:
