@@ -77,7 +77,17 @@ const AIBBQCalculator = () => {
   };
 
   const isSteak = (product) => {
-    return product.name && product.name.toLowerCase().includes('steak');
+    if (!product || !product.name) return false;
+    const name = product.name.toLowerCase();
+    
+    // Check for "steak" in name or common steak cut names
+    const steakKeywords = [
+      'steak', 'ribeye', 'rib eye', 'filet', 'mignon', 
+      'ny strip', 'new york', 'porterhouse', 't-bone', 't bone',
+      'tomahawk', 'sirloin', 'tenderloin', 'wagyu'
+    ];
+    
+    return steakKeywords.some(keyword => name.includes(keyword));
   };
 
   const handlePromptChange = (text) => {
