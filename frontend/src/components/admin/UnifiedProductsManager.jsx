@@ -17,9 +17,15 @@ const UnifiedProductsManager = () => {
     name: '',
     description: '',
     basePrice: '',
+    weight: '1.0',
+    weight_unit: 'lb',
     wagyuUpcharge: '0',
+    wagyuUpcharge_unit: 'lb',
     grassFedUpcharge: '0',
+    grassFedUpcharge_unit: 'lb',
     dryAgedUpcharge: '0',
+    dryAgedDays: '0',
+    dryAgedUpcharge_unit: 'day',
     ranchOrigin: 'Texas, USA',
     genetics: 'Premium genetics',
     grainFinished: '350+ Days',
@@ -95,10 +101,14 @@ const UnifiedProductsManager = () => {
       const payload = {
         ...formData,
         basePrice: parseFloat(formData.basePrice),
+        weight: parseFloat(formData.weight || 1.0),
         wagyuUpcharge: parseFloat(formData.wagyuUpcharge),
         grassFedUpcharge: parseFloat(formData.grassFedUpcharge),
-        dryAgedUpcharge: parseFloat(formData.dryAgedUpcharge)
+        dryAgedUpcharge: parseFloat(formData.dryAgedUpcharge),
+        dryAgedDays: parseInt(formData.dryAgedDays || 0)
       };
+
+      console.log('Sending BBQ product:', payload);
 
       const response = await fetch(url, {
         method,
@@ -113,12 +123,14 @@ const UnifiedProductsManager = () => {
         resetForm();
         setDialogOpen(false);
       } else {
-        const error = await response.text();
-        toast.error(`Failed: ${error}`);
+        const errorData = await response.json();
+        console.error('BBQ product save error:', errorData);
+        const errorMsg = errorData.detail || 'Failed to save product';
+        toast.error(`Error: ${JSON.stringify(errorMsg)}`);
       }
     } catch (error) {
       console.error('Error saving product:', error);
-      toast.error('Failed to save product. Please try again.');
+      toast.error(`Failed to save product: ${error.message}`);
     }
   };
 
