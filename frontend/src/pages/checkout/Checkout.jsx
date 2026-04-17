@@ -127,8 +127,13 @@ const Checkout = () => {
 
   const getSubtotal = () => getTotal();
   const getDiscountAmount = () => appliedDiscount ? appliedDiscount.discount_amount : 0;
+  const getMembershipDiscount = () => {
+    if (membershipTier === 0) return 0;
+    const discounts = [0, 10, 15, 15]; // Tier 0, 1, 2, 3
+    return getSubtotal() * (discounts[membershipTier] / 100);
+  };
   const getDeliveryFee = () => deliveryFee !== null ? deliveryFee : 0;
-  const getFinalTotal = () => getSubtotal() - getDiscountAmount() + getDeliveryFee();
+  const getFinalTotal = () => getSubtotal() - getDiscountAmount() - getMembershipDiscount() + getDeliveryFee();
 
   if (cart.length === 0) {
     return (
@@ -168,6 +173,14 @@ const Checkout = () => {
                 <span>Subtotal:</span>
                 <span>${getSubtotal().toFixed(2)}</span>
               </div>
+              {getMembershipDiscount() > 0 && (
+                <div className="summary-row discount-row">
+                  <span className="discount-label">
+                    ⭐ Membership Discount ({membershipTier === 1 ? '10%' : '15%'})
+                  </span>
+                  <span className="discount-value">-${getMembershipDiscount().toFixed(2)}</span>
+                </div>
+              )}
               {appliedDiscount && (
                 <div className="summary-row discount-row">
                   <span className="discount-label">

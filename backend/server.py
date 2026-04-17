@@ -596,42 +596,65 @@ async def create_checkout_session(checkout_req: CheckoutRequest, request: Reques
     try:
         stripe = get_stripe_checkout(request)
         
-        # Calculate total amount from cart
-        total_amount = 0.0
-        metadata = {"items": []}
+        # Get membership benefits
+        membership_discount = 0.0
+        membership_benefits = None
+        vip_cut_eligible = False
+        
+        if checkout_req.membership_tier and checkout_req.membership_tier > 0:
+            membership = await db.memberships.find_one({"tier_level": checkout_req.membership_tier})
+            if membership:
+                membership_benefits = membership.get('benefits', {})
+                membership_discount = membership_benefits.get('discount_percent', 0)
+        
+        # Calculate cart total
+        cart_subtotal = 0.0
+        metadata = {"items": [], "membership_tier": checkout_req.membership_tier or 0}
         
         for item in checkout_req.cart_items:
             item_total = item.price * item.quantity
+            
+            # Apply Subscribe & Save discount (10%)
             if item.subscribe:
-                item_total *= 0.9  # 10% discount
-            total_amount += item_total
+                item_total *= 0.9
+            
+            cart_subtotal += item_total
             metadata["items"].append({
                 "product_id": item.product_id,
                 "name": item.product_name,
                 "quantity": item.quantity,
                 "weight": item.weight,
-                "subscribe": item.subscribe
+                "subscribe": item.subscribe,
+                "price": item.price
             })
+        
+        # Apply membership discount
+        membership_discount_amount = 0.0
+        if membership_discount > 0:
+            membership_discount_amount = cart_subtotal * (membership_discount / 100)
+            metadata["membership_discount"] = {
+                "tier": checkout_req.membership_tier,
+                "percent": membership_discount,
+                "amount": round(membership_discount_amount, 2)
+            }
         
         # Check for Subscribe & Save items
         has_subscribe_and_save = any(item.subscribe for item in checkout_req.cart_items)
         
         # Apply discount code if provided (mutually exclusive with Subscribe & Save)
-        discount_amount = 0.0
+        discount_code_amount = 0.0
         discount_info = None
         
         if checkout_req.discount_code:
-            # Enforce mutual exclusivity
             if has_subscribe_and_save:
                 raise HTTPException(
                     status_code=400, 
-                    detail="Discount codes cannot be combined with Subscribe & Save items. Please remove Subscribe & Save items or use the discount code."
+                    detail="Discount codes cannot be combined with Subscribe & Save items."
                 )
             
             code = await db.discount_codes.find_one({"code": checkout_req.discount_code.upper()})
             
             if code and code.get("active", True):
-                # Validate code - handle datetime comparison
                 code_valid = True
                 if code.get("expires_at"):
                     expires_at = code["expires_at"]
@@ -642,33 +665,45 @@ async def create_checkout_session(checkout_req: CheckoutRequest, request: Reques
                         code_valid = False
                 
                 if code_valid and (not code.get("max_uses") or code.get("used_count", 0) < code["max_uses"]):
-                        if total_amount >= code.get("min_purchase", 0):
-                            # Calculate discount on base total (without Subscribe & Save discount)
-                            base_total = sum(item.price * item.quantity for item in checkout_req.cart_items)
-                            
-                            if code["type"] == "percentage":
-                                discount_amount = base_total * (code["value"] / 100)
-                            else:  # fixed
-                                discount_amount = min(code["value"], base_total)
-                            
-                            discount_info = {
-                                "code": code["code"],
-                                "type": code["type"],
-                                "value": code["value"],
-                                "amount": discount_amount
-                            }
-                            
-                            # Increment usage count
-                            await db.discount_codes.update_one(
-                                {"_id": code["_id"]},
-                                {"$inc": {"used_count": 1}}
-                            )
+                    if cart_subtotal >= code.get("min_purchase", 0):
+                        if code["type"] == "percentage":
+                            discount_code_amount = cart_subtotal * (code["value"] / 100)
+                        else:
+                            discount_code_amount = min(code["value"], cart_subtotal)
+                        
+                        discount_info = {
+                            "code": code["code"],
+                            "type": code["type"],
+                            "value": code["value"],
+                            "amount": discount_code_amount
+                        }
+                        
+                        await db.discount_codes.update_one(
+                            {"_id": code["_id"]},
+                            {"$inc": {"used_count": 1}}
+                        )
         
-        # Apply discount to total
-        final_amount = max(0, total_amount - discount_amount)
+        # Calculate total after discounts
+        subtotal_after_discounts = cart_subtotal - membership_discount_amount - discount_code_amount
+        
+        # Add delivery fee
+        delivery_fee = checkout_req.delivery_fee if checkout_req.delivery_fee is not None else 0.0
+        metadata["delivery_fee"] = delivery_fee
+        metadata["zip_code"] = checkout_req.zip_code
+        
+        # Check VIP Cut eligibility (Tier 2 & 3, orders $150+)
+        if membership_benefits and membership_benefits.get('vip_cut_eligible', False):
+            vip_threshold = membership_benefits.get('vip_cut_threshold', 150)
+            if subtotal_after_discounts >= vip_threshold:
+                vip_cut_eligible = True
+                metadata["vip_cut_eligible"] = True
+                metadata["vip_cut_message"] = "Free premium cut included (8oz Filet or Baseball Steak)"
+        
+        # Calculate final total
+        final_amount = max(0, subtotal_after_discounts + delivery_fee)
         
         if discount_info:
-            metadata["discount"] = discount_info
+            metadata["discount_code"] = discount_info
         
         # Create success/cancel URLs
         success_url = f"{checkout_req.origin_url}/checkout/success?session_id={{CHECKOUT_SESSION_ID}}"
@@ -689,9 +724,14 @@ async def create_checkout_session(checkout_req: CheckoutRequest, request: Reques
         transaction = {
             "session_id": session.session_id,
             "amount": final_amount,
-            "original_amount": total_amount,
-            "discount_amount": discount_amount,
+            "cart_subtotal": cart_subtotal,
+            "membership_discount_amount": membership_discount_amount,
+            "discount_code_amount": discount_code_amount,
+            "delivery_fee": delivery_fee,
             "discount_code": checkout_req.discount_code.upper() if checkout_req.discount_code else None,
+            "membership_tier": checkout_req.membership_tier,
+            "zip_code": checkout_req.zip_code,
+            "vip_cut_eligible": vip_cut_eligible,
             "currency": "usd",
             "status": "pending",
             "payment_status": "initiated",
@@ -703,8 +743,12 @@ async def create_checkout_session(checkout_req: CheckoutRequest, request: Reques
         return {
             "url": session.url, 
             "session_id": session.session_id,
-            "discount_applied": discount_amount > 0,
-            "discount_amount": round(discount_amount, 2) if discount_amount > 0 else None
+            "discount_applied": (discount_code_amount > 0 or membership_discount_amount > 0),
+            "discount_amount": round(discount_code_amount + membership_discount_amount, 2),
+            "membership_discount": round(membership_discount_amount, 2) if membership_discount_amount > 0 else None,
+            "delivery_fee": delivery_fee,
+            "vip_cut_eligible": vip_cut_eligible,
+            "final_total": round(final_amount, 2)
         }
     
     except HTTPException:

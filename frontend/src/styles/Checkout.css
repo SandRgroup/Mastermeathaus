@@ -304,3 +304,93 @@
 .total-amount {
   color: #8B0000;
 }
+
+
+/* Delivery Section */
+.delivery-card {
+  padding: 1.5rem;
+  background: white;
+  margin-bottom: 1.5rem;
+  border: 1px solid #e5e7eb;
+}
+
+.delivery-card h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #2b2b2b;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #374151;
+}
+
+.zip-input-group {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.zip-input-group input {
+  flex: 1;
+}
+
+.zip-input-group button {
+  background: #8B0000;
+  color: white;
+  min-width: 120px;
+}
+
+.zip-input-group button:hover:not(:disabled) {
+  background: #a00000;
+}
+
+.membership-select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 1rem;
+  background: white;
+  cursor: pointer;
+}
+
+.membership-select:focus {
+  outline: none;
+  border-color: #8B0000;
+  box-shadow: 0 0 0 3px rgba(139, 0, 0, 0.1);
+}
+
+.help-text {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.delivery-row {
+  color: #2563eb;
+}
+
+.free-delivery {
+  color: #059669;
+  font-weight: 700;
+}
+
+.delivery-explanation {
+  padding: 0.75rem;
+  background: #f3f4f6;
+  border-radius: 4px;
+  margin: 0.5rem 0;
+}
+
+.delivery-explanation small {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
