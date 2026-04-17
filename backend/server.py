@@ -102,6 +102,10 @@ class User(BaseModel):
     email: str
     name: str
     role: str = "admin"
+    membership_tier: int = 0  # 0=Free, 1=Premium, 2=Elite, 3=Ultimate
+    membership_id: Optional[str] = None  # Reference to membership document
+    birthday: Optional[str] = None  # Format: "MM-DD" for birthday month tracking
+    join_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class Product(BaseModel):
@@ -202,6 +206,9 @@ class CheckoutRequest(BaseModel):
     cart_items: List[CartItem]
     origin_url: str
     discount_code: Optional[str] = None
+    zip_code: Optional[str] = None
+    membership_tier: Optional[int] = 0
+    delivery_fee: Optional[float] = None
 
 class PaymentTransaction(BaseModel):
     id: str = Field(default_factory=lambda: str(ObjectId()), alias="_id")
@@ -538,6 +545,52 @@ async def upload_image(file: UploadFile = File(...), user: dict = Depends(get_cu
     return {"url": image_url}
 
 # Checkout Routes
+# Delivery fee calculation endpoint
+@api_router.post("/calculate-delivery")
+async def calculate_delivery_fee(request: Request):
+    """Calculate delivery fee based on ZIP code and membership tier"""
+    try:
+        from utils.delivery_calculator import calculate_delivery_fee
+        
+        body = await request.json()
+        zip_code = body.get('zip_code', '')
+        order_total = body.get('order_total', 0)
+        membership_tier = body.get('membership_tier', 0)
+        
+        if not zip_code:
+            raise HTTPException(status_code=400, detail="ZIP code is required")
+        
+        # Get membership benefits
+        membership_benefits = None
+        if membership_tier > 0:
+            membership = await db.memberships.find_one({"tier_level": membership_tier})
+            if membership:
+                membership_benefits = membership.get('benefits', {})
+        else:
+            # Free tier still has benefits
+            membership = await db.memberships.find_one({"tier_level": 0})
+            if membership:
+                membership_benefits = membership.get('benefits', {})
+        
+        # Calculate delivery fee
+        fee, explanation, is_free = calculate_delivery_fee(
+            customer_zip=zip_code,
+            order_total=order_total,
+            membership_tier=membership_tier,
+            membership_benefits=membership_benefits
+        )
+        
+        return {
+            "delivery_fee": fee,
+            "explanation": explanation,
+            "is_free": is_free,
+            "zip_code": zip_code
+        }
+        
+    except Exception as e:
+        logger.error(f"Delivery calculation error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api_router.post("/checkout/session")
 async def create_checkout_session(checkout_req: CheckoutRequest, request: Request):
     try:

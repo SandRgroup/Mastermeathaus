@@ -14,6 +14,11 @@ const Checkout = () => {
   const [discountCode, setDiscountCode] = useState('');
   const [appliedDiscount, setAppliedDiscount] = useState(null);
   const [validatingDiscount, setValidatingDiscount] = useState(false);
+  const [zipCode, setZipCode] = useState('');
+  const [deliveryFee, setDeliveryFee] = useState(null);
+  const [deliveryExplanation, setDeliveryExplanation] = useState('');
+  const [membershipTier, setMembershipTier] = useState(0); // Default: Free tier
+  const [calculatingDelivery, setCalculatingDelivery] = useState(false);
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   const hasSubscribeAndSave = cart.some(item => item.subscribe);
@@ -53,13 +58,58 @@ const Checkout = () => {
     toast.info('Discount code removed');
   };
 
+  const handleCalculateDelivery = async () => {
+    if (!zipCode || zipCode.length < 5) {
+      toast.error('Please enter a valid ZIP code');
+      return;
+    }
+
+    setCalculatingDelivery(true);
+    try {
+      const response = await axios.post(`${backendUrl}/api/calculate-delivery`, {
+        zip_code: zipCode,
+        order_total: getTotal(),
+        membership_tier: membershipTier
+      });
+      
+      setDeliveryFee(response.data.delivery_fee);
+      setDeliveryExplanation(response.data.explanation);
+      
+      if (response.data.is_free) {
+        toast.success('🎉 Free delivery!');
+      } else {
+        toast.info(`Delivery fee: $${response.data.delivery_fee.toFixed(2)}`);
+      }
+    } catch (error) {
+      console.error('Delivery calculation error:', error);
+      toast.error(error.response?.data?.detail || 'Could not calculate delivery fee');
+      setDeliveryFee(24.99); // Default fee
+      setDeliveryExplanation('Standard delivery fee');
+    } finally {
+      setCalculatingDelivery(false);
+    }
+  };
+
   const handleCheckout = async () => {
+    if (!zipCode || zipCode.length < 5) {
+      toast.error('Please enter your ZIP code for delivery');
+      return;
+    }
+
+    if (deliveryFee === null) {
+      toast.error('Please calculate delivery fee first');
+      return;
+    }
+
     setLoading(true);
     try {
       const response = await axios.post(`${backendUrl}/api/checkout/session`, {
         cart_items: cart,
         origin_url: window.location.origin,
-        discount_code: appliedDiscount ? appliedDiscount.code : null
+        discount_code: appliedDiscount ? appliedDiscount.code : null,
+        zip_code: zipCode,
+        membership_tier: membershipTier,
+        delivery_fee: deliveryFee
       });
       
       if (response.data.discount_applied) {
@@ -77,7 +127,8 @@ const Checkout = () => {
 
   const getSubtotal = () => getTotal();
   const getDiscountAmount = () => appliedDiscount ? appliedDiscount.discount_amount : 0;
-  const getFinalTotal = () => getSubtotal() - getDiscountAmount();
+  const getDeliveryFee = () => deliveryFee !== null ? deliveryFee : 0;
+  const getFinalTotal = () => getSubtotal() - getDiscountAmount() + getDeliveryFee();
 
   if (cart.length === 0) {
     return (
@@ -126,6 +177,19 @@ const Checkout = () => {
                   <span className="discount-value">-${getDiscountAmount().toFixed(2)}</span>
                 </div>
               )}
+              {deliveryFee !== null && (
+                <div className="summary-row delivery-row">
+                  <span>Delivery Fee:</span>
+                  <span className={deliveryFee === 0 ? 'free-delivery' : ''}>
+                    {deliveryFee === 0 ? 'FREE' : `$${deliveryFee.toFixed(2)}`}
+                  </span>
+                </div>
+              )}
+              {deliveryExplanation && (
+                <div className="delivery-explanation">
+                  <small>{deliveryExplanation}</small>
+                </div>
+              )}
               <div className="summary-row total-row">
                 <span>Total:</span>
                 <span className="total-amount">${getFinalTotal().toFixed(2)}</span>
@@ -134,7 +198,50 @@ const Checkout = () => {
           </div>
           
           <div className="payment-section">
-            <h2>Payment</h2>
+            <h2>Delivery & Payment</h2>
+            
+            {/* ZIP Code & Delivery Section */}
+            <Card className="delivery-card">
+              <h3>Delivery Information</h3>
+              
+              <div className="form-group">
+                <label>ZIP Code *</label>
+                <div className="zip-input-group">
+                  <Input
+                    placeholder="Enter ZIP code (e.g., 75238)"
+                    value={zipCode}
+                    onChange={(e) => setZipCode(e.target.value.replace(/\D/g, '').slice(0, 5))}
+                    maxLength={5}
+                    disabled={calculatingDelivery}
+                  />
+                  <Button 
+                    onClick={handleCalculateDelivery}
+                    disabled={!zipCode || zipCode.length < 5 || calculatingDelivery}
+                  >
+                    {calculatingDelivery ? 'Calculating...' : 'Calculate Fee'}
+                  </Button>
+                </div>
+                <small className="help-text">Enter your Dallas-area ZIP code to calculate delivery fee</small>
+              </div>
+
+              <div className="form-group">
+                <label>Membership Tier</label>
+                <select 
+                  className="membership-select"
+                  value={membershipTier} 
+                  onChange={(e) => {
+                    setMembershipTier(parseInt(e.target.value));
+                    setDeliveryFee(null); // Reset delivery fee when tier changes
+                  }}
+                >
+                  <option value={0}>The Stockyard Block (Free)</option>
+                  <option value={1}>The Rancher's Select ($14.99/mo)</option>
+                  <option value={2}>The Steakhouse Syndicate ($29.99/mo)</option>
+                  <option value={3}>The Haus Prime ($49.99/mo)</option>
+                </select>
+                <small className="help-text">Select your membership tier to see delivery benefits</small>
+              </div>
+            </Card>
             
             {/* Discount Code Section */}
             <Card className="discount-code-card">
