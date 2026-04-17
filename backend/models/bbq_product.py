@@ -15,8 +15,9 @@ class BBQProduct(BaseModel):
     wagyuUpcharge_unit: str = "lb"  # Unit for wagyu upcharge
     grassFedUpcharge: float = 0.0  # Additional $ per unit
     grassFedUpcharge_unit: str = "lb"  # Unit for grass fed upcharge
-    dryAgedUpcharge: float = 0.0  # Additional $ per unit
-    dryAgedUpcharge_unit: str = "lb"  # Unit for dry aged upcharge
+    dryAgedUpcharge: float = 0.0  # $ per day for dry aging
+    dryAgedDays: int = 0  # Number of days for dry aging (e.g., 30, 45, 60)
+    dryAgedUpcharge_unit: str = "day"  # Unit is now "day" instead of "lb"
     
     # Product Information (CMS Editable)
     ranchOrigin: str = "Texas, USA"
@@ -46,8 +47,9 @@ class BBQProductCreate(BaseModel):
     wagyuUpcharge_unit: str = "lb"
     grassFedUpcharge: float = 0.0
     grassFedUpcharge_unit: str = "lb"
-    dryAgedUpcharge: float = 0.0
-    dryAgedUpcharge_unit: str = "lb"
+    dryAgedUpcharge: float = 0.0  # $ per day
+    dryAgedDays: int = 0  # Number of days
+    dryAgedUpcharge_unit: str = "day"
     ranchOrigin: str = "Texas, USA"
     genetics: str = "Premium genetics"
     grainFinished: str = "350+ Days"
@@ -67,7 +69,8 @@ class BBQProductUpdate(BaseModel):
     wagyuUpcharge_unit: Optional[str] = None
     grassFedUpcharge: Optional[float] = None
     grassFedUpcharge_unit: Optional[str] = None
-    dryAgedUpcharge: Optional[float] = None
+    dryAgedUpcharge: Optional[float] = None  # $ per day
+    dryAgedDays: Optional[int] = None  # Number of days
     dryAgedUpcharge_unit: Optional[str] = None
     ranchOrigin: Optional[str] = None
     genetics: Optional[str] = None

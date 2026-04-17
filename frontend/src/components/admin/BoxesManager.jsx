@@ -1,44 +1,49 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Button } from '../ui/button';
 import { Card } from '../ui/card';
+import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { toast } from 'sonner';
-import { Plus, Pencil, Trash2, Package } from 'lucide-react';
-import '../../styles/Admin.css';
+import { Plus, Edit, Trash2, Package, X } from 'lucide-react';
 
 const BoxesManager = () => {
   const [boxes, setBoxes] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingBox, setEditingBox] = useState(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editing, setEditing] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
-    tagline: '',
     description: '',
     price: '',
-    features: [''],
-    icon: '🥩',
-    highlight: false
+    items: [],
+    features: [],
+    image: '',
+    featured: false
   });
+  const [itemInput, setItemInput] = useState({ name: '', quantity: '', unit: 'oz' });
+  const [featureInput, setFeatureInput] = useState('');
 
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   useEffect(() => {
     fetchBoxes();
+    const interval = setInterval(fetchBoxes, 10000);
+    return () => clearInterval(interval);
   }, []);
 
   const fetchBoxes = async () => {
     try {
-      const response = await axios.get(`${backendUrl}/api/steak-boxes`);
-      setBoxes(response.data);
+      const response = await fetch(`${backendUrl}/api/boxes`, {
+        credentials: 'include'
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setBoxes(data);
+      }
     } catch (error) {
-      console.error('Failed to fetch boxes:', error);
-      toast.error('Failed to load boxes');
+      console.error('Error fetching boxes:', error);
     } finally {
       setLoading(false);
     }
@@ -47,207 +52,298 @@ const BoxesManager = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    const filteredFeatures = formData.features.filter(f => f.trim() !== '');
-    
-    if (!formData.name || !formData.price || filteredFeatures.length === 0) {
-      toast.error('Please fill in all required fields');
+    if (!formData.name || !formData.price || formData.items.length === 0) {
+      toast.error('Please fill in name, price, and add at least one item');
       return;
     }
 
     try {
+      const url = editing
+        ? `${backendUrl}/api/boxes/${editing.id}`
+        : `${backendUrl}/api/boxes`;
+      
+      const method = editing ? 'PUT' : 'POST';
+      
       const payload = {
         ...formData,
-        features: filteredFeatures
+        price: parseFloat(formData.price)
       };
 
-      if (editingBox) {
-        await axios.put(`${backendUrl}/api/steak-boxes/${editingBox.id}`, payload, {
-          withCredentials: true
-        });
-        toast.success('Box updated successfully');
-      } else {
-        await axios.post(`${backendUrl}/api/steak-boxes`, payload, {
-          withCredentials: true
-        });
-        toast.success('Box created successfully');
-      }
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(payload)
+      });
 
-      fetchBoxes();
-      handleCloseDialog();
+      if (response.ok) {
+        toast.success(editing ? 'Box updated!' : 'Box created!');
+        await fetchBoxes();
+        resetForm();
+        setDialogOpen(false);
+      } else {
+        const error = await response.text();
+        toast.error(`Failed: ${error}`);
+      }
     } catch (error) {
-      console.error('Failed to save box:', error);
+      console.error('Error saving box:', error);
       toast.error('Failed to save box');
     }
   };
 
+  const handleEdit = (box) => {
+    setEditing(box);
+    setFormData({
+      name: box.name,
+      description: box.description,
+      price: box.price.toString(),
+      items: box.items || [],
+      features: box.features || [],
+      image: box.image || '',
+      featured: box.featured || false
+    });
+    setDialogOpen(true);
+  };
+
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this box?')) {
-      return;
-    }
+    if (!window.confirm('Delete this box?')) return;
 
     try {
-      await axios.delete(`${backendUrl}/api/steak-boxes/${id}`, {
-        withCredentials: true
+      const response = await fetch(`${backendUrl}/api/boxes/${id}`, {
+        method: 'DELETE',
+        credentials: 'include'
       });
-      toast.success('Box deleted');
-      fetchBoxes();
+
+      if (response.ok) {
+        toast.success('Box deleted');
+        fetchBoxes();
+      } else {
+        toast.error('Failed to delete box');
+      }
     } catch (error) {
-      console.error('Failed to delete box:', error);
+      console.error('Error deleting box:', error);
       toast.error('Failed to delete box');
     }
   };
 
-  const handleEdit = (box) => {
-    setEditingBox(box);
+  const addItem = () => {
+    if (!itemInput.name || !itemInput.quantity) {
+      toast.error('Please fill item name and quantity');
+      return;
+    }
+    
     setFormData({
-      name: box.name,
-      tagline: box.tagline,
-      description: box.description,
-      price: box.price,
-      features: box.features,
-      icon: box.icon,
-      highlight: box.highlight
+      ...formData,
+      items: [...formData.items, { ...itemInput, quantity: parseInt(itemInput.quantity) }]
     });
-    setIsDialogOpen(true);
+    setItemInput({ name: '', quantity: '', unit: 'oz' });
   };
 
-  const handleCloseDialog = () => {
-    setIsDialogOpen(false);
-    setEditingBox(null);
+  const removeItem = (index) => {
     setFormData({
-      name: '',
-      tagline: '',
-      description: '',
-      price: '',
-      features: [''],
-      icon: '🥩',
-      highlight: false
+      ...formData,
+      items: formData.items.filter((_, i) => i !== index)
     });
   };
 
   const addFeature = () => {
-    setFormData({ ...formData, features: [...formData.features, ''] });
+    if (!featureInput.trim()) {
+      toast.error('Please enter a feature');
+      return;
+    }
+    
+    setFormData({
+      ...formData,
+      features: [...formData.features, featureInput]
+    });
+    setFeatureInput('');
   };
 
   const removeFeature = (index) => {
-    const newFeatures = formData.features.filter((_, i) => i !== index);
-    setFormData({ ...formData, features: newFeatures });
+    setFormData({
+      ...formData,
+      features: formData.features.filter((_, i) => i !== index)
+    });
   };
 
-  const updateFeature = (index, value) => {
-    const newFeatures = [...formData.features];
-    newFeatures[index] = value;
-    setFormData({ ...formData, features: newFeatures });
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      description: '',
+      price: '',
+      items: [],
+      features: [],
+      image: '',
+      featured: false
+    });
+    setItemInput({ name: '', quantity: '', unit: 'oz' });
+    setFeatureInput('');
+    setEditing(null);
   };
 
   if (loading) {
-    return <div className="loading">Loading boxes...</div>;
+    return <div className="text-center py-8">Loading boxes...</div>;
   }
 
   return (
-    <div className="manager-container">
-      <div className="manager-header">
-        <h2>Steak Boxes</h2>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+    <div className="p-6">
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h2 className="text-2xl font-bold flex items-center gap-2">
+            <Package className="w-6 h-6" />
+            Steak Boxes Manager
+          </h2>
+          <p className="text-gray-600">Manage premium steak box bundles</p>
+        </div>
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={() => setEditingBox(null)}>
-              <Plus size={18} />
+            <Button onClick={resetForm}>
+              <Plus className="w-4 h-4 mr-2" />
               Add Box
             </Button>
           </DialogTrigger>
-          <DialogContent className="box-dialog">
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>{editingBox ? 'Edit Box' : 'Create Box'}</DialogTitle>
+              <DialogTitle>{editing ? 'Edit Box' : 'Create New Box'}</DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleSubmit} className="box-form">
-              <div className="form-group">
-                <Label htmlFor="name">Name *</Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <Label htmlFor="tagline">Tagline *</Label>
-                <Input
-                  id="tagline"
-                  value={formData.tagline}
-                  onChange={(e) => setFormData({ ...formData, tagline: e.target.value })}
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <Label htmlFor="description">Description *</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  required
-                />
-              </div>
-
-              <div className="form-row">
-                <div className="form-group">
-                  <Label htmlFor="price">Price *</Label>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Basic Info */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Box Name *</Label>
                   <Input
-                    id="price"
-                    value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                    placeholder="$149"
+                    placeholder="e.g., Wagyu Luxury Bundle"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     required
                   />
                 </div>
-                <div className="form-group">
-                  <Label htmlFor="icon">Icon</Label>
+                <div>
+                  <Label>Price ($) *</Label>
                   <Input
-                    id="icon"
-                    value={formData.icon}
-                    onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
+                    type="number"
+                    step="0.01"
+                    placeholder="299.00"
+                    value={formData.price}
+                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                    required
                   />
                 </div>
               </div>
 
-              <div className="form-group">
-                <Label>Features *</Label>
-                {formData.features.map((feature, index) => (
-                  <div key={index} className="feature-input-row">
-                    <Input
-                      value={feature}
-                      onChange={(e) => updateFeature(index, e.target.value)}
-                      placeholder="Feature description"
-                    />
-                    {formData.features.length > 1 && (
-                      <Button type="button" variant="ghost" size="icon" onClick={() => removeFeature(index)}>
-                        <Trash2 size={16} />
-                      </Button>
-                    )}
-                  </div>
-                ))}
-                <Button type="button" variant="outline" onClick={addFeature}>
-                  <Plus size={16} /> Add Feature
-                </Button>
+              <div>
+                <Label>Description</Label>
+                <Textarea
+                  placeholder="Describe this box bundle..."
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  rows={3}
+                />
               </div>
 
-              <div className="form-group checkbox-group">
+              {/* Items Section */}
+              <div className="border-t pt-4">
+                <h3 className="font-semibold mb-3">Box Items *</h3>
+                <div className="grid grid-cols-12 gap-2 mb-2">
+                  <Input
+                    className="col-span-5"
+                    placeholder="Item name (e.g., Ribeye Steak)"
+                    value={itemInput.name}
+                    onChange={(e) => setItemInput({ ...itemInput, name: e.target.value })}
+                  />
+                  <Input
+                    className="col-span-3"
+                    type="number"
+                    placeholder="Qty"
+                    value={itemInput.quantity}
+                    onChange={(e) => setItemInput({ ...itemInput, quantity: e.target.value })}
+                  />
+                  <select
+                    className="col-span-2 border rounded px-2"
+                    value={itemInput.unit}
+                    onChange={(e) => setItemInput({ ...itemInput, unit: e.target.value })}
+                  >
+                    <option value="oz">oz</option>
+                    <option value="pcs">pcs</option>
+                    <option value="lbs">lbs</option>
+                  </select>
+                  <Button type="button" onClick={addItem} className="col-span-2">
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                </div>
+
+                {formData.items.length > 0 && (
+                  <div className="space-y-2 mt-3">
+                    {formData.items.map((item, idx) => (
+                      <div key={idx} className="flex items-center justify-between bg-gray-50 p-2 rounded">
+                        <span className="text-sm">
+                          {item.name} - {item.quantity} {item.unit}
+                        </span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeItem(idx)}
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Features Section */}
+              <div className="border-t pt-4">
+                <h3 className="font-semibold mb-3">Features (Optional)</h3>
+                <div className="flex gap-2 mb-2">
+                  <Input
+                    placeholder="Enter a feature (e.g., Premium Aged Beef)"
+                    value={featureInput}
+                    onChange={(e) => setFeatureInput(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addFeature())}
+                  />
+                  <Button type="button" onClick={addFeature}>
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                </div>
+
+                {formData.features.length > 0 && (
+                  <div className="space-y-2 mt-3">
+                    {formData.features.map((feature, idx) => (
+                      <div key={idx} className="flex items-center justify-between bg-gray-50 p-2 rounded">
+                        <span className="text-sm">{feature}</span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeFeature(idx)}
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Additional Options */}
+              <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
-                  id="highlight"
-                  checked={formData.highlight}
-                  onChange={(e) => setFormData({ ...formData, highlight: e.target.checked })}
+                  id="featured"
+                  checked={formData.featured}
+                  onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
                 />
-                <Label htmlFor="highlight">Highlight (Best Choice)</Label>
+                <Label htmlFor="featured">Mark as Featured</Label>
               </div>
 
-              <div className="form-actions">
-                <Button type="button" variant="outline" onClick={handleCloseDialog}>
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
                   Cancel
                 </Button>
                 <Button type="submit">
-                  {editingBox ? 'Update' : 'Create'}
+                  {editing ? 'Update Box' : 'Create Box'}
                 </Button>
               </div>
             </form>
@@ -255,41 +351,56 @@ const BoxesManager = () => {
         </Dialog>
       </div>
 
-      <div className="boxes-grid">
-        {boxes.length === 0 ? (
-          <Card className="empty-state">
-            <Package size={48} />
-            <p>No steak boxes yet</p>
-            <p className="empty-subtext">Create your first box to get started</p>
-          </Card>
-        ) : (
-          boxes.map((box) => (
-            <Card key={box.id} className="box-card">
-              <div className="box-header">
-                <div className="box-icon-large">{box.icon}</div>
-                <div className="box-actions">
-                  <Button variant="ghost" size="icon" onClick={() => handleEdit(box)}>
-                    <Pencil size={16} />
-                  </Button>
-                  <Button variant="ghost" size="icon" onClick={() => handleDelete(box.id)}>
-                    <Trash2 size={16} />
-                  </Button>
-                </div>
+      {/* Boxes List */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {boxes.map((box) => (
+          <Card key={box.id} className="p-4">
+            <div className="flex justify-between items-start mb-3">
+              <div>
+                <h3 className="font-bold text-lg">{box.name}</h3>
+                <p className="text-2xl font-bold text-red-900">${box.price}</p>
               </div>
-              <h3>{box.name}</h3>
-              <p className="box-tagline">{box.tagline}</p>
-              <p className="box-description">{box.description}</p>
-              <div className="box-price">{box.price}</div>
-              <ul className="box-features">
-                {box.features.map((feature, idx) => (
-                  <li key={idx}>{feature}</li>
-                ))}
-              </ul>
-              {box.highlight && <div className="highlight-badge">Best Choice</div>}
-            </Card>
-          ))
-        )}
+              {box.featured && (
+                <span className="bg-yellow-400 text-black text-xs px-2 py-1 rounded">
+                  FEATURED
+                </span>
+              )}
+            </div>
+            
+            {box.description && (
+              <p className="text-sm text-gray-600 mb-3">{box.description}</p>
+            )}
+            
+            {box.items && box.items.length > 0 && (
+              <div className="mb-3">
+                <p className="text-sm font-semibold mb-1">Items:</p>
+                <ul className="text-sm text-gray-700">
+                  {box.items.map((item, idx) => (
+                    <li key={idx}>• {item.name} ({item.quantity} {item.unit})</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <div className="flex gap-2 mt-4">
+              <Button size="sm" variant="outline" onClick={() => handleEdit(box)}>
+                <Edit className="w-3 h-3 mr-1" />
+                Edit
+              </Button>
+              <Button size="sm" variant="destructive" onClick={() => handleDelete(box.id)}>
+                <Trash2 className="w-3 h-3 mr-1" />
+                Delete
+              </Button>
+            </div>
+          </Card>
+        ))}
       </div>
+
+      {boxes.length === 0 && (
+        <div className="text-center py-12 text-gray-500">
+          No boxes yet. Click "Add Box" to create one.
+        </div>
+      )}
     </div>
   );
 };
