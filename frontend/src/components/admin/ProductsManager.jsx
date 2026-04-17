@@ -15,6 +15,7 @@ const ProductsManager = () => {
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({});
   const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
   const [uploading, setUploading] = useState(false);
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
@@ -73,12 +74,15 @@ const ProductsManager = () => {
       price: product.price || '',
       image: product.image || ''
     });
+    setImagePreview(null);
+    setImageFile(null);
   };
 
   const cancelEdit = () => {
     setEditingId(null);
     setEditForm({});
     setImageFile(null);
+    setImagePreview(null);
   };
 
   const saveEdit = async (productId) => {
@@ -92,6 +96,8 @@ const ProductsManager = () => {
         if (uploadedUrl) {
           payload.image = uploadedUrl;
           toast.success('Image uploaded!');
+        } else {
+          toast.error('Image upload failed. Saving without new image.');
         }
       }
 
@@ -101,10 +107,21 @@ const ProductsManager = () => {
       setEditingId(null);
       setEditForm({});
       setImageFile(null);
+      setImagePreview(null);
       fetchProducts();
     } catch (error) {
       console.error('Save error:', error);
       toast.error(error.response?.data?.detail || 'Failed to save product');
+    }
+  };
+
+  const handleFileSelect = (file) => {
+    if (file) {
+      setImageFile(file);
+      // Create preview URL
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl);
+      setEditForm({ ...editForm, image: '' }); // Clear URL input when file is selected
     }
   };
 
@@ -160,10 +177,11 @@ const ProductsManager = () => {
               <div className="relative mb-3">
                 {isEditing ? (
                   <div className="space-y-2">
-                    <div className="aspect-square bg-black/40 rounded overflow-hidden border border-white/20">
+                    {/* Image Preview */}
+                    <div className="aspect-square bg-black/40 rounded overflow-hidden border-2 border-white/20">
                       <img
-                        src={editForm.image || product.image || 'https://via.placeholder.com/300?text=No+Image'}
-                        alt={editForm.name}
+                        src={imagePreview || editForm.image || product.image || 'https://via.placeholder.com/300?text=No+Image'}
+                        alt={editForm.name || 'Product'}
                         className="w-full h-full object-cover"
                         onError={(e) => {
                           e.target.src = 'https://via.placeholder.com/300?text=No+Image';
@@ -172,32 +190,47 @@ const ProductsManager = () => {
                     </div>
                     
                     {/* Image URL Input */}
-                    <Input
-                      value={editForm.image}
-                      onChange={(e) => setEditForm({ ...editForm, image: e.target.value })}
-                      placeholder="Image URL"
-                      className="bg-black/40 border-white/20 text-white text-xs h-8"
-                    />
-                    
-                    {/* OR File Upload */}
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-gray-500">OR</span>
-                      <input
-                        type="file"
-                        accept="image/*"
+                    <div>
+                      <Label className="text-xs text-gray-400 mb-1">Image URL</Label>
+                      <Input
+                        value={editForm.image}
                         onChange={(e) => {
-                          setImageFile(e.target.files[0]);
-                          setEditForm({ ...editForm, image: '' });
+                          setEditForm({ ...editForm, image: e.target.value });
+                          setImageFile(null);
+                          setImagePreview(null);
                         }}
-                        className="text-xs text-gray-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:bg-[#C8A96A] file:text-black file:cursor-pointer"
+                        placeholder="https://example.com/image.jpg"
+                        disabled={!!imageFile}
+                        className="bg-black/40 border-white/20 text-white text-xs h-8"
                       />
                     </div>
                     
-                    {imageFile && (
-                      <p className="text-xs text-green-400">
-                        ✓ {imageFile.name} ready to upload
-                      </p>
-                    )}
+                    {/* OR Separator */}
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 border-t border-gray-600"></div>
+                      <span className="text-xs text-gray-500">OR</span>
+                      <div className="flex-1 border-t border-gray-600"></div>
+                    </div>
+                    
+                    {/* File Upload */}
+                    <div>
+                      <Label className="text-xs text-gray-400 mb-1">Upload Image</Label>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleFileSelect(e.target.files[0])}
+                        className="w-full text-xs text-gray-400 file:mr-2 file:py-1.5 file:px-3 file:rounded file:border-0 file:bg-[#C8A96A] file:text-black file:cursor-pointer file:font-semibold hover:file:bg-[#B8996A]"
+                      />
+                      {imageFile && (
+                        <div className="mt-2 p-2 bg-green-500/10 border border-green-500/30 rounded">
+                          <p className="text-xs text-green-400 flex items-center gap-1">
+                            <span>✓</span>
+                            <span className="font-semibold">{imageFile.name}</span>
+                            <span className="text-gray-500">({(imageFile.size / 1024).toFixed(1)} KB)</span>
+                          </p>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 ) : (
                   <div className="aspect-square bg-black/40 rounded overflow-hidden">
