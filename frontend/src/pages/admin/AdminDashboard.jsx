@@ -16,6 +16,7 @@ import MenuManager from '../../components/admin/MenuManager';
 import CustomersManager from '../../components/admin/CustomersManager';
 import CustomersManagerCRM from '../../components/admin/CustomersManagerCRM';
 import MediaLibraryManager from '../../components/admin/MediaLibraryManager';
+import UnifiedSettingsManager from '../../components/admin/UnifiedSettingsManager';
 import UnifiedCRMDashboard from '../../components/admin/UnifiedCRMDashboard';
 import SiteSettingsManager from '../../components/admin/SiteSettingsManager';
 import BBQSettingsManager from '../../components/admin/BBQSettingsManager';
@@ -38,8 +39,7 @@ const AdminDashboard = () => {
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'content', label: 'Site Content', icon: FileText },
-    { id: 'media', label: '📸 Media Library', icon: ImageIconLucide },
+    { id: 'settings', label: '⚙️ Settings & Media', icon: UserCog },
     { id: 'products', label: 'Products', icon: Package },
     { id: 'bundles', label: 'Bundles', icon: Package },
     { id: 'boxes', label: 'Steak Boxes', icon: Box },
@@ -49,20 +49,15 @@ const AdminDashboard = () => {
     { id: 'bbq-plans', label: 'BBQ Plans', icon: Flame },
     { id: 'memberships', label: 'Memberships', icon: CreditCard },
     { id: 'discounts', label: 'Discounts', icon: Tag },
-    { id: 'menu', label: 'Menu/CTAs', icon: MenuIcon },
     { id: 'bbq-builder', label: 'BBQ Builder', icon: Sliders },
-    { id: 'site-images', label: 'Site Images', icon: ImageIconLucide },
-    { id: 'settings', label: 'Settings', icon: UserCog },
   ];
 
   const renderContent = () => {
     switch (activeView) {
       case 'dashboard':
         return <UnifiedCRMDashboard />;
-      case 'content':
-        return <SiteSettingsManager />;
-      case 'media':
-        return <MediaLibraryManager />;
+      case 'settings':
+        return <UnifiedSettingsManager />;
       case 'products':
         return <ProductsManager />;
       case 'bundles':
