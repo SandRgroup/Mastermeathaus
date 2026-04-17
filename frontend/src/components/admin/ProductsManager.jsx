@@ -175,6 +175,16 @@ const ProductsManager = () => {
             <DialogHeader>
               <DialogTitle>{editing ? 'Edit Product' : 'Add Product'}</DialogTitle>
             </DialogHeader>
+            
+            {uploading && (
+              <div className="bg-blue-500/10 border border-blue-500/30 rounded p-3 mb-4">
+                <p className="text-blue-400 text-sm flex items-center gap-2">
+                  <span className="animate-spin">⏳</span>
+                  Uploading image...
+                </p>
+              </div>
+            )}
+            
             <form onSubmit={handleSubmit} className="product-form">
               <div className="form-grid">
                 <div className="form-group">
@@ -233,28 +243,82 @@ const ProductsManager = () => {
                   />
                 </div>
                 <div className="form-group full-width">
-                  <Label htmlFor="image">Image URL or Upload</Label>
-                  <Input
-                    id="image"
-                    value={formData.image}
-                    onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                    placeholder="https://..."
-                    disabled={!!imageFile}
-                  />
-                  <div className="image-upload-section">
-                    <span>OR</span>
-                    <Input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => {
-                        setImageFile(e.target.files[0]);
-                        setFormData({ ...formData, image: '' });
-                      }}
-                    />
-                    {imageFile && (
-                      <div className="image-preview">
-                        <img src={URL.createObjectURL(imageFile)} alt="Preview" />
-                        <button type="button" onClick={() => setImageFile(null)}>Remove</button>
+                  <Label htmlFor="image">Product Image</Label>
+                  <div className="space-y-3">
+                    {/* Image URL Input */}
+                    <div>
+                      <Label className="text-sm text-gray-400 mb-1">Option 1: Image URL</Label>
+                      <Input
+                        id="image"
+                        value={formData.image}
+                        onChange={(e) => {
+                          setFormData({ ...formData, image: e.target.value });
+                          setImageFile(null); // Clear file if URL is being used
+                        }}
+                        placeholder="https://example.com/image.jpg"
+                        disabled={!!imageFile}
+                      />
+                    </div>
+                    
+                    {/* OR Separator */}
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1 border-t border-gray-600"></div>
+                      <span className="text-sm text-gray-400">OR</span>
+                      <div className="flex-1 border-t border-gray-600"></div>
+                    </div>
+                    
+                    {/* File Upload */}
+                    <div>
+                      <Label className="text-sm text-gray-400 mb-1">Option 2: Upload File</Label>
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          setImageFile(e.target.files[0]);
+                          setFormData({ ...formData, image: '' }); // Clear URL if file is being used
+                        }}
+                        className="cursor-pointer"
+                      />
+                      {imageFile && (
+                        <div className="mt-3 p-3 bg-white/5 border border-white/10 rounded">
+                          <div className="flex items-start gap-3">
+                            <img 
+                              src={URL.createObjectURL(imageFile)} 
+                              alt="Preview" 
+                              className="w-24 h-24 object-cover rounded"
+                            />
+                            <div className="flex-1">
+                              <p className="text-sm text-white font-medium">{imageFile.name}</p>
+                              <p className="text-xs text-gray-400 mt-1">
+                                {(imageFile.size / 1024).toFixed(1)} KB
+                              </p>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setImageFile(null)}
+                                className="mt-2 text-red-400 hover:text-red-300"
+                              >
+                                Remove
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Current Image Preview (when editing) */}
+                    {editing && formData.image && !imageFile && (
+                      <div className="mt-3 p-3 bg-white/5 border border-white/10 rounded">
+                        <Label className="text-sm text-gray-400 mb-2">Current Image</Label>
+                        <img 
+                          src={formData.image} 
+                          alt="Current" 
+                          className="w-32 h-32 object-cover rounded mt-2"
+                          onError={(e) => {
+                            e.target.src = 'https://via.placeholder.com/300x300?text=No+Image';
+                          }}
+                        />
                       </div>
                     )}
                   </div>
