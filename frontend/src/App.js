@@ -6,6 +6,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import CustomerLogin from "./pages/customer/CustomerLogin";
 import CustomerDashboard from "./pages/customer/CustomerDashboard";
 import CustomerProfile from "./pages/customer/CustomerProfile";
+import MembershipUpgrade from "./pages/customer/MembershipUpgrade";
 import Checkout from "./pages/checkout/Checkout";
 import Success from "./pages/checkout/Success";
 import Cancel from "./pages/checkout/Cancel";
@@ -78,6 +79,7 @@ function App() {
               <Route path="/customer/login" element={<CustomerLogin />} />
               <Route path="/portal" element={<CustomerDashboard />} />
               <Route path="/portal/profile" element={<CustomerProfile />} />
+              <Route path="/portal/upgrade" element={<MembershipUpgrade />} />
             </Routes>
           </BrowserRouter>
           <Toaster position="bottom-right" />

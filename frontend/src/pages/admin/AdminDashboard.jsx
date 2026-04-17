@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, FileText, Package, ClipboardList, Sparkles, 
   Users, UserCog, ScrollText, LogOut, Flame, Box, Tag, Menu as MenuIcon,
-  CreditCard, Sliders, Image as ImageIconLucide
+  CreditCard, Sliders, Image as ImageIconLucide, Shield
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import ProductsManager from '../../components/admin/ProductsManager';
@@ -14,6 +14,7 @@ import DiscountsManager from '../../components/admin/DiscountsManager';
 import BoxesManager from '../../components/admin/BoxesManager';
 import MenuManager from '../../components/admin/MenuManager';
 import CustomersManager from '../../components/admin/CustomersManager';
+import CustomersManagerCRM from '../../components/admin/CustomersManagerCRM';
 import UnifiedCRMDashboard from '../../components/admin/UnifiedCRMDashboard';
 import SiteSettingsManager from '../../components/admin/SiteSettingsManager';
 import BBQSettingsManager from '../../components/admin/BBQSettingsManager';
@@ -42,6 +43,7 @@ const AdminDashboard = () => {
     { id: 'boxes', label: 'Steak Boxes', icon: Box },
     { id: 'packages', label: 'Cow Packages', icon: Package },
     { id: 'customers', label: 'Customers', icon: Users },
+    { id: 'customers-crm', label: '🛡️ CRM God Mode', icon: Shield },
     { id: 'bbq-plans', label: 'BBQ Plans', icon: Flame },
     { id: 'memberships', label: 'Memberships', icon: CreditCard },
     { id: 'discounts', label: 'Discounts', icon: Tag },
@@ -67,6 +69,8 @@ const AdminDashboard = () => {
         return <PackagesManager />;
       case 'customers':
         return <CustomersManager />;
+      case 'customers-crm':
+        return <CustomersManagerCRM />;
       case 'bbq-plans':
         return <BbqPlansManager />;
       case 'memberships':

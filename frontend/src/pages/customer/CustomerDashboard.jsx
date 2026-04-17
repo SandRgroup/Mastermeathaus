@@ -159,7 +159,7 @@ const CustomerDashboard = () => {
 
             {/* Upgrade CTA */}
             {currentTier < 3 && (
-              <Link to="/membership/premium">
+              <Link to="/portal/upgrade">
                 <Button className="bg-gradient-to-r from-red-900 to-red-800 hover:from-red-800 hover:to-red-700 text-white">
                   Upgrade Membership
                   <ArrowRight className="ml-2 w-4 h-4" />
