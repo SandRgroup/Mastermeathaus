@@ -192,11 +192,11 @@ const ProductsManager = () => {
                     {/* Image Preview */}
                     <div className="aspect-square bg-black/40 rounded overflow-hidden border-2 border-white/20">
                       <img
-                        src={imagePreview || editForm.image || product.image || 'https://via.placeholder.com/300?text=No+Image'}
+                        src={imagePreview || editForm.image || product.image || 'https://images.unsplash.com/photo-1588347818036-4c0b583d9da5?w=300'}
                         alt={editForm.name || 'Product'}
                         className="w-full h-full object-cover"
                         onError={(e) => {
-                          e.target.src = 'https://via.placeholder.com/300?text=No+Image';
+                          e.target.src = 'https://images.unsplash.com/photo-1588347818036-4c0b583d9da5?w=300';
                         }}
                       />
                     </div>
@@ -211,7 +211,7 @@ const ProductsManager = () => {
                           setImageFile(null);
                           setImagePreview(null);
                         }}
-                        placeholder="https://example.com/image.jpg"
+                        placeholder="Paste image URL or upload below"
                         disabled={!!imageFile}
                         className="bg-black/40 border-white/20 text-white text-xs h-8"
                       />
@@ -226,7 +226,7 @@ const ProductsManager = () => {
                     
                     {/* File Upload */}
                     <div>
-                      <Label className="text-xs text-gray-400 mb-1">Upload Image</Label>
+                      <Label className="text-xs text-gray-400 mb-1">Upload from Computer</Label>
                       <input
                         type="file"
                         accept="image/*"
@@ -247,11 +247,11 @@ const ProductsManager = () => {
                 ) : (
                   <div className="aspect-square bg-black/40 rounded overflow-hidden">
                     <img
-                      src={product.image || 'https://via.placeholder.com/300?text=No+Image'}
+                      src={product.image || 'https://images.unsplash.com/photo-1588347818036-4c0b583d9da5?w=300'}
                       alt={product.name}
                       className="w-full h-full object-cover"
                       onError={(e) => {
-                        e.target.src = 'https://via.placeholder.com/300?text=No+Image';
+                        e.target.src = 'https://images.unsplash.com/photo-1588347818036-4c0b583d9da5?w=300';
                       }}
                     />
                   </div>
