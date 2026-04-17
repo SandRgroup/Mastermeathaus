@@ -31,6 +31,7 @@ from routes.site_images import router as site_images_router
 from routes.customer_auth import router as customer_auth_router
 from routes.stripe_subscriptions import router as stripe_subscriptions_router
 from routes.admin_crm import router as admin_crm_router
+from routes.media_library import router as media_library_router
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
@@ -1218,6 +1219,7 @@ api_router.include_router(site_images_router)
 api_router.include_router(customer_auth_router)
 api_router.include_router(stripe_subscriptions_router)
 api_router.include_router(admin_crm_router)
+api_router.include_router(media_library_router)
 
 # Import boxes router
 from routes.boxes import router as boxes_router

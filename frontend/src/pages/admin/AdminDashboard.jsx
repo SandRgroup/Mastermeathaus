@@ -15,6 +15,7 @@ import BoxesManager from '../../components/admin/BoxesManager';
 import MenuManager from '../../components/admin/MenuManager';
 import CustomersManager from '../../components/admin/CustomersManager';
 import CustomersManagerCRM from '../../components/admin/CustomersManagerCRM';
+import MediaLibraryManager from '../../components/admin/MediaLibraryManager';
 import UnifiedCRMDashboard from '../../components/admin/UnifiedCRMDashboard';
 import SiteSettingsManager from '../../components/admin/SiteSettingsManager';
 import BBQSettingsManager from '../../components/admin/BBQSettingsManager';
@@ -38,6 +39,7 @@ const AdminDashboard = () => {
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'content', label: 'Site Content', icon: FileText },
+    { id: 'media', label: '📸 Media Library', icon: ImageIconLucide },
     { id: 'products', label: 'Products', icon: Package },
     { id: 'bundles', label: 'Bundles', icon: Package },
     { id: 'boxes', label: 'Steak Boxes', icon: Box },
@@ -59,6 +61,8 @@ const AdminDashboard = () => {
         return <UnifiedCRMDashboard />;
       case 'content':
         return <SiteSettingsManager />;
+      case 'media':
+        return <MediaLibraryManager />;
       case 'products':
         return <ProductsManager />;
       case 'bundles':
