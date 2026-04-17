@@ -308,36 +308,36 @@ async def logout(response: Response):
 async def get_me(user: dict = Depends(get_current_user)):
     return user
 
-# Product Routes
-@api_router.get("/products", response_model=List[Product])
-async def get_products():
-    products = await db.products.find(
-        {},
-        {"_id": 1, "name": 1, "grade": 1, "description": 1, "price": 1, "originalPrice": 1, "image": 1, "cookingTemp": 1, "badge": 1, "weight_unit": 1, "availableForBBQ": 1, "pricePerLb": 1, "created_at": 1}
-    ).limit(100).to_list(100)
-    return [Product(**{**p, "_id": str(p["_id"])}) for p in products]
+# Product Routes - MOVED TO routes/products.py
+# @api_router.get("/products", response_model=List[Product])
+# async def get_products():
+#     products = await db.products.find(
+#         {},
+#         {"_id": 1, "name": 1, "grade": 1, "description": 1, "price": 1, "originalPrice": 1, "image": 1, "cookingTemp": 1, "badge": 1, "weight_unit": 1, "availableForBBQ": 1, "pricePerLb": 1, "created_at": 1}
+#     ).limit(100).to_list(100)
+#     return [Product(**{**p, "_id": str(p["_id"])}) for p in products]
 
-@api_router.post("/products", response_model=Product)
-async def create_product(product: ProductCreate, user: dict = Depends(get_current_user)):
-    product_dict = product.dict()
-    product_dict["created_at"] = datetime.now(timezone.utc)
-    result = await db.products.insert_one(product_dict)
-    product_dict["_id"] = str(result.inserted_id)
-    return Product(**product_dict)
+# @api_router.post("/products", response_model=Product)
+# async def create_product(product: ProductCreate, user: dict = Depends(get_current_user)):
+#     product_dict = product.dict()
+#     product_dict["created_at"] = datetime.now(timezone.utc)
+#     result = await db.products.insert_one(product_dict)
+#     product_dict["_id"] = str(result.inserted_id)
+#     return Product(**product_dict)
 
-@api_router.put("/products/{product_id}", response_model=Product)
-async def update_product(product_id: str, product: ProductCreate, user: dict = Depends(get_current_user)):
-    await db.products.update_one(
-        {"_id": ObjectId(product_id)},
-        {"$set": product.dict()}
-    )
-    updated = await db.products.find_one({"_id": ObjectId(product_id)})
-    return Product(**{**updated, "_id": str(updated["_id"])})
+# @api_router.put("/products/{product_id}", response_model=Product)
+# async def update_product(product_id: str, product: ProductCreate, user: dict = Depends(get_current_user)):
+#     await db.products.update_one(
+#         {"_id": ObjectId(product_id)},
+#         {"$set": product.dict()}
+#     )
+#     updated = await db.products.find_one({"_id": ObjectId(product_id)})
+#     return Product(**{**updated, "_id": str(updated["_id"])})
 
-@api_router.delete("/products/{product_id}")
-async def delete_product(product_id: str, user: dict = Depends(get_current_user)):
-    await db.products.delete_one({"_id": ObjectId(product_id)})
-    return {"message": "Product deleted"}
+# @api_router.delete("/products/{product_id}")
+# async def delete_product(product_id: str, user: dict = Depends(get_current_user)):
+#     await db.products.delete_one({"_id": ObjectId(product_id)})
+#     return {"message": "Product deleted"}
 
 # Membership Routes - MOVED TO routes/memberships.py
 # @api_router.get("/memberships", response_model=List[Membership])
@@ -1201,6 +1201,8 @@ async def create_bbq_checkout(request: dict, req: Request):
 
 # Include router - MUST be after all routes are defined
 # Register all API routes
+from routes.products import router as products_router
+api_router.include_router(products_router)
 api_router.include_router(bbq_products_router)
 api_router.include_router(packages_router)
 api_router.include_router(memberships_router)

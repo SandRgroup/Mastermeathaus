@@ -4,6 +4,7 @@ from typing import List
 from models.product import Product, ProductCreate, ProductUpdate
 from utils.auth import get_current_user
 from database import db
+from uuid import uuid4
 
 router = APIRouter(prefix="/products", tags=["products"])
 
@@ -16,15 +17,23 @@ async def get_products():
 @router.post("", response_model=Product, dependencies=[Depends(get_current_user)])
 async def create_product(product: ProductCreate):
     """Create a new product"""
-    product_dict = product.model_dump()
-    result = await db.products.insert_one(product_dict)
-    created_product = await db.products.find_one({"_id": result.inserted_id}, {"_id": 0})
+    product_dict = product.model_dump(exclude_none=True)
+    
+    # Generate unique ID
+    product_id = f"prod_{uuid4().hex[:8]}"
+    product_dict["id"] = product_id
+    
+    # Insert to database
+    await db.products.insert_one(product_dict)
+    
+    # Return created product
+    created_product = await db.products.find_one({"id": product_id}, {"_id": 0})
     return created_product
 
 @router.put("/{product_id}", response_model=Product, dependencies=[Depends(get_current_user)])
 async def update_product(product_id: str, product: ProductUpdate):
     """Update a product"""
-    update_data = {k: v for k, v in product.model_dump().items() if v is not None}
+    update_data = {k: v for k, v in product.model_dump(exclude_none=True).items() if v is not None}
     if not update_data:
         raise HTTPException(status_code=400, detail="No fields to update")
     
