@@ -10,10 +10,12 @@ import DiscountsManager from '../../components/admin/DiscountsManager';
 import BoxesManager from '../../components/admin/BoxesManager';
 import MenuManager from '../../components/admin/MenuManager';
 import CustomersManager from '../../components/admin/CustomersManager';
+import UnifiedCRMDashboard from '../../components/admin/UnifiedCRMDashboard';
 import SiteSettingsManager from '../../components/admin/SiteSettingsManager';
 import BBQSettingsManager from '../../components/admin/BBQSettingsManager';
 import BBQProductsManager from '../../components/admin/BBQProductsManager';
-import { LogOut, Package, CreditCard, Tag, Box, Menu, Users, Settings, Flame, Beef } from 'lucide-react';
+import BbqPlansManager from '../../components/admin/BbqPlansManager';
+import { LogOut, Package, CreditCard, Tag, Box, Menu, Users, Settings, Flame, Beef, Sparkles, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import '../../styles/Admin.css';
 
@@ -37,8 +39,20 @@ const AdminDashboard = () => {
       </div>
 
       <div className="admin-content">
-        <Tabs defaultValue="products" className="admin-tabs">
+        <Tabs defaultValue="crm" className="admin-tabs">
           <TabsList className="tabs-list">
+            <TabsTrigger value="crm" className="tab-trigger">
+              <LayoutDashboard size={18} />
+              CRM Dashboard
+            </TabsTrigger>
+            <TabsTrigger value="customers" className="tab-trigger">
+              <Users size={18} />
+              Customers
+            </TabsTrigger>
+            <TabsTrigger value="bbq-plans" className="tab-trigger">
+              <Sparkles size={18} />
+              BBQ Plans
+            </TabsTrigger>
             <TabsTrigger value="products" className="tab-trigger">
               <Package size={18} />
               Products
@@ -63,10 +77,6 @@ const AdminDashboard = () => {
               <Menu size={18} />
               Menu/CTAs
             </TabsTrigger>
-            <TabsTrigger value="customers" className="tab-trigger">
-              <Users size={18} />
-              CRM
-            </TabsTrigger>
             <TabsTrigger value="settings" className="tab-trigger">
               <Settings size={18} />
               Website
@@ -80,6 +90,18 @@ const AdminDashboard = () => {
               BBQ Meats
             </TabsTrigger>
           </TabsList>
+          
+          <TabsContent value="crm">
+            <UnifiedCRMDashboard />
+          </TabsContent>
+          
+          <TabsContent value="customers">
+            <CustomersManager />
+          </TabsContent>
+          
+          <TabsContent value="bbq-plans">
+            <BbqPlansManager />
+          </TabsContent>
           
           <TabsContent value="products">
             <UnifiedProductsManager />
@@ -107,6 +129,10 @@ const AdminDashboard = () => {
           
           <TabsContent value="customers">
             <CustomersManager />
+          </TabsContent>
+          
+          <TabsContent value="bbq-plans">
+            <BbqPlansManager />
           </TabsContent>
           
           <TabsContent value="settings">
