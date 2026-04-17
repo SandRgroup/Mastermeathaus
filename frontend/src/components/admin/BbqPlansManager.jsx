@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import axios from "axios";
-import { ChevronDown, Mail, Trash2, Check, DollarSign, Users, Flame, Copy } from "lucide-react";
+import { ChevronDown, Mail, Trash2, Check, DollarSign, Users, Flame, Copy, Sparkles } from "lucide-react";
 
 const STATUS_OPTIONS = [
   { id: "new", label: "New Lead", tone: "amber" },
@@ -378,6 +378,56 @@ Zip: ${plan.lead.zip_code}
                   </li>
                 ))}
               </ul>
+            </div>
+          )}
+
+          {/* Upgrade Proposal Section */}
+          {plan.upgrade_proposal && (
+            <div className="bg-amber-900/10 border border-amber-600/30 p-5">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <div className="text-amber-400 text-[0.65rem] uppercase tracking-[0.28em] mb-2 flex items-center gap-2">
+                    <Sparkles size={14} />
+                    Upgrade Proposal
+                  </div>
+                  <div className="text-[#F5F1E8] font-serif text-xl mb-1">
+                    {plan.upgrade_proposal.title || 'Premium Upgrade Available'}
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-xs text-amber-400 uppercase tracking-wider mb-1">Additional</div>
+                  <div className="text-amber-400 font-semibold text-2xl">
+                    +${plan.upgrade_proposal.additional_cost?.toFixed(2) || '0.00'}
+                  </div>
+                </div>
+              </div>
+              
+              {plan.upgrade_proposal.description && (
+                <p className="text-[#A89F8F] text-sm mb-4 leading-relaxed">{plan.upgrade_proposal.description}</p>
+              )}
+
+              {plan.upgrade_proposal.features && plan.upgrade_proposal.features.length > 0 && (
+                <div className="space-y-2 mb-4">
+                  {plan.upgrade_proposal.features.map((feature, idx) => (
+                    <div key={idx} className="flex items-start gap-2 text-sm text-[#F5F1E8]">
+                      <Check size={16} className="text-amber-400 flex-shrink-0 mt-0.5" />
+                      <span>{feature}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="flex items-center gap-3 pt-4 border-t border-amber-600/20">
+                <Badge tone={plan.upgrade_proposal.status === 'accepted' ? 'green' : plan.upgrade_proposal.status === 'declined' ? 'red' : 'amber'}>
+                  {plan.upgrade_proposal.status === 'accepted' ? 'Accepted' : plan.upgrade_proposal.status === 'declined' ? 'Declined' : 'Pending'}
+                </Badge>
+                {plan.upgrade_proposal.status === 'pending' && (
+                  <span className="text-xs text-[#A89F8F]">Awaiting customer response</span>
+                )}
+                {plan.upgrade_proposal.sent_at && (
+                  <span className="text-xs text-[#A89F8F]">· Sent {fmtDate(plan.upgrade_proposal.sent_at)}</span>
+                )}
+              </div>
             </div>
           )}
 

@@ -52,8 +52,22 @@ const BoxesManager = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.price || formData.items.length === 0) {
-      toast.error('Please fill in name, price, and add at least one item');
+    // Enhanced validation with better debugging
+    console.log('Form data:', formData);
+    console.log('Name:', formData.name, 'Price:', formData.price, 'Items:', formData.items);
+    
+    if (!formData.name || !formData.name.trim()) {
+      toast.error('Please enter a box name');
+      return;
+    }
+    
+    if (!formData.price || parseFloat(formData.price) <= 0) {
+      toast.error('Please enter a valid price');
+      return;
+    }
+    
+    if (!formData.items || formData.items.length === 0) {
+      toast.error('Please add at least one item to the box');
       return;
     }
 
@@ -66,8 +80,11 @@ const BoxesManager = () => {
       
       const payload = {
         ...formData,
-        price: parseFloat(formData.price)
+        price: parseFloat(formData.price),
+        name: formData.name.trim()
       };
+
+      console.log('Submitting payload:', payload);
 
       const response = await fetch(url, {
         method,
