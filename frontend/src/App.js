@@ -1,6 +1,8 @@
 import "@/App.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
+import Shop from "./pages/Shop";
+import ProductDetail from "./pages/ProductDetail";
 import Login from "./pages/admin/Login";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import CustomerLogin from "./pages/customer/CustomerLogin";
@@ -48,6 +50,8 @@ function App() {
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<LandingPage />} />
+              <Route path="/shop" element={<Shop />} />
+              <Route path="/product/:id" element={<ProductDetail />} />
               <Route path="/shop-boxes" element={<ShopBoxes />} />
               <Route path="/build-your-box" element={<BuildYourBox />} />
               <Route path="/about" element={<About />} />

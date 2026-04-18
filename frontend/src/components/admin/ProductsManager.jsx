@@ -4,7 +4,7 @@ import { Card } from '../ui/card';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
-import { Plus, Save, X, Edit, Trash2, Image as ImageIcon } from 'lucide-react';
+import { Plus, Save, X, Edit, Trash2, Image as ImageIcon, Download } from 'lucide-react';
 import { getProducts, createProduct, updateProduct, deleteProduct } from '../../api/cms';
 import { toast } from 'sonner';
 import axios from 'axios';
@@ -162,12 +162,21 @@ const ProductsManager = () => {
   return (
     <div className="products-manager p-6">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-          Products Manager
-        </h2>
-        <p className="text-sm text-gray-400">
-          Click Edit to change product details inline
-        </p>
+        <div>
+          <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+            Products Manager
+          </h2>
+          <p className="text-sm text-gray-400 mt-1">
+            Click Edit to change product details inline
+          </p>
+        </div>
+        <Button
+          onClick={downloadProductsCSV}
+          className="bg-green-600 hover:bg-green-700 text-white"
+        >
+          <Download className="mr-2 h-4 w-4" />
+          Download CSV ({products.length} products)
+        </Button>
       </div>
 
       {/* Products Grid */}

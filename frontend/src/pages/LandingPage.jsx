@@ -210,7 +210,7 @@ const LandingPage = () => {
               />
             </a>
             <nav className="main-nav flex items-center gap-8">
-              <a href="#products" className="text-gray-300 hover:text-[#C8A96A] transition-colors text-sm uppercase tracking-wider">Shop</a>
+              <a href="/shop" className="text-gray-300 hover:text-[#C8A96A] transition-colors text-sm uppercase tracking-wider">Shop</a>
               <a href="#membership" className="text-gray-300 hover:text-[#C8A96A] transition-colors text-sm uppercase tracking-wider">Membership</a>
               <a href="#features" className="text-gray-300 hover:text-[#C8A96A] transition-colors text-sm uppercase tracking-wider">Features</a>
               <a href="#reviews" className="text-gray-300 hover:text-[#C8A96A] transition-colors text-sm uppercase tracking-wider">Reviews</a>
