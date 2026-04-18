@@ -6,7 +6,7 @@ import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { toast } from 'sonner';
-import { Plus, Edit, Trash2, Package } from 'lucide-react';
+import { Plus, Edit, Trash2, Package, Download } from 'lucide-react';
 
 const PackagesManager = () => {
   const [packages, setPackages] = useState([]);
@@ -173,21 +173,29 @@ const PackagesManager = () => {
         <div>
           <h2 className="text-2xl font-bold flex items-center gap-2">
             <Package className="w-6 h-6" />
-            Cow Packages Manager
+            Steak Box Bundles Manager
           </h2>
-          <p className="text-gray-600">Manage Half/Quarter Cow packages</p>
+          <p className="text-gray-600">Manage Half/Quarter Cow packages & bundles</p>
         </div>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={resetForm}>
-              <Plus className="w-4 h-4 mr-2" />
-              Add Package
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>{editing ? 'Edit Package' : 'Add New Package'}</DialogTitle>
-            </DialogHeader>
+        <div className="flex gap-2">
+          <Button
+            onClick={downloadPackagesCSV}
+            className="bg-green-600 hover:bg-green-700"
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Download CSV ({packages.length})
+          </Button>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={resetForm}>
+                <Plus className="w-4 h-4 mr-2" />
+                Add Package
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>{editing ? 'Edit Package' : 'Add New Package'}</DialogTitle>
+              </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <Label htmlFor="name">Package Name *</Label>

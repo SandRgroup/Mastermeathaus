@@ -5,7 +5,7 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Checkbox } from '../ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
-import { Plus, Edit, Trash2, X } from 'lucide-react';
+import { Plus, Edit, Trash2, X, Download } from 'lucide-react';
 import { toast } from 'sonner';
 
 const MembershipsManager = () => {
@@ -161,6 +161,53 @@ const MembershipsManager = () => {
     }
   };
 
+  const downloadMembershipsCSV = () => {
+    try {
+      // CSV headers
+      const headers = [
+        'ID', 'Tier Name', 'Tier Level', 'Monthly Price', 'Yearly Price',
+        'Description', 'Features', 'Highlight', 'Best Value'
+      ];
+      
+      // Convert memberships to CSV rows
+      const rows = memberships.map(membership => [
+        membership.id || membership._id || '',
+        membership.tier_name || '',
+        membership.tier_level || '',
+        membership.monthly_price || '',
+        membership.yearly_price || '',
+        (membership.description || '').replace(/"/g, '""'),
+        Array.isArray(membership.features) ? membership.features.join('; ') : '',
+        membership.highlight ? 'Yes' : 'No',
+        membership.best_value ? 'Yes' : 'No'
+      ]);
+      
+      // Combine headers and rows
+      const csvContent = [
+        headers.join(','),
+        ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+      ].join('\n');
+      
+      // Create download link
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      
+      link.setAttribute('href', url);
+      link.setAttribute('download', `memberships_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast.success(`Downloaded ${memberships.length} membership tiers to CSV!`);
+    } catch (error) {
+      console.error('Error downloading CSV:', error);
+      toast.error('Failed to download CSV');
+    }
+  };
+
   const resetForm = () => {
     setFormData({
       tier_name: '',
@@ -197,18 +244,29 @@ const MembershipsManager = () => {
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">Memberships</h2>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={resetForm}>
-              <Plus className="w-4 h-4 mr-2" />
-              Add Membership
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>{editing ? 'Edit Membership' : 'Add Membership'}</DialogTitle>
-            </DialogHeader>
+        <div>
+          <h2 className="text-2xl font-bold">Memberships</h2>
+          <p className="text-sm text-gray-400 mt-1">Manage subscription tiers</p>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            onClick={downloadMembershipsCSV}
+            className="bg-green-600 hover:bg-green-700"
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Download CSV ({memberships.length})
+          </Button>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={resetForm}>
+                <Plus className="w-4 h-4 mr-2" />
+                Add Membership
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>{editing ? 'Edit Membership' : 'Add Membership'}</DialogTitle>
+              </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
