@@ -322,6 +322,7 @@ const PackagesManager = () => {
           </DialogContent>
         </Dialog>
       </div>
+      </div>
 
       <div className="grid gap-4">
         {packages.length === 0 ? (
