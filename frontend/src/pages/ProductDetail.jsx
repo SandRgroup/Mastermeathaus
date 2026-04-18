@@ -5,6 +5,8 @@ import { ShoppingCart, ArrowLeft, Check } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { toast } from 'sonner';
 
+const LOGO_URL = 'https://customer-assets.emergentagent.com/job_wagyu-vault/artifacts/xd3bmr62_ChatGPT%20Image%20Apr%2017%2C%202026%20at%2008_47_27%20PM%20%282%29.png';
+
 const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -131,15 +133,56 @@ const ProductDetail = () => {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(to bottom, #0a0a0a, #1a1a1a)',
-      paddingTop: '6rem',
-      paddingBottom: '4rem'
+      background: 'linear-gradient(to bottom, #0a0a0a, #1a1a1a)'
     }}>
-      <div style={{
-        maxWidth: '1200px',
-        margin: '0 auto',
-        padding: '0 1.5rem'
+      {/* Header with Logo */}
+      <header style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 50,
+        background: 'rgba(0, 0, 0, 0.95)',
+        backdropFilter: 'blur(10px)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
       }}>
+        <div style={{
+          maxWidth: '1400px',
+          margin: '0 auto',
+          padding: '1rem 1.5rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between'
+        }}>
+          <a href="/" style={{ display: 'flex', alignItems: 'center' }}>
+            <img 
+              src={LOGO_URL}
+              alt="Masters Meat Haus - Premium Butchery"
+              style={{
+                height: '50px',
+                width: 'auto',
+                objectFit: 'contain'
+              }}
+            />
+          </a>
+          <nav style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
+            <a href="/" style={{ color: '#A8A296', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.1em', textDecoration: 'none' }}>
+              Home
+            </a>
+            <a href="/shop" style={{ color: '#C8A96A', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.1em', textDecoration: 'none' }}>
+              Shop
+            </a>
+          </nav>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <div style={{ paddingTop: '6rem', paddingBottom: '4rem' }}>
+        <div style={{
+          maxWidth: '1200px',
+          margin: '0 auto',
+          padding: '0 1.5rem'
+        }}>
         {/* Back Button */}
         <button
           onClick={() => navigate('/shop')}
@@ -426,6 +469,7 @@ const ProductDetail = () => {
               Add to Cart
             </button>
           </div>
+        </div>
         </div>
       </div>
     </div>
