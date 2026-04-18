@@ -125,6 +125,51 @@ const PackagesManager = () => {
     }
   };
 
+  const downloadPackagesCSV = () => {
+    try {
+      // CSV headers
+      const headers = [
+        'ID', 'Package Name', 'Description', 'Sale Price', 'Regular Price',
+        'Savings', 'Items Included'
+      ];
+      
+      // Convert packages to CSV rows
+      const rows = packages.map(pkg => [
+        pkg.id || pkg._id || '',
+        pkg.name || '',
+        (pkg.description || '').replace(/"/g, '""'),
+        pkg.salePrice || '',
+        pkg.regularPrice || '',
+        pkg.regularPrice && pkg.salePrice ? (pkg.regularPrice - pkg.salePrice).toFixed(2) : '0',
+        Array.isArray(pkg.items) ? pkg.items.map(i => `${i.name} (${i.quantity} ${i.unit || 'lbs'})`).join('; ') : ''
+      ]);
+      
+      // Combine headers and rows
+      const csvContent = [
+        headers.join(','),
+        ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+      ].join('\n');
+      
+      // Create download link
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      
+      link.setAttribute('href', url);
+      link.setAttribute('download', `steak_boxes_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast.success(`Downloaded ${packages.length} steak box bundles to CSV!`);
+    } catch (error) {
+      console.error('Error downloading CSV:', error);
+      toast.error('Failed to download CSV');
+    }
+  };
+
   const addItem = () => {
     if (!itemInput.name || !itemInput.quantity) {
       toast.error('Please fill item name and quantity');
